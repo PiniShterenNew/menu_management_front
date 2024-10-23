@@ -9,7 +9,7 @@ message.config({
   prefixCls: 'my-message',
 });
 
-const API_URL = 'http://menu-management-server.onrender.com/api'; // עדכן את כתובת ה-API שלך
+const API_URL = 'https://menu-management-server.onrender.com/api'; // עדכן את כתובת ה-API שלך
 
 export const AppProvider = ({ children }) => {
   const [ingredientData, setIngredientData] = useState([]);
