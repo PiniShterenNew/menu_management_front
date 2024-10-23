@@ -1,0 +1,27 @@
+/* ProductList.css */
+.product-name{
+  font-size: 2em;
+}
+@media (max-width: 768px) {
+    .product-item {
+      padding: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+    }
+  
+    .category-text {
+      color: gray;
+      font-weight: 500;
+      font-size: 12px;
+    }
+  
+    .statistic-col {
+      margin-top: 5px;
+    }
+  
+    .expanded-product {
+      margin-top: 8px;
+    }
+  }
+  

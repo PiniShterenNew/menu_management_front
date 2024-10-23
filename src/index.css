@@ -1,0 +1,54 @@
+/* src/styles/global.css - קובץ הסגנון הכללי */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  direction: rtl;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #001529; /* צבע הכותרת */
+  color: white;
+  padding: 10px 20px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+  margin-top: 60px; /* מרווח שמפצה על גובה הכותרת */
+  /* flex: 1; */
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #f0f2f5; /* צבע רקע */
+}
+
+.scrollable-content {
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.ant-card-body{
+  padding-top: 0 !important;
+}
+
+p{
+  margin: 0 !important;
+}

@@ -1,0 +1,16 @@
+/* src/components/IngredientForm.css */
+.ingredient-form-card {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .ingredient-form-button {
+    width: 100%;
+  }
+  
+  @media (max-width: 768px) {
+    .ingredient-form-card {
+      padding: 15px;
+    }
+  }
+  

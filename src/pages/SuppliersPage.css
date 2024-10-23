@@ -1,0 +1,34 @@
+/* src/pages/SuppliersPage.css */
+.suppliers-page-container {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .suppliers-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .add-supplier-button {
+    width: 100%;
+    max-width: 150px;
+  }
+  
+  .sort-select {
+    width: 150px;
+  }
+  
+  @media (max-width: 768px) {
+    .suppliers-controls {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+  
+    .add-supplier-button, .sort-select {
+      width: 100%;
+    }
+  }
+  

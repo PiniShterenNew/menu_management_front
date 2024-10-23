@@ -1,0 +1,48 @@
+/* ProductForm.css */
+
+/* הגדרת רווח בין שני כפתורי הטאב */
+.ant-tabs-tab {
+    margin-left: 10px;
+    /* רווח של 10 פיקסלים בין הלשוניות */
+}
+
+/* התאמת הקו התחתון של הלשונית כשהיא פעילה */
+ .ant-tabs-tab-btn {
+    /* border-bottom: 2px solid #1890ff; */
+    /* קו תחתון בעובי 2 פיקסלים עם צבע כחול */
+    padding-bottom: 2px;
+    margin-left: 10px;
+    /* מוסיף ריווח מתחת לטקסט כדי שהקו לא יהיה צמוד מדי */
+}
+
+/* ProductForm.css */
+@media (max-width: 768px) {
+    .ingredient-item {
+        flex-direction: column;
+        display: flex;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+
+    .ingredient-item .ant-select,
+    .ingredient-item .ant-input-number,
+    .ingredient-item .ant-input {
+        width: 100% !important;
+    }
+
+    .ant-card {
+        padding: 10px;
+    }
+
+    .ant-tabs-nav {
+        font-size: 14px;
+    }
+
+    .ant-form-item-label>label {
+        font-size: 14px;
+    }
+
+    .ant-btn {
+        width: 100%;
+    }
+}

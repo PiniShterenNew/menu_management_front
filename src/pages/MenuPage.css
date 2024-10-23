@@ -1,0 +1,33 @@
+/* src/pages/MenuPage.css */
+.menu-page-container {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .menu-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .add-product-button {
+    width: 100%;
+    max-width: 200px;
+    align-self: center;
+  }
+  
+  @media (max-width: 768px) {
+    .menu-page-container{
+      padding: 0px 10px !important;
+    }
+    .menu-controls {
+      align-items: stretch;
+      gap: 10px;
+    }
+  
+    .add-product-button {
+      width: 100%; /* משתרע על כל הרוחב במסכים קטנים */
+    }
+  }
+  

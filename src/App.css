@@ -1,0 +1,111 @@
+ /* src/index.css - עיצוב בסיסי */
+ .App {
+   text-align: center;
+   margin: 20px;
+ }
+
+ .product-item,
+ .supplier-item {
+   border: 1px solid #ccc;
+   padding: 10px;
+   margin: 10px;
+   border-radius: 5px;
+   direction: rtl;
+ }
+
+ form {
+   margin-bottom: 20px;
+   direction: rtl;
+ }
+
+ label {
+   display: block;
+   margin-top: 10px;
+ }
+
+ button {
+   margin-top: 10px;
+   padding: 5px 10px;
+ }
+
+ nav {
+   margin-bottom: 20px;
+ }
+
+ nav a {
+   margin: 0 10px;
+   text-decoration: none;
+   color: #007bff;
+ }
+
+ nav a:hover {
+   text-decoration: underline;
+ }
+
+
+ /* קובץ CSS רספונסיבי */
+ .dashboard-card {
+   height: 100%;
+   display: flex;
+   flex-direction: column;
+ }
+
+ .scrollable-list {
+   flex-grow: 1;
+   max-height: 200px;
+   /* גובה מרבי עבור רשימה עם גלילה */
+   overflow-y: auto;
+   padding-right: 10px;
+ }
+
+ /* סגנון רספונסיבי לכותרות */
+ .analytics-num {
+   font-size: 3em;
+   /* גודל ברירת מחדל */
+   color: #000;
+ }
+
+ .dashboard-text {
+   font-size: 3em;
+   /* גודל ברירת מחדל */
+   font-weight: bold;
+   color: #A28FEC;
+ }
+
+ .my-message {
+   font-size: 20px !important;
+   /* גודל טקסט */
+   padding: 20px !important;
+   /* ריווח פנימי */
+   width: 400px !important;
+   /* רוחב */
+   text-align: center !important;
+   /* מרכז את הטקסט */
+ }
+
+ /* סגנון רספונסיבי למסכים  */
+ @media (max-width: 1400px) {
+   .dashboard-text {
+     font-size: 1.2em !important;
+   }
+ }
+
+ /* סגנון למסכים קטנים */
+ @media (max-width: 1200px) {
+   .analytics-num {
+     font-size: 2.5em;
+   }
+ }
+
+
+ /* סגנון למסכים קטנים */
+ @media (max-width: 1000px) {
+   .analytics-num {
+     font-size: 2em;
+   }
+
+   .dashboard-text {
+     font-size: 1em;
+     /* גודל טקסט במסכים קטנים */
+   }
+ }
