@@ -9,7 +9,7 @@ import './IngredientsPage.css';
 function IngredientsPage() {
   const { addIngredient } = useContext(AppContext);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [sortKey, setSortKey] = useState('name');
+  const [sortKey, setSortKey] = useState('');
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -30,6 +30,7 @@ function IngredientsPage() {
           onChange={(value) => setSortKey(value)}
           className="sort-select"
         >
+          <Select.Option value="">מיין</Select.Option>
           <Select.Option value="name">מיין לפי שם</Select.Option>
           <Select.Option value="price">מיין לפי מחיר כולל</Select.Option>
           <Select.Option value="type">מיין לפי סוג</Select.Option>

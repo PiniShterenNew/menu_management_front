@@ -85,7 +85,7 @@ function FullscreenButton() {
 function NavigationButtons() {
   const location = useLocation();
   const [drawerVisible, setDrawerVisible] = useState(false);
- 
+
 
   const showDrawer = () => {
     setDrawerVisible(true);
@@ -123,60 +123,33 @@ function NavigationButtons() {
 }
 
 function MobileNavMenu({ location, closeDrawer }) {
+  const linkStyle = (path) => ({
+    display: 'block',
+    width: '100%',
+    padding: '10px 15px',
+    textAlign: 'left',
+    color: location.pathname === path ? '#1890ff' : 'black',
+    fontWeight: location.pathname === path ? 'bold' : 'normal',
+    textDecoration: 'none',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+  });
+
   return (
     <div>
-      <Button
-        type="text"
-        style={{
-          color: location.pathname === '/' ? '#1890ff' : 'black',
-          fontWeight: location.pathname === '/' ? 'bold' : 'normal',
-          display: 'block',
-          width: '100%',
-          textAlign: 'left'
-        }}
-        onClick={closeDrawer}
-      >
-        <Link to="/" style={{ color: 'inherit' }}>Dashboard</Link>
-      </Button>
-      <Button
-        type="text"
-        style={{
-          color: location.pathname === '/menu' ? '#1890ff' : 'black',
-          fontWeight: location.pathname === '/menu' ? 'bold' : 'normal',
-          display: 'block',
-          width: '100%',
-          textAlign: 'left'
-        }}
-        onClick={closeDrawer}
-      >
-        <Link to="/menu" style={{ color: 'inherit' }}>תפריט</Link>
-      </Button>
-      <Button
-        type="text"
-        style={{
-          color: location.pathname === '/suppliers' ? '#1890ff' : 'black',
-          fontWeight: location.pathname === '/suppliers' ? 'bold' : 'normal',
-          display: 'block',
-          width: '100%',
-          textAlign: 'left'
-        }}
-        onClick={closeDrawer}
-      >
-        <Link to="/suppliers" style={{ color: 'inherit' }}>ספקים</Link>
-      </Button>
-      <Button
-        type="text"
-        style={{
-          color: location.pathname === '/ingredients' ? '#1890ff' : 'black',
-          fontWeight: location.pathname === '/ingredients' ? 'bold' : 'normal',
-          display: 'block',
-          width: '100%',
-          textAlign: 'left'
-        }}
-        onClick={closeDrawer}
-      >
-        <Link to="/ingredients" style={{ color: 'inherit' }}>חומרי גלם</Link>
-      </Button>
+      <Link to="/" style={linkStyle('/')} onClick={closeDrawer}>
+        לוח מחוונים
+      </Link>
+      <Link to="/menu" style={linkStyle('/menu')} onClick={closeDrawer}>
+        תפריט
+      </Link>
+      <Link to="/suppliers" style={linkStyle('/suppliers')} onClick={closeDrawer}>
+        ספקים
+      </Link>
+      <Link to="/ingredients" style={linkStyle('/ingredients')} onClick={closeDrawer}>
+        חומרי גלם
+      </Link>
     </div>
   );
 }
@@ -191,7 +164,7 @@ function DesktopNavMenu({ location }) {
           fontWeight: location.pathname === '/' ? 'bold' : 'normal',
         }}
       >
-        <Link to="/" style={{ color: 'inherit' }}>Dashboard</Link>
+        <Link to="/" style={{ color: 'inherit' }}>לוח מחוונים</Link>
       </Button>
       <Button
         type="link"

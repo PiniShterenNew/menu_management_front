@@ -9,7 +9,7 @@ import './SuppliersPage.css';
 function SuppliersPage() {
   const { addSupplier } = useContext(AppContext);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [sortKey, setSortKey] = useState('name');
+  const [sortKey, setSortKey] = useState('');
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -32,6 +32,7 @@ function SuppliersPage() {
           onChange={(value) => setSortKey(value)}
           className="sort-select"
         >
+          <Select.Option value="">מיין</Select.Option>
           <Select.Option value="name">מיין לפי שם</Select.Option>
         </Select>
       </div>

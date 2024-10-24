@@ -10,15 +10,13 @@ import "./ProductList.css";
 const { Text } = Typography;
 const VAT_RATE = 1.17;
 
-const ProductList = () => {
+const ProductList = ({ sortKey }) => {
     const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
     const { productData, ingredientData, updateProduct, deleteProduct, categoryData } = useContext(AppContext);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [expandedProduct, setExpandedProduct] = useState(null);
-    const [sortKey, setSortKey] = useState('name');
-
 
     const handleEdit = (product) => {
         setEditingProduct(product);
@@ -73,20 +71,7 @@ const ProductList = () => {
     });
 
     return (
-        <Card title="רשימת מוצרים" extra={
-            <>
-                <Select
-                    value={sortKey}
-                    onChange={(value) => setSortKey(value)}
-                    style={{ width: 150 }}
-                    popupMatchSelectWidth={false} // מונע התאמה אוטומטית של הרוחב
-                    dropdownStyle={{ maxHeight: '60vh' }} // מגביל את הגובה כך שלא יחרוג מגובה המסך
-                >
-                    <Select.Option value="name">מיין לפי שם</Select.Option>
-                    <Select.Option value="price">מיין לפי מחיר</Select.Option>
-                </Select>
-            </>
-        }>
+        <Card title="רשימת מוצרים" >
             <List
                 itemLayout="vertical"
                 dataSource={sortedData}
