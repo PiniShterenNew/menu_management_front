@@ -22,7 +22,6 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
   const onFinish = (values) => {
     addProduct({
       ...values,
-      id: initialValues?.id || uuidv4(),
       ingredients: productIngredients,
     });
     form.resetFields();
@@ -30,7 +29,7 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
   };
 
   const addIngredient = () => {
-    setProductIngredients([...productIngredients, { id: uuidv4(), ingredientId: '', quantity: 1, unit: '' }]);
+    setProductIngredients([...productIngredients, { ingredientId: '', quantity: 1, unit: '' }]);
   };
 
   const updateIngredient = (index, field, value) => {
@@ -38,7 +37,7 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
     updatedIngredients[index][field] = value;
 
     if (field === 'ingredientId') {
-      const selectedIngredient = ingredientData.find((item) => item.id === value);
+      const selectedIngredient = ingredientData.find((item) => item._id === value);
       if (selectedIngredient) {
         updatedIngredients[index].unit = selectedIngredient.unit;
       }
@@ -76,7 +75,7 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
                 dropdownStyle={{ maxHeight: '60vh' }} // מגביל את הגובה כך שלא יחרוג מגובה המסך
               >
                 {categoryData.map((category) => (
-                  <Select.Option key={category.id} value={category.id}>
+                  <Select.Option key={category._id} value={category._id}>
                     {category.name}
                   </Select.Option>
                 ))}
@@ -107,7 +106,7 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
             </Button>
           </div>
           {productIngredients.map((ingredient, index) => (
-            <div key={ingredient.id} className="ingredient-item">
+            <div key={ingredient._id} className="ingredient-item">
               <Select
                 popupMatchSelectWidth={false} // מונע התאמה אוטומטית של הרוחב
                 dropdownStyle={{ maxHeight: '60vh' }} // מגביל את הגובה כך שלא יחרוג מגובה המסך
@@ -122,7 +121,7 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
                 }
               >
                 {ingredientData.map((item) => (
-                  <Select.Option key={item.id} value={item.id}>
+                  <Select.Option key={item._id} value={item._id}>
                     {item.name}
                   </Select.Option>
                 ))}

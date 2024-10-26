@@ -16,7 +16,7 @@ function DashboardPage() {
   // מידע על מוצרים לפי קטגוריה
   const productsByCategory = useMemo(() => {
     const categoryCounts = productData.reduce((acc, product) => {
-      const categoryName = categoryData.find(cat => cat.id === product.category)?.name || 'לא מוגדר';
+      const categoryName = categoryData.find(cat => cat._id === product.category)?.name || 'לא מוגדר';
       acc[categoryName] = (acc[categoryName] || 0) + 1;
       return acc;
     }, {});
@@ -33,7 +33,7 @@ function DashboardPage() {
       })
       .slice(0, 5)
       .map(ingredient => ({
-        key: ingredient.id,
+        key: ingredient._id,
         name: ingredient.name,
         pricePerUnit: ingredient.isJuice
           ? ((ingredient.price / ingredient.quantity * ingredient.juiceRatio) * 0.1).toFixed(2)
@@ -47,7 +47,7 @@ function DashboardPage() {
       .filter(product => product.profitMargin < 20)
       .slice(0, 3)
       .map(product => ({
-        key: product.id,
+        key: product._id,
         name: product.name,
         profitMargin: product.profitMargin.toFixed(2)
       }));
@@ -57,7 +57,7 @@ function DashboardPage() {
     <div className="dashboard-container" style={{ padding: isMobile ? '10px' : '20px' }}>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
-          <Card hoverable>
+          <Card >
             <Statistic
               title="מוצרים"
               value={productData.length}
@@ -67,7 +67,7 @@ function DashboardPage() {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card hoverable>
+          <Card >
             <Statistic
               title="ספקים"
               value={supplierData.length}
@@ -77,7 +77,7 @@ function DashboardPage() {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card hoverable>
+          <Card >
             <Statistic
               title="חומרי גלם"
               value={ingredientData.length}
@@ -87,7 +87,7 @@ function DashboardPage() {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card hoverable>
+          <Card >
             <Statistic
               title="קטגוריות"
               value={categoryData.length}
@@ -102,7 +102,7 @@ function DashboardPage() {
 
       <Row gutter={[16, 16]}>
         <Col xs={24} md={12}>
-          <Card title="מוצרים לפי קטגוריה" hoverable>
+          <Card title="מוצרים לפי קטגוריה" >
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -124,7 +124,7 @@ function DashboardPage() {
           </Card>
         </Col>
         <Col xs={24} md={12}>
-          <Card title="חומרי הגלם היקרים ביותר" hoverable>
+          <Card title="חומרי הגלם היקרים ביותר" >
             <Table
               dataSource={expensiveIngredients}
               columns={[
@@ -141,11 +141,11 @@ function DashboardPage() {
 
       <Row gutter={[16, 16]}>
         <Col xs={24}>
-          <Card title="מוצרים עם רווחיות נמוכה" hoverable>
+          <Card title="מוצרים עם רווחיות נמוכה" >
             <Row gutter={[16, 16]}>
               {lowProfitProducts.map(product => (
                 <Col key={product.key} xs={24} sm={8}>
-                  <Card hoverable>
+                  <Card >
                     <Statistic
                       title={product.name}
                       value={product.profitMargin}

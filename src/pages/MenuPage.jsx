@@ -24,23 +24,25 @@ function MenuPage() {
   return (
     <div style={{ padding: '0px 20px' }} className="scrollable-content menu-page-container">
       <div className="menu-controls">
-        <Button type="primary" onClick={showModal} className="add-product-button">
-          <strong> הוסף מוצר חדש</strong>
-        </Button>
+        <div className='menu-controls-div'>
+          <Button type="primary" onClick={showModal} className="add-product-button">
+            <strong> הוסף מוצר חדש</strong>
+          </Button>
+          <Button className="add-product-button" type="default" onClick={() => setIsCategoryModalVisible(true)}>
+            הוסף קטגוריה חדשה
+          </Button>
+        </div>
         <Select
           value={sortKey}
+          className='sort-select'
           onChange={(value) => setSortKey(value)}
-          style={{ width: 150 }}
-          popupMatchSelectWidth={false} // מונע התאמה אוטומטית של הרוחב
+          style={{ width: 180 }}
           dropdownStyle={{ maxHeight: '60vh' }} // מגביל את הגובה כך שלא יחרוג מגובה המסך
         >
           <Select.Option value="">מיין</Select.Option>
           <Select.Option value="name">מיין לפי שם</Select.Option>
           <Select.Option value="price">מיין לפי מחיר</Select.Option>
         </Select>
-        <Button className="add-product-button" type="default" onClick={() => setIsCategoryModalVisible(true)} style={{ marginLeft: '10px' }}>
-          הוסף קטגוריה חדשה
-        </Button>
       </div>
 
       <ProductList sortKey={sortKey} />

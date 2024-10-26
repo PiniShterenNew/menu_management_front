@@ -15,7 +15,7 @@ message.config({
 const API_URL = 'https://menu-management-server.onrender.com/api';
 const SOCKET_URL = 'https://menu-management-server.onrender.com';
 
-export const AppProvider = ({ children }) => {
+export const AppProvider = ({ children, setLoading }) => {
   const [ingredientData, setIngredientData] = useState([]);
   const [supplierData, setSupplierData] = useState([]);
   const [productData, setProductData] = useState([]);
@@ -28,90 +28,124 @@ export const AppProvider = ({ children }) => {
 
     // Listen for specific events
     newSocket.on('ingredientAdded', (newIngredient) => {
-      setIngredientData((prevData) => [newIngredient, ...prevData]);
-      message.success('חומר גלם נוסף בעדכון בזמן אמת');
+      setIngredientData((prevData) => {
+        const existingIndex = prevData.findIndex((ingredient) => ingredient._id === newIngredient._id);
+        if (existingIndex !== -1) {
+          // אם קיים, מחליף אותו
+          const updatedData = [...prevData];
+          updatedData[existingIndex] = newIngredient;
+          return updatedData;
+        } else {
+          // אם לא קיים, מוסיף אותו
+          return [newIngredient, ...prevData];
+        }
+      });
     });
     newSocket.on('ingredientUpdated', (updatedIngredient) => {
       setIngredientData((prevData) =>
         prevData.map((ingredient) =>
-          ingredient.id === updatedIngredient.id ? updatedIngredient : ingredient
+          ingredient._id === updatedIngredient._id ? updatedIngredient : ingredient
         )
       );
-      message.success('חומר גלם עודכן בעדכון בזמן אמת');
     });
     newSocket.on('ingredientDeleted', (deletedIngredient) => {
       setIngredientData((prevData) =>
-        prevData.filter((ingredient) => ingredient.id !== deletedIngredient.id)
+        prevData.filter((ingredient) => ingredient._id !== deletedIngredient._id)
       );
-      message.success('חומר גלם נמחק בעדכון בזמן אמת');
     });
+
     // Listen for specific events for suppliers
     newSocket.on('supplierAdded', (newSupplier) => {
-      setSupplierData((prevData) => [...prevData, newSupplier]);
-      message.success('ספק נוסף בעדכון בזמן אמת');
+      setSupplierData((prevData) => {
+        const existingIndex = prevData.findIndex((supplier) => supplier._id === newSupplier._id);
+        if (existingIndex !== -1) {
+          // אם קיים, מחליף אותו
+          const updatedData = [...prevData];
+          updatedData[existingIndex] = newSupplier;
+          return updatedData;
+        } else {
+          // אם לא קיים, מוסיף אותו
+          return [newSupplier, ...prevData];
+        }
+      });
     });
 
     newSocket.on('supplierUpdated', (updatedSupplier) => {
       setSupplierData((prevData) =>
         prevData.map((supplier) =>
-          supplier.id === updatedSupplier.id ? updatedSupplier : supplier
+          supplier._id === updatedSupplier._id ? updatedSupplier : supplier
         )
       );
-      message.success('ספק עודכן בעדכון בזמן אמת');
     });
 
     newSocket.on('supplierDeleted', (deletedSupplier) => {
       setSupplierData((prevData) =>
-        prevData.filter((supplier) => supplier.id !== deletedSupplier.id)
+        prevData.filter((supplier) => supplier._id !== deletedSupplier._id)
       );
-      message.success('ספק נמחק בעדכון בזמן אמת');
     });
 
     // Listen for specific events for products
     newSocket.on('productAdded', (newProduct) => {
-      setProductData((prevData) => [newProduct, ...prevData]);
-      message.success('מוצר נוסף בעדכון בזמן אמת');
+      setProductData((prevData) => {
+        const existingIndex = prevData.findIndex((product) => product._id === newProduct._id);
+        if (existingIndex !== -1) {
+          // אם קיים, מחליף אותו
+          const updatedData = [...prevData];
+          updatedData[existingIndex] = newProduct;
+          return updatedData;
+        } else {
+          // אם לא קיים, מוסיף אותו
+          return [newProduct, ...prevData];
+        }
+      });
     });
 
     newSocket.on('productUpdated', (updatedProduct) => {
       setProductData((prevData) =>
         prevData.map((product) =>
-          product.id === updatedProduct.id ? updatedProduct : product
+          product._id === updatedProduct._id ? updatedProduct : product
         )
       );
-      message.success('מוצר עודכן בעדכון בזמן אמת');
     });
 
     newSocket.on('productDeleted', (deletedProduct) => {
       setProductData((prevData) =>
-        prevData.filter((product) => product.id !== deletedProduct.id)
+        prevData.filter((product) => product._id !== deletedProduct._id)
       );
-      message.success('מוצר נמחק בעדכון בזמן אמת');
     });
 
     // Listen for specific events for categories
     newSocket.on('categoryAdded', (newCategory) => {
-      setCategoryData((prevData) => [newCategory, ...prevData]);
-      message.success('קטגוריה נוספה בעדכון בזמן אמת');
+      setCategoryData((prevData) => {
+        const existingIndex = prevData.findIndex((category) => category._id === newCategory._id);
+        if (existingIndex !== -1) {
+          // אם קיים, מחליף אותו
+          const updatedData = [...prevData];
+          updatedData[existingIndex] = newCategory;
+          return updatedData;
+        } else {
+          // אם לא קיים, מוסיף אותו
+          return [newCategory, ...prevData];
+        }
+      });
     });
 
     newSocket.on('categoryUpdated', (updatedCategory) => {
       setCategoryData((prevData) =>
         prevData.map((category) =>
-          category.id === updatedCategory.id ? updatedCategory : category
+          category._id === updatedCategory._id ? updatedCategory : category
         )
       );
-      message.success('קטגוריה עודכנה בעדכון בזמן אמת');
     });
 
     newSocket.on('categoryDeleted', (deletedCategory) => {
       setCategoryData((prevData) =>
-        prevData.filter((category) => category.id !== deletedCategory.id)
+        prevData.filter((category) => category._id !== deletedCategory._id)
       );
-      message.success('קטגוריה נמחקה בעדכון בזמן אמת');
     });
 
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [ingredientsRes, suppliersRes, productsRes, categoriesRes] = await Promise.all([
           axios.get(`${API_URL}/ingredients`),
@@ -124,9 +158,11 @@ export const AppProvider = ({ children }) => {
         setSupplierData(suppliersRes.data?.reverse());
         setProductData(productsRes.data?.reverse());
         setCategoryData(categoriesRes.data?.reverse());
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         message.error('שגיאה בטעינת הנתונים');
+        setLoading(false);
       }
     };
 
@@ -136,148 +172,164 @@ export const AppProvider = ({ children }) => {
   }, []);
 
   const addIngredient = async (ingredient) => {
+    setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/ingredients`, ingredient);
-      // setIngredientData((prevData) => [...prevData, response.data]);
+      await axios.post(`${API_URL}/ingredients`, ingredient);
       message.success('החומר גלם נוסף בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error adding ingredient:', error);
       message.error('שגיאה בהוספת חומר הגלם');
+      setLoading(false);
     }
   };
 
   const updateIngredient = async (updatedIngredient) => {
+    setLoading(true);
     try {
-      const encodedId = encodeURIComponent(updatedIngredient.id);
+      const encodedId = encodeURIComponent(updatedIngredient._id);
       await axios.put(`${API_URL}/ingredients/${encodedId}`, updatedIngredient);
-      // setIngredientData((prevData) =>
-      //   prevData.map((ingredient) => (ingredient.id === updatedIngredient.id ? updatedIngredient : ingredient))
-      // );
       message.success('החומר גלם עודכן בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error updating ingredient:', error);
       message.error('שגיאה בעדכון חומר הגלם');
+      setLoading(false);
     }
   };
 
   const deleteIngredient = async (ingredientId) => {
+    setLoading(true);
     try {
       await axios.delete(`${API_URL}/ingredients/${ingredientId}`);
-      // setIngredientData((prevData) => prevData.filter((ingredient) => ingredient.id !== ingredientId));
       message.success('החומר גלם נמחק בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error deleting ingredient:', error);
       message.error('שגיאה במחיקת חומר הגלם');
+      setLoading(false);
     }
   };
 
   // פונקציות דומות עבור ספקים, מוצרים וקטגוריות
   const addSupplier = async (supplier) => {
+    setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/suppliers`, supplier);
-      // setSupplierData((prevData) => [...prevData, response.data]);
+      await axios.post(`${API_URL}/suppliers`, supplier);
       message.success('הספק נוסף בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error adding supplier:', error);
       message.error('שגיאה בהוספת הספק');
+      setLoading(false);
     }
   };
 
   const updateSupplier = async (updatedSupplier) => {
+    setLoading(true);
     try {
-      const encodedId = encodeURIComponent(updatedSupplier.id);
+      const encodedId = encodeURIComponent(updatedSupplier._id);
       await axios.put(`${API_URL}/suppliers/${encodedId}`, updatedSupplier);
-      // setSupplierData((prevData) =>
-      //   prevData.map((supplier) => (supplier.id === updatedSupplier.id ? updatedSupplier : supplier))
-      // );
       message.success('הספק עודכן בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error updating supplier:', error);
       message.error('שגיאה בעדכון הספק');
+      setLoading(false);
     }
   };
 
   const deleteSupplier = async (supplierId) => {
+    setLoading(true);
     try {
       await axios.delete(`${API_URL}/suppliers/${supplierId}`);
-      // setSupplierData((prevData) => prevData.filter((supplier) => supplier.id !== supplierId));
       message.success('הספק נמחק בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error deleting supplier:', error);
       message.error('שגיאה במחיקת הספק');
+      setLoading(false);
     }
   };
 
   // פונקציות עבור מוצרים וקטגוריות - דומה למה שעשינו עבור חומרים וספקים
   const addProduct = async (product) => {
+    setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/products`, product);
-      // setProductData((prevData) => [...prevData, response.data]);
+      await axios.post(`${API_URL}/products`, product);
       message.success('המוצר נוסף בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error adding product:', error);
       message.error('שגיאה בהוספת המוצר');
+      setLoading(false);
     }
   };
 
   const updateProduct = async (updatedProduct) => {
+    setLoading(true);
     try {
-      const encodedId = encodeURIComponent(updatedProduct.id);
+      const encodedId = encodeURIComponent(updatedProduct._id);
       await axios.put(`${API_URL}/products/${encodedId}`, updatedProduct);
-      // setProductData((prevData) =>
-      //   prevData.map((product) => (product.id === updatedProduct.id ? updatedProduct : product))
-      // );
       message.success('המוצר עודכן בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error updating product:', error);
       message.error('שגיאה בעדכון המוצר');
+      setLoading(false);
     }
   };
 
   const deleteProduct = async (productId) => {
+    setLoading(true);
     try {
       await axios.delete(`${API_URL}/products/${productId}`);
-      // setProductData((prevData) => prevData.filter((product) => product.id !== productId));
       message.success('המוצר נמחק בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error deleting product:', error);
       message.error('שגיאה במחיקת המוצר');
+      setLoading(false);
     }
   };
 
   const addCategory = async (category) => {
+    setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/categories`, category);
-      // setCategoryData((prevData) => [...prevData, response.data]);
+      await axios.post(`${API_URL}/categories`, category);
       message.success('הקטגוריה נוספה בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error adding category:', error);
       message.error('שגיאה בהוספת הקטגוריה');
+      setLoading(false);
     }
   };
 
   const updateCategory = async (updatedCategory) => {
+    setLoading(true);
     try {
-      const encodedId = encodeURIComponent(updatedCategory.id);
+      const encodedId = encodeURIComponent(updatedCategory._id);
       await axios.put(`${API_URL}/categories/${encodedId}`, updatedCategory);
-      // setCategoryData((prevData) =>
-      //   prevData.map((category) => (category.id === updatedCategory.id ? updatedCategory : category))
-      // );
       message.success('הקטגוריה עודכנה בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error updating category:', error);
       message.error('שגיאה בעדכון הקטגוריה');
+      setLoading(false);
     }
   };
 
   const deleteCategory = async (categoryId) => {
+    setLoading(true);
     try {
       await axios.delete(`${API_URL}/categories/${categoryId}`);
-      // setCategoryData((prevData) => prevData.filter((category) => category.id !== categoryId));
       message.success('הקטגוריה נמחקה בהצלחה');
+      setLoading(false);
     } catch (error) {
       console.error('Error deleting category:', error);
       message.error('שגיאה במחיקת הקטגוריה');
+      setLoading(false);
     }
   };
 

@@ -43,13 +43,13 @@ const IngredientList = ({ sortKey }) => {
                 itemLayout="vertical"
                 dataSource={sortedData}
                 renderItem={(ingredient) => {
-                    const supplierName = supplierData ? supplierData.find((supplier) => supplier.id === ingredient.supplierId)?.name || 'לא ידוע' : 'לא ידוע';
+                    const supplierName = supplierData ? supplierData.find((supplier) => supplier._id === ingredient.supplierId)?.name || 'לא ידוע' : 'לא ידוע';
 
                     return (
-                        <List.Item key={ingredient.id}
+                        <List.Item key={ingredient._id}
                             actions={[
                                 <Button type="link" onClick={() => handleEdit(ingredient)}>ערוך</Button>,
-                                <Button type="link" danger onClick={() => handleDelete(ingredient.id)}>מחק</Button>
+                                <Button type="link" danger onClick={() => handleDelete(ingredient._id)}>מחק</Button>
                             ]}
                         >
                             <List.Item.Meta

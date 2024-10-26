@@ -20,7 +20,6 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
     const onFinish = (values) => {
         addIngredient({
             ...values,
-            id: initialValues?.id || uuidv4(),
             isJuice: isJuice,
         });
         form.resetFields();
@@ -49,7 +48,7 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
                     >
                         {supplierData && supplierData.length > 0 ? (
                             supplierData.map((supplier) => (
-                                <Select.Option key={supplier.id} value={supplier.id}>
+                                <Select.Option key={supplier._id} value={supplier._id}>
                                     {supplier.name}
                                 </Select.Option>
                             ))

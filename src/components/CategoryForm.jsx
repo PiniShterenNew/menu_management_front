@@ -21,7 +21,7 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
         if (editingCategory) {
             updateCategory({ ...editingCategory, name: categoryName.trim() });
         } else {
-            addCategory({ id: `${categoryName}-${Date.now()}`, name: categoryName.trim() });
+            addCategory({ name: categoryName.trim() });
         }
         setCategoryName('');
         setEditingCategory(null);
@@ -72,7 +72,7 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
                     <List.Item
                         actions={[
                             <Button type="link" onClick={() => handleEdit(item)}>ערוך</Button>,
-                            <Button type="link" danger onClick={() => handleDelete(item.id)}>מחק</Button>,
+                            <Button type="link" danger onClick={() => handleDelete(item._id)}>מחק</Button>,
                         ]}
                     >
                         {item.name}

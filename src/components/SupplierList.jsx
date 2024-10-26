@@ -34,11 +34,11 @@ const SupplierList = ({ sortKey }) => {
         dataSource={sortedData}
         renderItem={(supplier) => (
           <List.Item
-            key={supplier.id}
+            key={supplier._id}
             actions={[
               <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                 <Button type="link" onClick={() => handleEdit(supplier)}>ערוך</Button>,
-                <Button type="link" danger onClick={() => deleteSupplier(supplier.id)}>מחק</Button>
+                <Button type="link" danger onClick={() => deleteSupplier(supplier._id)}>מחק</Button>
               </div>
             ]}
           >

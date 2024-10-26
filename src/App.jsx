@@ -7,34 +7,38 @@ import DashboardPage from './pages/DashboardPage';
 import { AppProvider } from './context/AppContext';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
-import { Layout, Button, Drawer } from 'antd';
+import { Layout, Button, Drawer, Spin } from 'antd';
 import { MenuOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons';
+import Loading from './components/Loading';
 
 const { Header, Content, Footer } = Layout;
 
 const isMobile = window.innerWidth <= 768;
 
 function App() {
+  const [loading, setLoading] = useState(false);
   return (
-    <AppProvider>
+    <AppProvider setLoading={setLoading}>
       <Router>
-        <Layout className="app-container" style={{ minHeight: isMobile ? '85vh' : '100vh' }}>
-          <Header className="header" style={{ padding: '0 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <h1 style={{ color: 'white', margin: 0 }}>ניהול תפריט ועץ מוצר</h1>
-              <NavigationButtons />
-            </div>
-          </Header>
-          <Content style={{ padding: '20px' }} className="content">
-            <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/menu" element={<MenuPage />} />
-              <Route path="/suppliers" element={<SuppliersPage />} />
-              <Route path="/ingredients" element={<IngredientsPage />} />
-            </Routes>
-          </Content>
-          <Footer style={{ textAlign: 'center' }}>© 2024 מערכת ניהול תפריט ועץ מוצר</Footer>
-        </Layout>
+        <Loading loading={loading}>
+          <Layout className="app-container" style={{ minHeight: isMobile ? '85vh' : '100vh' }}>
+            <Header className="header" style={{ padding: '0 20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                <h1 style={{ color: 'white', margin: 0 }}>ניהול תפריט ועץ מוצר</h1>
+                <NavigationButtons />
+              </div>
+            </Header>
+            <Content style={{ padding: '20px' }} className="content">
+              <Routes>
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/menu" element={<MenuPage />} />
+                <Route path="/suppliers" element={<SuppliersPage />} />
+                <Route path="/ingredients" element={<IngredientsPage />} />
+              </Routes>
+            </Content>
+            <Footer style={{ textAlign: 'center' }}>© 2024 מערכת ניהול תפריט ועץ מוצר</Footer>
+          </Layout>
+        </Loading>
       </Router>
     </AppProvider>
   );
@@ -144,11 +148,11 @@ function MobileNavMenu({ location, closeDrawer }) {
       <Link to="/menu" style={linkStyle('/menu')} onClick={closeDrawer}>
         תפריט
       </Link>
-      <Link to="/suppliers" style={linkStyle('/suppliers')} onClick={closeDrawer}>
-        ספקים
-      </Link>
       <Link to="/ingredients" style={linkStyle('/ingredients')} onClick={closeDrawer}>
         חומרי גלם
+      </Link>
+      <Link to="/suppliers" style={linkStyle('/suppliers')} onClick={closeDrawer}>
+        ספקים
       </Link>
     </div>
   );
@@ -178,20 +182,20 @@ function DesktopNavMenu({ location }) {
       <Button
         type="link"
         style={{
-          color: location.pathname === '/suppliers' ? '#1890ff' : 'white',
-          fontWeight: location.pathname === '/suppliers' ? 'bold' : 'normal',
-        }}
-      >
-        <Link to="/suppliers" style={{ color: 'inherit' }}>ספקים</Link>
-      </Button>
-      <Button
-        type="link"
-        style={{
           color: location.pathname === '/ingredients' ? '#1890ff' : 'white',
           fontWeight: location.pathname === '/ingredients' ? 'bold' : 'normal',
         }}
       >
         <Link to="/ingredients" style={{ color: 'inherit' }}>חומרי גלם</Link>
+      </Button>
+      <Button
+        type="link"
+        style={{
+          color: location.pathname === '/suppliers' ? '#1890ff' : 'white',
+          fontWeight: location.pathname === '/suppliers' ? 'bold' : 'normal',
+        }}
+      >
+        <Link to="/suppliers" style={{ color: 'inherit' }}>ספקים</Link>
       </Button>
     </div>
   );

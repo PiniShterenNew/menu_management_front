@@ -33,12 +33,12 @@ const ProductList = ({ sortKey }) => {
     };
 
     const handleExpand = (product) => {
-        setExpandedProduct(expandedProduct?.id === product.id ? null : product);
+        setExpandedProduct(expandedProduct?._id === product._id ? null : product);
     };
 
     const calculateTotalCost = (ingredients) => {
         return ingredients.reduce((total, ingredient) => {
-            const ingredientDetails = ingredientData.find((item) => item.id === ingredient.ingredientId);
+            const ingredientDetails = ingredientData.find((item) => item._id === ingredient.ingredientId);
             if (!ingredientDetails) return total;
 
             let quantity = ingredient.quantity;
@@ -89,13 +89,13 @@ const ProductList = ({ sortKey }) => {
 
                     return (
                         <List.Item
-                            key={product.id}
+                            key={product._id}
                             actions={[
                                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'nowrap' }}>
                                     <Button type="dashed" onClick={() => handleEdit(product)}>ערוך</Button>
-                                    <Button type="dashed" danger onClick={() => handleDelete(product.id)}>מחק</Button>
+                                    <Button type="dashed" danger onClick={() => handleDelete(product._id)}>מחק</Button>
                                     <Button type="dashed" onClick={() => handleExpand(product)}>
-                                        {expandedProduct?.id === product.id ? <UpOutlined /> : <DownOutlined />}
+                                        {expandedProduct?._id === product._id ? <UpOutlined /> : <DownOutlined />}
                                     </Button>
                                 </div>
                             ]}
@@ -109,7 +109,7 @@ const ProductList = ({ sortKey }) => {
                                                 <p >גודל: {product.size}</p>
                                                 <p style={{ color: 'gray', margin: 0, fontWeight: 500 }}>
                                                     קטגוריה: {
-                                                        categoryData.find((category) => category.id === product.category)?.name || 'לא ידוע'
+                                                        categoryData.find((category) => category._id === product.category)?.name || 'לא ידוע'
                                                     }
                                                 </p>
 
@@ -121,7 +121,7 @@ const ProductList = ({ sortKey }) => {
                                                     <p >גודל: {product.size}</p>
                                                     <p style={{ color: 'gray', margin: 0, fontWeight: 500 }}>
                                                         קטגוריה: {
-                                                            categoryData.find((category) => category.id === product.category)?.name || 'לא ידוע'
+                                                            categoryData.find((category) => category._id === product.category)?.name || 'לא ידוע'
                                                         }
                                                     </p>
 
@@ -148,14 +148,14 @@ const ProductList = ({ sortKey }) => {
                                 }
                             />
                             {
-                                expandedProduct?.id === product.id && (
+                                expandedProduct?._id === product._id && (
                                     <div style={{ marginTop: '10px' }}>
                                         <h4>רכיבי המוצר:</h4>
                                         {product.ingredients.length > 0 ? (
                                             <List
                                                 dataSource={product.ingredients}
                                                 renderItem={(ingredient) => {
-                                                    const ingredientDetails = ingredientData.find((item) => item.id === ingredient.ingredientId);
+                                                    const ingredientDetails = ingredientData.find((item) => item._id === ingredient.ingredientId);
                                                     if (!ingredientDetails) return null;
 
                                                     let quantity = ingredient.quantity;
@@ -177,7 +177,7 @@ const ProductList = ({ sortKey }) => {
                                                     }
 
                                                     return (
-                                                        <List.Item key={ingredient.id}>
+                                                        <List.Item key={ingredient._id}>
                                                             <div>
                                                                 {`${ingredientDetails?.name || 'חומר גלם לא ידוע'} - כמות: ${quantity.toFixed(2)} ${ingredient.unit}, עלות כוללת: ₪${totalIngredientCost}`}
                                                                 <br />
