@@ -60,6 +60,7 @@ const IngredientList = ({ sortKey }) => {
                                         <p>ספק: {supplierName}</p>
                                         <p>כמות: {ingredient.quantity} {ingredient.unit}</p>
                                         <p>מחיר כולל: ₪{ingredient.price}</p>
+                                        <p>יחס מיץ: {ingredient?.juiceRatio * 100}%</p>
                                     </div>
                                 }
                             />

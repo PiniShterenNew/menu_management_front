@@ -21,8 +21,10 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
 
   const onFinish = (values) => {
     addProduct({
+      ...initialValues,
       ...values,
       ingredients: productIngredients,
+
     });
     form.resetFields();
     onClose();

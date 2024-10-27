@@ -10,10 +10,10 @@ message.config({
   prefixCls: 'my-message',
 });
 
-// const API_URL = 'http://localhost:5000/api'; // עדכן את כתובת ה-API שלך
-// const SOCKET_URL = 'http://localhost:5000';
-const API_URL = 'https://menu-management-server.onrender.com/api';
-const SOCKET_URL = 'https://menu-management-server.onrender.com';
+const API_URL = 'http://localhost:5000/api'; // עדכן את כתובת ה-API שלך
+const SOCKET_URL = 'http://localhost:5000';
+// const API_URL = 'https://menu-management-server.onrender.com/api';
+// const SOCKET_URL = 'https://menu-management-server.onrender.com';
 
 export const AppProvider = ({ children, setLoading }) => {
   const [ingredientData, setIngredientData] = useState([]);

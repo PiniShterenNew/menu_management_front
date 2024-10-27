@@ -14,7 +14,7 @@ const SupplierForm = ({ addSupplier, initialValues, onClose }) => {
     }, [initialValues, form]);
 
     const onFinish = (values) => {
-        addSupplier({ ...values });
+        addSupplier({ ...initialValues, ...values });
         form.resetFields();
         onClose();
     };
