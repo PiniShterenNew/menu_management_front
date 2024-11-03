@@ -1,151 +1,166 @@
-// src/pages/DashboardPage.jsx - דף Dashboard משודרג עם מידע מקיף ועיצוב מודרני
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Row, Col, Card, Typography, Divider, Progress, Table, Statistic } from 'antd';
+import { Row, Col, Card, Typography, Divider, Statistic } from 'antd';
 import { useMediaQuery } from 'react-responsive';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { ShoppingOutlined, UserOutlined, DatabaseOutlined, FolderOutlined } from '@ant-design/icons';
+import { Doughnut, Bar } from 'react-chartjs-2';
+import { useSelector } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBox, faDatabase, faDolly, faFolder, faStore, faTruck, faUser } from '@fortawesome/free-solid-svg-icons';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'; // ייבוא האלמנטים הנדרשים
+import "./dashboard.css";
 
-const { Title, Text } = Typography;
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement); // רישום האלמנטים
+
+const { Text } = Typography;
+const COLORS = ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F'];
 
 function DashboardPage() {
-  const { productData, supplierData, ingredientData, categoryData } = useContext(AppContext);
+  const { categoryData } = useContext(AppContext);
+  const productsState = useSelector((state) => state.products);
+  const supplierState = useSelector((state) => state.suppliers);
+  const ingredientsState = useSelector((state) => state.ingredients);
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
-  // מידע על מוצרים לפי קטגוריה
   const productsByCategory = useMemo(() => {
-    const categoryCounts = productData.reduce((acc, product) => {
+    const categoryCounts = productsState.reduce((acc, product) => {
       const categoryName = categoryData.find(cat => cat._id === product.category)?.name || 'לא מוגדר';
       acc[categoryName] = (acc[categoryName] || 0) + 1;
       return acc;
     }, {});
-    return Object.entries(categoryCounts).map(([name, value]) => ({ name, value }));
-  }, [productData, categoryData]);
+    return {
+      labels: Object.keys(categoryCounts),
+      datasets: [{
+        data: Object.values(categoryCounts),
+        backgroundColor: COLORS,
+      }]
+    };
+  }, [productsState, categoryData]);
 
-  // חומרי הגלם היקרים ביותר
   const expensiveIngredients = useMemo(() => {
-    return [...ingredientData]
-      .sort((a, b) => {
-        const pricePerUnitA = a.isJuice ? (a.price / (a.quantity * a.juiceRatio)) : (a.price / a.quantity);
-        const pricePerUnitB = b.isJuice ? (b.price / (b.quantity * b.juiceRatio)) : (b.price / b.quantity);
-        return pricePerUnitB - pricePerUnitA;
-      })
+    return [...ingredientsState] // יצירת עותק של המערך
+      .sort((a, b) => (b.unitPrice || 0) - (a.unitPrice || 0))
       .slice(0, 5)
       .map(ingredient => ({
-        key: ingredient._id,
         name: ingredient.name,
-        pricePerUnit: ingredient.isJuice
-          ? ((ingredient.price / ingredient.quantity * ingredient.juiceRatio) * 0.1).toFixed(2)
-          : ((ingredient.price / ingredient.quantity) * 0.1).toFixed(2)
+        price: ingredient.unitPrice,
       }));
-  }, [ingredientData]);
+  }, [ingredientsState]);
 
-  // מוצרים עם הרווחיות הנמוכה ביותר
+
+  const expensiveIngredientsData = {
+    labels: expensiveIngredients.map(i => i.name),
+    datasets: [{
+      label: 'מחיר ל-100 גרם',
+      data: expensiveIngredients.map(i => i.price),
+      backgroundColor: '#FF8042',
+    }]
+  };
+
   const lowProfitProducts = useMemo(() => {
-    return productData
-      .filter(product => product.profitMargin < 20)
+    return productsState
+      .filter(product => product.profitMargin <= 90)
       .slice(0, 3)
       .map(product => ({
         key: product._id,
         name: product.name,
-        profitMargin: product.profitMargin.toFixed(2)
+        profitMargin: product.profitMargin
       }));
-  }, [productData]);
+  }, [productsState]);
 
   return (
     <div className="dashboard-container" style={{ padding: isMobile ? '10px' : '20px' }}>
+      <Row gutter={[16, 16]} wrap>
+        <Col xs={24} sm={12} md={10} lg={8} xl={6}>
+          <Card className="dashboard-card">
+            <div className="icon-circle green">
+              <FontAwesomeIcon icon={faStore} />
+            </div>
+            <div className="stat-content">
+              <div className="stat-title">מוצרים</div>
+              <div className="stat-value">{productsState.length}</div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={10} lg={8} xl={6}>
+          <Card className="dashboard-card">
+            <div className="icon-circle red">
+              <FontAwesomeIcon icon={faTruck} />
+            </div>
+            <div className="stat-content">
+              <div className="stat-title">ספקים</div>
+              <div className="stat-value">{supplierState.length}</div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={10} lg={8} xl={6}>
+          <Card className="dashboard-card">
+            <div className="icon-circle blue">
+              <FontAwesomeIcon icon={faDolly} />
+            </div>
+            <div className="stat-content">
+              <div className="stat-title">חומרי גלם</div>
+              <div className="stat-value">{ingredientsState.length}</div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={10} lg={8} xl={6}>
+          <Card className="dashboard-card">
+            <div className="icon-circle yellow">
+              <FontAwesomeIcon icon={faFolder} />
+            </div>
+            <div className="stat-content">
+              <div className="stat-title">קטגוריות</div>
+              <div className="stat-value">{categoryData.length}</div>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+      <Divider className="no-margin" />
+
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={6}>
-          <Card >
-            <Statistic
-              title="מוצרים"
-              value={productData.length}
-              prefix={<ShoppingOutlined />}
-              valueStyle={{ color: '#3f8600' }}
-            />
+        <Col xs={24} md={12}>
+          <Card
+            title={
+              <span>
+                <FontAwesomeIcon icon={faFolder} style={{ marginLeft: '8px' }} />
+                מוצרים לפי קטגוריה
+              </span>
+            }
+          >
+            <Doughnut data={productsByCategory} options={{ responsive: true, maintainAspectRatio: false }} />
           </Card>
         </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card >
-            <Statistic
-              title="ספקים"
-              value={supplierData.length}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: '#cf1322' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card >
-            <Statistic
-              title="חומרי גלם"
-              value={ingredientData.length}
-              prefix={<DatabaseOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card >
-            <Statistic
-              title="קטגוריות"
-              value={categoryData.length}
-              prefix={<FolderOutlined />}
-              valueStyle={{ color: '#faad14' }}
-            />
+
+        <Col xs={24} md={12}>
+          <Card
+            title={
+              <span>
+                <FontAwesomeIcon icon={faDolly} style={{ marginLeft: '8px' }} />
+                חומרי הגלם היקרים ביותר
+              </span>
+            }
+          >
+            <Bar data={expensiveIngredientsData} options={{ responsive: true, maintainAspectRatio: false }} />
           </Card>
         </Col>
       </Row>
 
-      <Divider />
-
-      <Row gutter={[16, 16]}>
-        <Col xs={24} md={12}>
-          <Card title="מוצרים לפי קטגוריה" >
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={productsByCategory}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {productsByCategory.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
-        <Col xs={24} md={12}>
-          <Card title="חומרי הגלם היקרים ביותר" >
-            <Table
-              dataSource={expensiveIngredients}
-              columns={[
-                { title: 'שם', dataIndex: 'name', key: 'name' },
-                { title: 'מחיר ל-100 גרם/מ"ל', dataIndex: 'pricePerUnit', key: 'pricePerUnit', render: (text) => `₪${text}` }
-              ]}
-              pagination={false}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      <Divider />
+      <Divider className="no-margin" />
 
       <Row gutter={[16, 16]}>
         <Col xs={24}>
-          <Card title="מוצרים עם רווחיות נמוכה" >
+          <Card
+            title={
+              <span>
+                <FontAwesomeIcon icon={faStore} style={{ marginLeft: '8px' }} />
+                מוצרים עם רווחיות נמוכה
+              </span>
+            }
+          >
             <Row gutter={[16, 16]}>
               {lowProfitProducts.map(product => (
                 <Col key={product.key} xs={24} sm={8}>
-                  <Card >
+                  <Card>
                     <Statistic
                       title={product.name}
                       value={product.profitMargin}

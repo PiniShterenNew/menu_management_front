@@ -4,12 +4,15 @@ import { Card, Form as AntdForm, Input, Button, Tabs, Select, InputNumber } from
 import { v4 as uuidv4 } from 'uuid';
 import { AppContext } from '../context/AppContext';
 import './ProductForm.css'; // ייבוא של קובץ CSS מותאם לנייד
+import { useSelector } from 'react-redux';
 
 const { TabPane } = Tabs;
 
 const ProductForm = ({ addProduct, initialValues, onClose }) => {
   const [form] = AntdForm.useForm();
-  const { ingredientData, categoryData } = useContext(AppContext);
+  const { categoryData } = useContext(AppContext);
+  const ingredientsState = useSelector((state) => state.ingredients);
+
   const [productIngredients, setProductIngredients] = useState(initialValues?.ingredients || []);
 
   useEffect(() => {
@@ -23,6 +26,7 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
     addProduct({
       ...initialValues,
       ...values,
+      ...(initialValues && { _id: initialValues._id }),
       ingredients: productIngredients,
 
     });
@@ -36,12 +40,13 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
 
   const updateIngredient = (index, field, value) => {
     const updatedIngredients = [...productIngredients];
-    updatedIngredients[index][field] = value;
+    updatedIngredients[index] = { ...updatedIngredients[index], [field]: value }; // יצירת עותק של הרכיב
 
     if (field === 'ingredientId') {
-      const selectedIngredient = ingredientData.find((item) => item._id === value);
+      const selectedIngredient = ingredientsState.find((item) => item._id === value);
       if (selectedIngredient) {
-        updatedIngredients[index].unit = selectedIngredient.unit;
+        // יוצרים עותק של הרכיב כדי לעדכן את שדה ה-unit
+        updatedIngredients[index] = { ...updatedIngredients[index], unit: selectedIngredient.unit };
       }
     }
 
@@ -122,7 +127,7 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
                   option?.children.toLowerCase().includes(input.toLowerCase())
                 }
               >
-                {ingredientData.map((item) => (
+                {ingredientsState.map((item) => (
                   <Select.Option key={item._id} value={item._id}>
                     {item.name}
                   </Select.Option>

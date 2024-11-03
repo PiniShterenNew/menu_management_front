@@ -4,9 +4,12 @@ import { List, Card, Button, Modal } from 'antd';
 import { AppContext } from '../context/AppContext';
 import IngredientForm from './IngredientForm';
 import './IngredientList.css';
+import { useSelector } from 'react-redux';
 
 const IngredientList = ({ sortKey }) => {
-    const { ingredientData, supplierData, updateIngredient, deleteIngredient } = useContext(AppContext);
+    const { updateIngredient, deleteIngredient } = useContext(AppContext);
+    const supplierState = useSelector((state) => state.suppliers);
+    const ingredientsState = useSelector((state) => state.ingredients);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingIngredient, setEditingIngredient] = useState(null);
 
@@ -24,7 +27,7 @@ const IngredientList = ({ sortKey }) => {
         setIsModalVisible(false);
     };
 
-    const sortedData = [...ingredientData].sort((a, b) => {
+    const sortedData = [...ingredientsState].sort((a, b) => {
         if (sortKey === 'name') {
             return a.name.localeCompare(b.name);
         } else if (sortKey === 'price') {
@@ -32,7 +35,7 @@ const IngredientList = ({ sortKey }) => {
         } else if (sortKey === 'type') {
             return a.type.localeCompare(b.type);
         } else if (sortKey === 'pricePerUnit') {
-            return parseFloat(a.pricePerUnit) - parseFloat(b.pricePerUnit);
+            return parseFloat(a?.processedPrice || a.unitPrice) - parseFloat(b?.processedPrice || b.unitPrice);
         }
         return 0;
     });
@@ -43,7 +46,7 @@ const IngredientList = ({ sortKey }) => {
                 itemLayout="vertical"
                 dataSource={sortedData}
                 renderItem={(ingredient) => {
-                    const supplierName = supplierData ? supplierData.find((supplier) => supplier._id === ingredient.supplierId)?.name || 'לא ידוע' : 'לא ידוע';
+                    const supplierName = supplierState ? supplierState.find((supplier) => supplier._id === ingredient.supplierId)?.name || 'לא ידוע' : 'לא ידוע';
 
                     return (
                         <List.Item key={ingredient._id}
@@ -59,8 +62,12 @@ const IngredientList = ({ sortKey }) => {
                                         <p>סוג: {ingredient.type}</p>
                                         <p>ספק: {supplierName}</p>
                                         <p>כמות: {ingredient.quantity} {ingredient.unit}</p>
-                                        <p>מחיר כולל: ₪{ingredient.price}</p>
-                                        <p>יחס מיץ: {ingredient?.juiceRatio * 100}%</p>
+                                        <p>מחיר כולל מע"מ: ₪{ingredient.price}</p>
+                                        <p>מחיר ליחידה ללא מע"מ: ₪{ingredient?.unitPrice} ({ingredient?.unitDescription})</p>
+                                        {ingredient?.juiceRatio && <>
+                                            <p>יחס מיץ: {ingredient?.juiceRatio * 100}%</p>
+                                            <p>מחיר ליחידה מעובדת: ₪{ingredient?.processedPrice} ({ingredient?.unitDescription})</p>
+                                        </>}
                                     </div>
                                 }
                             />

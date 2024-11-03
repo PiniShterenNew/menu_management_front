@@ -1,53 +1,151 @@
 :root {
-  --primary-color: #001529;
+  --primary-color: #171b20;
+  --primary-color-second: #f6f9fd;
   --secondary-color: #008080;
   --accent-color: #A28FEC;
   --highlight-color: #ff4d4f;
   --text-color: #333;
   --bg-color: #f5f7fa;
+  --icons: #908e8e;
   --card-bg-color: #ffffff;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
   direction: rtl !important;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
 }
+
+p {
+  margin: 0;
+}
+
+/* styles.css */
+.no-margin {
+  margin: 0 !important;
+}
+
 
 .app-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   min-height: 100vh;
   max-height: 100vh;
   background-color: var(--bg-color);
 }
 
-.header {
-  height: 60px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background-color: var(--primary-color); /* ניגודיות גבוהה */
-  color: white;
+.body-container {
+  flex: 5;
+  max-height: 100vh;
+  overflow: auto;
   display: flex;
+  flex-direction: column;
+}
+
+/* //////////////////////////////////// nav \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+.nav-container {
+  background-color: var(--card-bg-color);
+  margin: 2vh;
+  border-radius: 1em;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  /* position: fixed; */
+  top: 0;
+  right: 0;
+  height: 95vh;
+  box-shadow: 0px 0px 2px 0px rgb(146, 146, 146);
+}
+
+.nav-top {
+  /* flex: 1; */
+  display: flex;
+  margin-top: 24px;
   align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  max-width: 13em;
+}
+
+.nav-desktop {
+  flex: 3;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.nav-desktop-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.link {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.link-active {
+  background-color: var(--primary-color-second);
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.nav-desktop-child button {
+  padding: 1.4em;
+  width: 90%;
+  display: flex;
+  color: var(--primary-color);
+  align-items: center;
+  justify-content: flex-start;
+  transition: all .2s;
+}
+
+.nav-desktop-child button:hover {
+  color: var(--primary-color) !important;
+  background-color: var(--primary-color-second) !important;
+}
+
+.nav-desktop-child p {
+  font-size: .9em;
+}
+
+.nav-desktop-child button .svg-inline--fa {
+  color: var(--primary-color);
+  /* width: 1.3em; */
+  height: 1.2em;
+  font-weight: bold;
+}
+
+.nav-desktop-child button a {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1;
+}
+
+/* //////////////////////////////////// header \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+.header {
+  background-color: transparent;
+  height: 4em;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
   padding: 0 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
 }
 
-.ant-btn-primary {
-  background-color: #004080; /* צבע כהה יותר עם ניגודיות גבוהה */
-  color: white;
-}
-
+/* //////////////////////////////////// body/main \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 .content {
-  padding: 20px;
-  margin-top: 60px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--secondary-color) var(--bg-color);
@@ -62,13 +160,16 @@ html, body, #root {
   border-radius: 4px;
 }
 
+/* //////////////////////////////////// footer \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 .footer {
   height: 40px;
   text-align: center;
   padding: 10px 0;
+  margin-right: 1em !important;
   background-color: var(--bg-color);
 }
 
+/* //////////////////////////////////// dashboard \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 /* כרטיסי Dashboard */
 .dashboard-container {
   display: flex;
@@ -89,18 +190,48 @@ html, body, #root {
   transform: translateY(-5px);
 }
 
-p{
-  margin: 0;
+/* טאבלט */
+@media (min-width: 768px) and (max-width: 1200px) {
+  .nav-container {
+    display: none;
+    background-color: var(--card-bg-color);
+    margin: 2vh;
+    border-radius: 1em;
+    width: 20em;
+    position: absolute;
+    z-index: 100;
+    top: 0;
+    right: 0;
+    height: 95vh;
+    box-shadow: 0px 0px 5px 0px rgb(146, 146, 146);
+  }
 }
 
-/* התאמות רספונסיביות */
-@media (max-width: 768px) {
+
+/* פלאפון */
+@media (max-width: 767px) {
+  .nav-container {
+    display: none;
+    background-color: var(--card-bg-color);
+    margin: 2vh;
+    border-radius: 1em;
+    width: 20em;
+    position: absolute;
+    z-index: 100;
+    top: 0;
+    right: 0;
+    height: 95vh;
+    box-shadow: 0px 0px 5px 0px rgb(146, 146, 146);
+  }
+
   .content {
     padding: 10px;
   }
+
   .dashboard-card {
     padding: 15px;
   }
+
   .header {
     padding: 0 15px;
   }

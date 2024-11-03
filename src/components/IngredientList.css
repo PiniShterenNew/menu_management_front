@@ -1,7 +1,8 @@
 /* src/components/IngredientList.css */
 .ingredient-list-card {
     max-width: 100%;
-    overflow-x: hidden;
+    flex: 1;
+    overflow-x: auto;
   }
   
   @media (max-width: 768px) {

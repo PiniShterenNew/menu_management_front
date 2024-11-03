@@ -1,0 +1,101 @@
+/* :root {
+    --primary-color: #171b20;
+    --primary-color-second: #f6f9fd;
+    --secondary-color: #008080;
+    --accent-color: #A28FEC;
+    --highlight-color: #ff4d4f;
+    --text-color: #333;
+    --bg-color: #f5f7fa;
+    --icons: #908e8e;
+    --card-bg-color: #ffffff;
+  } */
+.dashboard-container .ant-card {
+    padding: 0 !important;
+}
+
+.dashboard-container .ant-card-body {
+    padding: 1em !important;
+}
+
+.dashboard-card {
+    position: relative;
+    padding: 20px 20px 20px 60px;
+    border-radius: 2em;
+}
+
+.icon-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 4em;
+    height: 4em;
+    color: var(--card-bg-color);
+    /* font-size: 18px; */
+    position: absolute;
+    top: 16px;
+    left: 16px;
+}
+
+.icon-circle .svg-inline--fa {
+    font-size: 1.8em;
+}
+
+.green {
+    background: linear-gradient(135deg, #3f8600, #6dc066);
+}
+
+.red {
+    background: linear-gradient(135deg, #cf1322, #ff4d4f);
+}
+
+.blue {
+    background: linear-gradient(135deg, #1890ff, #69c0ff);
+}
+
+.yellow {
+    background: linear-gradient(135deg, #faad14, #ffd666);
+}
+
+
+.stat-content {
+    /* margin-left: 60px; */
+}
+
+.stat-title {
+    font-size: 2em;
+    color: #666;
+}
+
+.stat-value {
+    font-size: 3.4em;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+/* טאבלט */
+@media (max-width: 1024px) {
+
+    /* עיצוב מותאם לטאבלט */
+    .stat-title {
+        font-size: 1.3em;
+    }
+
+    .stat-value {
+        font-size: 2.4em;
+    }
+}
+
+
+/* פלאפון */
+@media (max-width: 767px) {
+
+    /* עיצוב מותאם לפלאפון */
+    .stat-title {
+        font-size: 1.5em;
+    }
+
+    .stat-value {
+        font-size: 2em;
+    }
+}

@@ -1,0 +1,45 @@
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1em;
+    background-color: var(--bg-color);
+}
+
+.menu-button,
+.profile-button,
+.settings-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    margin-right: 1em;
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+.menu-button:hover,
+.profile-button:hover,
+.settings-button:hover {
+    color: var(--primary-color) !important;
+    background-color: var(--primary-color-second) !important;
+}
+
+@media (max-width: 1200px) {
+
+    .menu-button,
+    .profile-button,
+    .settings-button {
+        background: none;
+        border: none;
+        font-size: 1.5em;
+        margin-right: 0em;
+        cursor: pointer;
+        padding: 0em .6em !important;
+        color: var(--primary-color);
+    }
+
+    .menu-button {
+        position: absolute;
+        right: 1em;
+    }
+}

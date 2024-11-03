@@ -1,18 +1,33 @@
 // src/components/IngredientForm.jsx - טופס להוספה/עריכת חומרי גלם עם שימוש ב-Ant Design מותאם לנייד
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Form as AntdForm, Input, Button, Select, Checkbox, InputNumber } from 'antd';
-import { AppContext } from '../context/AppContext';
-import { v4 as uuidv4 } from 'uuid';
 import './IngredientForm.css';
+import { useSelector } from 'react-redux';
 
 const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
-    const { supplierData } = useContext(AppContext);
+    const supplierState = useSelector((state) => state.suppliers);
     const [form] = AntdForm.useForm();
     const [isJuice, setIsJuice] = useState(initialValues?.isJuice || false);
 
     useEffect(() => {
         if (initialValues) {
-            form.setFieldsValue(initialValues);
+            form.setFieldsValue({
+                ...initialValues,
+                quantity: Number(initialValues.quantity),
+                price: Number(initialValues.price),
+            });
+
+            // בדיקה של סוגי הערכים בשדות הבעייתיים
+            form.validateFields()
+                .then(values => {
+                    console.log("Initial Values:", values);
+                    console.log("Type of quantity:", typeof values.quantity);
+                    console.log("Type of price:", typeof values.price);
+                })
+                .catch(errorInfo => {
+                    console.log("Validation failed:", errorInfo);
+                });
+
             setIsJuice(initialValues.isJuice || false);
         }
     }, [initialValues, form]);
@@ -20,6 +35,7 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
     const onFinish = (values) => {
         addIngredient({
             ...values,
+            ...(initialValues && { _id: initialValues._id }),
             isJuice: isJuice,
         });
         form.resetFields();
@@ -46,8 +62,8 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
                         popupMatchSelectWidth={false} // מונע התאמה אוטומטית של הרוחב
                         dropdownStyle={{ maxHeight: '60vh' }} // מגביל את הגובה כך שלא יחרוג מגובה המסך
                     >
-                        {supplierData && supplierData.length > 0 ? (
-                            supplierData.map((supplier) => (
+                        {supplierState && supplierState.length > 0 ? (
+                            supplierState.map((supplier) => (
                                 <Select.Option key={supplier._id} value={supplier._id}>
                                     {supplier.name}
                                 </Select.Option>
@@ -89,23 +105,21 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
                         <Select.Option value="יחידות">יחידות</Select.Option>
                     </Select>
                 </AntdForm.Item>
-
                 <AntdForm.Item
                     label={"כמות"}
                     name="quantity"
-                    rules={[{ required: true, min: 1, message: "אנא הזן כמות תקינה" }]}
+                    rules={[{ required: true, message: "אנא הזן כמות תקינה" }]}
                 >
-                    <Input type="number" step="any" />
+                    <InputNumber min={1} step="any" style={{ width: '100%' }} />
                 </AntdForm.Item>
 
                 <AntdForm.Item
                     label={"מחיר כולל (₪)"}
                     name="price"
-                    rules={[{ required: true, min: 1, message: "אנא הזן מחיר תקין" }]}
+                    rules={[{ required: true, message: "אנא הזן מחיר תקין" }]}
                 >
-                    <Input type="number" step="any" />
+                    <InputNumber min={1} step="any" style={{ width: '100%' }} />
                 </AntdForm.Item>
-
                 <AntdForm.Item>
                     <Checkbox checked={isJuice} onChange={(e) => setIsJuice(e.target.checked)}>
                         האם רכיב זה משמש להכנת מיץ?

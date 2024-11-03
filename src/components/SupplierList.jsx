@@ -4,9 +4,12 @@ import { List, Card, Button, Modal, Space } from 'antd';
 import { AppContext } from '../context/AppContext';
 import SupplierForm from './SupplierForm';
 import './SupplierList.css';
+import { useSelector } from 'react-redux';
 
 const SupplierList = ({ sortKey }) => {
-  const { supplierData, updateSupplier, deleteSupplier } = useContext(AppContext);
+  const { updateSupplier, deleteSupplier } = useContext(AppContext);
+  const supplierState = useSelector((state) => state.suppliers);
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState(null);
 
@@ -20,7 +23,7 @@ const SupplierList = ({ sortKey }) => {
     setIsModalVisible(false);
   };
 
-  const sortedData = [...supplierData].sort((a, b) => {
+  const sortedData = [...supplierState].sort((a, b) => {
     if (sortKey === 'name') {
       return a.name.localeCompare(b.name);
     }

@@ -1,6 +1,5 @@
-// Form for adding categories with improvements
 import React, { useState, useContext } from 'react';
-import { Modal, Input, List, Button, Form } from 'antd';
+import { Modal, Input, List, Button } from 'antd';
 import { AppContext } from '../context/AppContext';
 
 const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => {
@@ -30,9 +29,22 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
     };
 
     const handleEdit = (category) => {
+        if (editingCategory && editingCategory._id !== category._id) {
+            setCategoryName(''); // מבטל את העריכה הקודמת אם עריכה נפתחת לקטגוריה אחרת
+        }
         setEditingCategory(category);
         setCategoryName(category.name);
-        setIsCategoryModalVisible(true);
+    };
+
+    const handleSave = () => {
+        if (categoryName.trim() === '') {
+            setErrorMessage('אנא הזן שם קטגוריה תקין');
+            return;
+        }
+        updateCategory({ ...editingCategory, name: categoryName.trim() });
+        setCategoryName('');
+        setEditingCategory(null);
+        setErrorMessage('');
     };
 
     const handleDelete = (categoryId) => {
@@ -71,11 +83,24 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
                 renderItem={(item) => (
                     <List.Item
                         actions={[
-                            <Button type="link" onClick={() => handleEdit(item)}>ערוך</Button>,
+                            editingCategory && editingCategory._id === item._id ? (
+                                <Button type="link" onClick={handleSave}>שמור</Button>
+                            ) : (
+                                <Button type="link" onClick={() => handleEdit(item)}>ערוך</Button>
+                            ),
                             <Button type="link" danger onClick={() => handleDelete(item._id)}>מחק</Button>,
                         ]}
                     >
-                        {item.name}
+                        {editingCategory && editingCategory._id === item._id ? (
+                            <Input
+                                value={categoryName}
+                                onChange={(e) => setCategoryName(e.target.value)}
+                                onPressEnter={handleSave}
+                                autoFocus
+                            />
+                        ) : (
+                            item.name
+                        )}
                     </List.Item>
                 )}
             />

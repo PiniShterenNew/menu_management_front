@@ -1,8 +1,12 @@
 // src/context/AppContext.js - ניהול המצב של המערכת עם React Context באמצעות API
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { message } from 'antd';  // ייבוא ה-message של Ant Design
 import io from 'socket.io-client';
+import { useDispatch, useSelector } from 'react-redux';
+import { addOrUpdateSupplierState, addSuppliersState, deleteSupplierState, updateSupplierState } from '../store/suppliers';
+import { addIngerdientsState, addOrUpdateIngredientState, deleteIngredientState, updateIngredientState } from '../store/ingredients';
+import { addOrUpdateProductState, deleteProductState, setProductsState, updateProductState } from '../store/products';
 
 export const AppContext = createContext();
 
@@ -10,108 +14,63 @@ message.config({
   prefixCls: 'my-message',
 });
 
-const API_URL = 'http://localhost:5000/api'; // עדכן את כתובת ה-API שלך
-const SOCKET_URL = 'http://localhost:5000';
-// const API_URL = 'https://menu-management-server.onrender.com/api';
-// const SOCKET_URL = 'https://menu-management-server.onrender.com';
+// const API_URL = 'http://192.168.1.172:5000/api'; // עדכן את כתובת ה-API שלך
+// const SOCKET_URL = 'http://192.168.1.172:5000';
+const API_URL = 'https://menu-management-server.onrender.com/api';
+const SOCKET_URL = 'https://menu-management-server.onrender.com';
 
 export const AppProvider = ({ children, setLoading }) => {
-  const [ingredientData, setIngredientData] = useState([]);
-  const [supplierData, setSupplierData] = useState([]);
-  const [productData, setProductData] = useState([]);
+
+  const dispatch = useDispatch();
+
+  const ingredientsState = useSelector((state) => state.ingredients);
+  const productsState = useSelector((state) => state.products);
+
   const [categoryData, setCategoryData] = useState([]);
   const [socket, setSocket] = useState(null);
 
-  useEffect(() => {
-    const newSocket = io(SOCKET_URL);
-    setSocket(newSocket);
 
+  const listeners = useCallback((newSocket) => {
     // Listen for specific events
     newSocket.on('ingredientAdded', (newIngredient) => {
-      setIngredientData((prevData) => {
-        const existingIndex = prevData.findIndex((ingredient) => ingredient._id === newIngredient._id);
-        if (existingIndex !== -1) {
-          // אם קיים, מחליף אותו
-          const updatedData = [...prevData];
-          updatedData[existingIndex] = newIngredient;
-          return updatedData;
-        } else {
-          // אם לא קיים, מוסיף אותו
-          return [newIngredient, ...prevData];
-        }
-      });
+      dispatch(addOrUpdateIngredientState(newIngredient))
     });
     newSocket.on('ingredientUpdated', (updatedIngredient) => {
-      setIngredientData((prevData) =>
-        prevData.map((ingredient) =>
-          ingredient._id === updatedIngredient._id ? updatedIngredient : ingredient
-        )
-      );
+      dispatch(updateIngredientState(updatedIngredient))
     });
     newSocket.on('ingredientDeleted', (deletedIngredient) => {
-      setIngredientData((prevData) =>
-        prevData.filter((ingredient) => ingredient._id !== deletedIngredient._id)
-      );
+      dispatch(deleteIngredientState(deletedIngredient))
     });
 
     // Listen for specific events for suppliers
     newSocket.on('supplierAdded', (newSupplier) => {
-      setSupplierData((prevData) => {
-        const existingIndex = prevData.findIndex((supplier) => supplier._id === newSupplier._id);
-        if (existingIndex !== -1) {
-          // אם קיים, מחליף אותו
-          const updatedData = [...prevData];
-          updatedData[existingIndex] = newSupplier;
-          return updatedData;
-        } else {
-          // אם לא קיים, מוסיף אותו
-          return [newSupplier, ...prevData];
-        }
-      });
+      dispatch(addOrUpdateSupplierState(newSupplier))
     });
 
     newSocket.on('supplierUpdated', (updatedSupplier) => {
-      setSupplierData((prevData) =>
-        prevData.map((supplier) =>
-          supplier._id === updatedSupplier._id ? updatedSupplier : supplier
-        )
-      );
+      dispatch(updateSupplierState(updatedSupplier))
     });
 
     newSocket.on('supplierDeleted', (deletedSupplier) => {
-      setSupplierData((prevData) =>
-        prevData.filter((supplier) => supplier._id !== deletedSupplier._id)
-      );
+      dispatch(deleteSupplierState(deletedSupplier))
     });
 
-    // Listen for specific events for products
     newSocket.on('productAdded', (newProduct) => {
-      setProductData((prevData) => {
-        const existingIndex = prevData.findIndex((product) => product._id === newProduct._id);
-        if (existingIndex !== -1) {
-          // אם קיים, מחליף אותו
-          const updatedData = [...prevData];
-          updatedData[existingIndex] = newProduct;
-          return updatedData;
-        } else {
-          // אם לא קיים, מוסיף אותו
-          return [newProduct, ...prevData];
-        }
+      dispatch((dispatch, getState) => {
+        const ingredientsState = getState().ingredients; // מקבל את ingredientsState העדכני
+        dispatch(addOrUpdateProductState({ newProduct, ingredientsState }));
       });
     });
 
     newSocket.on('productUpdated', (updatedProduct) => {
-      setProductData((prevData) =>
-        prevData.map((product) =>
-          product._id === updatedProduct._id ? updatedProduct : product
-        )
-      );
+      dispatch((dispatch, getState) => {
+        const ingredientsState = getState().ingredients; // מקבל את ingredientsState העדכני
+        dispatch(updateProductState({ updatedProduct, ingredientsState }));
+      });
     });
 
     newSocket.on('productDeleted', (deletedProduct) => {
-      setProductData((prevData) =>
-        prevData.filter((product) => product._id !== deletedProduct._id)
-      );
+      dispatch(deleteProductState(deletedProduct));
     });
 
     // Listen for specific events for categories
@@ -143,6 +102,18 @@ export const AppProvider = ({ children, setLoading }) => {
         prevData.filter((category) => category._id !== deletedCategory._id)
       );
     });
+  }, [dispatch]);
+
+  useEffect(() => {
+    const newSocket = io(SOCKET_URL);
+    setSocket(newSocket);
+
+    listeners(newSocket);
+
+    return () => newSocket.close();
+  }, []);
+
+  useEffect(() => {
 
     const fetchData = async () => {
       setLoading(true);
@@ -154,10 +125,13 @@ export const AppProvider = ({ children, setLoading }) => {
           axios.get(`${API_URL}/categories`),
         ]);
 
-        setIngredientData(ingredientsRes.data?.reverse());
-        setSupplierData(suppliersRes.data?.reverse());
-        setProductData(productsRes.data?.reverse());
-        setCategoryData(categoriesRes.data?.reverse());
+        dispatch(addIngerdientsState(ingredientsRes?.data?.reverse()));
+        dispatch((dispatch, getState) => {
+          const ingredientsState = getState().ingredients; // מקבל את ingredientsState העדכני
+          dispatch(setProductsState({ products: productsRes.data?.reverse(), ingredientsState }));
+        });
+        setCategoryData(categoriesRes.data);
+        dispatch(addSuppliersState(suppliersRes?.data?.reverse()));
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -167,9 +141,11 @@ export const AppProvider = ({ children, setLoading }) => {
     };
 
     fetchData();
-
-    return () => newSocket.close();
   }, []);
+
+  useEffect(() => {
+    dispatch(setProductsState({ products: productsState, ingredientsState }));
+  }, [ingredientsState])
 
   const addIngredient = async (ingredient) => {
     setLoading(true);
@@ -336,15 +312,12 @@ export const AppProvider = ({ children, setLoading }) => {
   return (
     <AppContext.Provider
       value={{
-        ingredientData,
         addIngredient,
         updateIngredient,
         deleteIngredient,
-        supplierData,
         addSupplier,
         updateSupplier,
         deleteSupplier,
-        productData,
         addProduct,
         updateProduct,
         deleteProduct,

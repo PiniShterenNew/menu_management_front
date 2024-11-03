@@ -6,31 +6,37 @@ import DashboardPage from './pages/DashboardPage';
 import { AppProvider } from './context/AppContext';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
-import { Layout, Button, Drawer, Spin } from 'antd';
-import { MenuOutlined, HomeOutlined, AppstoreOutlined, ShoppingOutlined } from '@ant-design/icons';
-import Loading from "./components/Loading";
-import { useMediaQuery } from 'react-responsive'; // הוסף את ה-hook הזה
+import { Layout, Button, Drawer, Image, Divider, Spin } from 'antd';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartLine, faStore, faDolly, faTruck } from '@fortawesome/free-solid-svg-icons';
+import Logo from "./assets/logo.png";
+import TopBar from './pages/TopBar';
+import { useMediaQuery } from 'react-responsive';
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  
-  // שימוש ב-hook עבור בדיקה אם זה פלאפון
-  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+  const isMobile = useMediaQuery({ query: '(max-width: 1200px)' });
 
   return (
     <AppProvider setLoading={setLoading}>
+      <Spin fullscreen spinning={loading} size='large' />
       <Router>
-        <Loading loading={loading}>
-          <Layout className="app-container" style={{ minHeight: isMobile ? '85vh' : '100vh' }}>
+        <Layout className="app-container" style={{ minHeight: isMobile ? '85vh' : '100vh' }}>
+          <div className='nav-container'>
+            <div className='nav-top'>
+              <Image className='logo' src={Logo} alt='GainGuard' preview={false} />
+            </div>
+            <NavMenu />
+          </div>
+          <div className='body-container'>
             <Header className="header" style={{ padding: '0 20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                <h1 style={{ color: 'white', margin: 0 }}>ניהול תפריט ועץ מוצר</h1>
-                <NavigationButtons isMobile={isMobile} />
-              </div>
+              <TopBar isMobile={isMobile} drawerVisible={drawerVisible} setDrawerVisible={setDrawerVisible} />
+              <Divider className="no-margin" />
             </Header>
-            <Content style={{ padding: '20px' }} className="content">
+            <Content className="content">
               <Routes>
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/menu" element={<MenuPage />} />
@@ -38,97 +44,50 @@ function App() {
                 <Route path="/ingredients" element={<IngredientsPage />} />
               </Routes>
             </Content>
-            <Footer style={{ textAlign: 'center' }}>© 2024 מערכת ניהול תפריט ועץ מוצר</Footer>
-          </Layout>
-        </Loading>
+            <Footer className="footer">© 2024 מערכת ניהול תפריט ועץ מוצר</Footer>
+          </div>
+          {/* Drawer לתפריט במובייל */}
+          <Drawer
+            title="ניווט"
+            placement="right"
+            closable={true}
+            onClose={() => setDrawerVisible(false)}
+            visible={drawerVisible}
+            width={240}
+          >
+            <NavMenu onClose={() => setDrawerVisible(false)} />
+          </Drawer>
+        </Layout>
       </Router>
     </AppProvider>
   );
 }
 
-function NavigationButtons({ isMobile }) {
+function NavMenu({onClose}) {
   const location = useLocation();
-  const [drawerVisible, setDrawerVisible] = useState(false);
-
-  const showDrawer = () => {
-    setDrawerVisible(true);
-  };
-
-  const closeDrawer = () => {
-    setDrawerVisible(false);
-  };
-
-  if (isMobile) {
-    return (
-      <>
-        <Button type="link" icon={<MenuOutlined />} onClick={showDrawer} style={{ color: 'white' }} />
-        <Drawer title="ניווט" placement="right" onClose={closeDrawer} visible={drawerVisible}>
-          <MobileNavMenu location={location} closeDrawer={closeDrawer} />
-        </Drawer>
-      </>
-    );
-  }
+  const linkStyle = (path) => location.pathname === path ? "link-active" : "link";
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <DesktopNavMenu location={location} />
-    </div>
-  );
-}
-
-function MobileNavMenu({ location, closeDrawer }) {
-  const linkStyle = (path) => ({
-    display: 'block',
-    width: '100%',
-    padding: '10px 15px',
-    textAlign: 'left',
-    color: location.pathname === path ? '#1890ff' : 'black',
-    fontWeight: location.pathname === path ? 'bold' : 'normal',
-    textDecoration: 'none',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-  });
-
-  return (
-    <div>
-      <Link to="/" style={linkStyle('/')} onClick={closeDrawer}>
-        <HomeOutlined /> לוח מחוונים
-      </Link>
-      <Link to="/menu" style={linkStyle('/menu')} onClick={closeDrawer}>
-        <AppstoreOutlined /> תפריט
-      </Link>
-      <Link to="/ingredients" style={linkStyle('/ingredients')} onClick={closeDrawer}>
-        <AppstoreOutlined /> חומרי גלם
-      </Link>
-      <Link to="/suppliers" style={linkStyle('/suppliers')} onClick={closeDrawer}>
-        <ShoppingOutlined /> ספקים
-      </Link>
-    </div>
-  );
-}
-
-function DesktopNavMenu({ location }) {
-  return (
-    <div>
-      <Button type="link">
+    <div className='nav-desktop-child'>
+      <Divider />
+      <Button type="link" onClick={onClose} className={linkStyle('/')}>
         <Link to="/">
-          <HomeOutlined /> לוח מחוונים
+          <FontAwesomeIcon icon={faChartLine} /> <p>לוח מחוונים</p>
         </Link>
       </Button>
-      <Button type="link">
+      <Button type="link" onClick={onClose} className={linkStyle('/menu')}>
         <Link to="/menu">
-          <AppstoreOutlined /> תפריט
+          <FontAwesomeIcon icon={faStore} /> <p>תפריט</p>
         </Link>
       </Button>
-      <Button type="link">
+      <Button type="link" onClick={onClose} className={linkStyle('/ingredients')}>
         <Link to="/ingredients">
-          <AppstoreOutlined /> חומרי גלם
+          <FontAwesomeIcon icon={faDolly} /> <p>חומרי גלם</p>
         </Link>
       </Button>
-      <Button type="link">
+      <Button type="link" onClick={onClose} className={linkStyle('/suppliers')}>
         <Link to="/suppliers">
-          <ShoppingOutlined /> ספקים
+          <FontAwesomeIcon icon={faTruck} /> <p>ספקים</p>
         </Link>
       </Button>
     </div>
