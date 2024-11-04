@@ -21,7 +21,9 @@
 
 @media (max-width: 768px) {
   .ingredients-controls {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     align-items: stretch;
     /* יישור לאורך המסך */
     gap: 15px;

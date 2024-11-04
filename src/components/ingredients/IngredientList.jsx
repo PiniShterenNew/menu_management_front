@@ -1,7 +1,7 @@
 // src/components/IngredientList.jsx - רשימת חומרי גלם עם שימוש ב-Ant Design מותאם לנייד
 import React, { useContext, useState } from 'react';
 import { List, Card, Button, Modal } from 'antd';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../../context/AppContext';
 import IngredientForm from './IngredientForm';
 import './IngredientList.css';
 import { useSelector } from 'react-redux';
@@ -50,24 +50,26 @@ const IngredientList = ({ sortKey }) => {
 
                     return (
                         <List.Item key={ingredient._id}
-                            actions={[
-                                <Button type="link" onClick={() => handleEdit(ingredient)}>ערוך</Button>,
-                                <Button type="link" danger onClick={() => handleDelete(ingredient._id)}>מחק</Button>
-                            ]}
+                            // className='ingredient-item'
+                            actions={
+                                [
+                                    <Button type="link" onClick={() => handleEdit(ingredient)}>ערוך</Button>,
+                                    <Button type="link" danger onClick={() => handleDelete(ingredient._id)}>מחק</Button>
+                                ]}
                         >
                             <List.Item.Meta
                                 title={<strong>{ingredient.name}</strong>}
                                 description={
                                     <div>
-                                        <p>סוג: {ingredient.type}</p>
-                                        <p>ספק: {supplierName}</p>
-                                        <p>כמות: {ingredient.quantity} {ingredient.unit}</p>
-                                        <p>מחיר כולל מע"מ: ₪{ingredient.price}</p>
-                                        <p>מחיר ליחידה ללא מע"מ: ₪{ingredient?.unitPrice} ({ingredient?.unitDescription})</p>
-                                        {ingredient?.juiceRatio && <>
+                                        {/* <p>סוג: {ingredient.type}</p> */}
+                                        {/* <p>ספק: {supplierName}</p> */}
+                                        {/* <p>כמות: {ingredient.quantity} {ingredient.unit}</p> */}
+                                        {/* <p>מחיר כולל מע"מ: ₪{ingredient.price}</p> */}
+
+                                        {ingredient?.juiceRatio ? <>
                                             <p>יחס מיץ: {ingredient?.juiceRatio * 100}%</p>
                                             <p>מחיר ליחידה מעובדת: ₪{ingredient?.processedPrice} ({ingredient?.unitDescription})</p>
-                                        </>}
+                                        </> : <p>מחיר ליחידה ללא מע"מ: ₪{ingredient?.unitPrice} ({ingredient?.unitDescription})</p>}
                                     </div>
                                 }
                             />
@@ -80,6 +82,7 @@ const IngredientList = ({ sortKey }) => {
                 title={editingIngredient ? "ערוך חומר גלם" : "הוסף חומר גלם חדש"}
                 visible={isModalVisible}
                 onCancel={handleModalClose}
+                className='popup-modal'
                 footer={null}
             >
                 <IngredientForm
@@ -88,7 +91,7 @@ const IngredientList = ({ sortKey }) => {
                     onClose={handleModalClose}
                 />
             </Modal>
-        </Card>
+        </Card >
     );
 };
 

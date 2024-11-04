@@ -1,20 +1,19 @@
-import React, { useContext, useState, useRef, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Button, Modal, Select, Tabs } from 'antd';
-import ProductForm from '../components/ProductForm';
-import ProductList from '../components/ProductList';
+import { Button, Modal, Select } from 'antd';
+import ProductForm from '../components/products/ProductForm';
+import ProductList from '../components/products/ProductList';
 import './MenuPage.css';
-import CategoryForm from '../components/CategoryForm';
-
-const { TabPane } = Tabs;
+import CategoryForm from '../components/category/CategoryForm';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartLine, faStore, faDolly, faTruck, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 function MenuPage() {
   const { addProduct, categoryData } = useContext(AppContext);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [sortKey, setSortKey] = useState('');
-  const [activeTabKey, setActiveTabKey] = useState("all");
-  const tabsContainerRef = useRef(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -24,85 +23,57 @@ function MenuPage() {
     setIsModalVisible(false);
   };
 
-  const scrollToActiveTab = () => {
-    if (tabsContainerRef.current) {
-      const activeTab = tabsContainerRef.current.querySelector(`.ant-tabs-tab-active`);
-      if (activeTab) {
-        const tabsContainer = tabsContainerRef.current;
-        const containerWidth = tabsContainer.offsetWidth;
-        const tabOffsetLeft = activeTab.offsetLeft;
-        const tabWidth = activeTab.offsetWidth;
-
-        // Scroll to center the active tab in the viewport
-        const scrollPosition = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
-        tabsContainer.scrollTo({
-          left: scrollPosition,
-          behavior: 'smooth'
-        });
-      }
-    }
-  };
-
-  useEffect(() => {
-    scrollToActiveTab();
-  }, [activeTabKey]);
-
   return (
     <div style={{ padding: '1em 20px' }} className="scrollable-content menu-page-container">
       <div className="menu-controls">
-        <div className='menu-controls-div'>
-          <Button type="primary" onClick={showModal} className="add-product-button">
-            <strong>הוסף מוצר חדש</strong>
+        <Button type="primary" onClick={showModal} className="add-product-button">
+          <strong>הוסף מוצר חדש</strong>
+        </Button>
+        <div className="left-controls">
+          <Select
+            value={selectedCategory}
+            showSearch
+            className="category-select"
+            placeholder="בחר קטגוריה"
+            onChange={(value) => setSelectedCategory(value)}
+            style={{ width: 180 }}
+            dropdownStyle={{ maxHeight: '60vh' }}
+          >
+            <Select.Option value="all">הכל</Select.Option>
+            {categoryData.map((category) => (
+              <Select.Option key={category._id} value={category._id}>
+                <FontAwesomeIcon icon={category.icon} style={{ marginRight: '8px' }} />
+                {category.name}
+              </Select.Option>
+            ))}
+          </Select>
+          <Button
+            type="default"
+            onClick={() => setIsCategoryModalVisible(true)}
+            className="add-category-button"
+            style={{alignSelf: "start"}}
+            icon={<FontAwesomeIcon icon={faPlus} />}
+          >
+            הוסף קטגוריה
           </Button>
         </div>
-        <Select
-          value={sortKey}
-          className='sort-select'
-          onChange={(value) => setSortKey(value)}
-          style={{ width: 180 }}
-          dropdownStyle={{ maxHeight: '60vh' }}
-        >
-          <Select.Option value="">מיין</Select.Option>
-          <Select.Option value="name">מיין לפי שם</Select.Option>
-          <Select.Option value="price">מיין לפי מחיר</Select.Option>
-        </Select>
       </div>
 
-      <Tabs
-        ref={tabsContainerRef}
-        className='menu-tab'
-        activeKey={activeTabKey}
-        onChange={(key) => setActiveTabKey(key)}
-        defaultActiveKey="all"
-        style={{ marginTop: '20px' }}
-        tabBarExtraContent={
-          <Button type="default" onClick={() => setIsCategoryModalVisible(true)}>
-            +
-          </Button>
-        }
-      >
-        <TabPane tab="הכל" key="all">
-          <ProductList sortKey={sortKey} />
-        </TabPane>
-        {categoryData.map((category) => (
-          <TabPane tab={category.name} key={category._id}>
-            <ProductList sortKey={sortKey} categoryId={category._id} />
-          </TabPane>
-        ))}
-      </Tabs>
+      <ProductList sortKey={sortKey} categoryId={selectedCategory} />
 
       <Modal
         title="הוסף מוצר חדש"
         visible={isModalVisible}
         onCancel={handleModalClose}
+        className="popup-modal"
         footer={null}
       >
-        <ProductForm
-          addProduct={addProduct}
-          onClose={handleModalClose}
-        />
+        <ProductForm addProduct={addProduct} onClose={handleModalClose} />
       </Modal>
-      <CategoryForm isCategoryModalVisible={isCategoryModalVisible} setIsCategoryModalVisible={setIsCategoryModalVisible} />
+      <CategoryForm
+        isCategoryModalVisible={isCategoryModalVisible}
+        setIsCategoryModalVisible={setIsCategoryModalVisible}
+      />
     </div>
   );
 }

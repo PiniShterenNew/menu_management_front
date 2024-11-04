@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Card, Form as AntdForm, Input, Button, Tabs, Select, InputNumber } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../../context/AppContext';
 import './ProductForm.css'; // ייבוא של קובץ CSS מותאם לנייד
 import { useSelector } from 'react-redux';
 
@@ -59,7 +59,7 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
   };
 
   return (
-    <Card title={initialValues ? "ערוך מוצר" : "הוסף מוצר חדש"} style={{ marginBottom: '20px' }}>
+    <Card style={{ marginBottom: '20px' }}>
       <Tabs defaultActiveKey="1" >
         <TabPane tab="פרטי מוצר" key="1">
           <AntdForm form={form} layout="vertical" onFinish={onFinish} initialValues={initialValues}>

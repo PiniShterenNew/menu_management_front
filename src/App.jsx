@@ -6,11 +6,11 @@ import DashboardPage from './pages/DashboardPage';
 import { AppProvider } from './context/AppContext';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
-import { Layout, Button, Drawer, Image, Divider, Spin } from 'antd';
+import { Layout, Button, Drawer, Image, Divider, Spin, Col } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartLine, faStore, faDolly, faTruck } from '@fortawesome/free-solid-svg-icons';
 import Logo from "./assets/logo.png";
-import TopBar from './pages/TopBar';
+import TopBar from './components/topBar/TopBar';
 import { useMediaQuery } from 'react-responsive';
 
 const { Header, Content, Footer } = Layout;
@@ -48,7 +48,10 @@ function App() {
           </div>
           {/* Drawer לתפריט במובייל */}
           <Drawer
-            title="ניווט"
+            title={<Col>
+            <Image className='logo' src={Logo} alt='GainGuard' preview={false} />
+            <p>ניווט</p>
+            </Col>}
             placement="right"
             closable={true}
             onClose={() => setDrawerVisible(false)}
@@ -63,7 +66,7 @@ function App() {
   );
 }
 
-function NavMenu({onClose}) {
+function NavMenu({ onClose }) {
   const location = useLocation();
   const linkStyle = (path) => location.pathname === path ? "link-active" : "link";
 

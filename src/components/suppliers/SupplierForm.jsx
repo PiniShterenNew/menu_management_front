@@ -20,7 +20,7 @@ const SupplierForm = ({ addSupplier, initialValues, onClose }) => {
     };
 
     return (
-        <Card title={initialValues ? "ערוך ספק" : "הוסף ספק חדש"} className="supplier-form-card">
+        <Card className="supplier-form-card">
             <AntdForm form={form} layout="vertical" onFinish={onFinish} initialValues={initialValues}>
                 <AntdForm.Item
                     label="שם ספק"

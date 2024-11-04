@@ -2,8 +2,8 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 import { Button, Modal, Select } from 'antd';
-import IngredientForm from '../components/IngredientForm';
-import IngredientList from '../components/IngredientList';
+import IngredientForm from '../components/ingredients/IngredientForm';
+import IngredientList from '../components/ingredients/IngredientList';
 import './IngredientsPage.css';
 
 function IngredientsPage() {
@@ -44,6 +44,7 @@ function IngredientsPage() {
         title="הוסף חומר גלם חדש"
         visible={isModalVisible}
         onCancel={handleModalClose}
+        className='popup-modal'
         footer={null}
       >
         <IngredientForm

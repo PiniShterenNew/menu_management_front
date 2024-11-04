@@ -70,7 +70,7 @@ function DashboardPage() {
   return (
     <div className="dashboard-container" style={{ padding: isMobile ? '10px' : '20px' }}>
       <Row gutter={[16, 16]} wrap>
-        <Col xs={24} sm={12} md={10} lg={8} xl={6}>
+        <Col xs={12} sm={12} md={10} lg={8} xl={6}>
           <Card className="dashboard-card">
             <div className="icon-circle green">
               <FontAwesomeIcon icon={faStore} />
@@ -81,7 +81,7 @@ function DashboardPage() {
             </div>
           </Card>
         </Col>
-        <Col xs={24} sm={12} md={10} lg={8} xl={6}>
+        <Col xs={12} sm={12} md={10} lg={8} xl={6}>
           <Card className="dashboard-card">
             <div className="icon-circle red">
               <FontAwesomeIcon icon={faTruck} />
@@ -92,7 +92,7 @@ function DashboardPage() {
             </div>
           </Card>
         </Col>
-        <Col xs={24} sm={12} md={10} lg={8} xl={6}>
+        <Col xs={12} sm={12} md={10} lg={8} xl={6}>
           <Card className="dashboard-card">
             <div className="icon-circle blue">
               <FontAwesomeIcon icon={faDolly} />
@@ -103,7 +103,7 @@ function DashboardPage() {
             </div>
           </Card>
         </Col>
-        <Col xs={24} sm={12} md={10} lg={8} xl={6}>
+        <Col xs={12} sm={12} md={10} lg={8} xl={6}>
           <Card className="dashboard-card">
             <div className="icon-circle yellow">
               <FontAwesomeIcon icon={faFolder} />
@@ -120,6 +120,7 @@ function DashboardPage() {
       <Row gutter={[16, 16]}>
         <Col xs={24} md={12}>
           <Card
+          className='dashboard-card'
             title={
               <span>
                 <FontAwesomeIcon icon={faFolder} style={{ marginLeft: '8px' }} />
@@ -133,6 +134,7 @@ function DashboardPage() {
 
         <Col xs={24} md={12}>
           <Card
+          className='dashboard-card'
             title={
               <span>
                 <FontAwesomeIcon icon={faDolly} style={{ marginLeft: '8px' }} />

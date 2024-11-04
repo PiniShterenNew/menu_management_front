@@ -6,8 +6,12 @@
     /* רווח של 10 פיקסלים בין הלשוניות */
 }
 
+.ant-modal-content .ant-card-body {
+    padding: 0 !important;
+}
+
 /* התאמת הקו התחתון של הלשונית כשהיא פעילה */
- .ant-tabs-tab-btn {
+.ant-tabs-tab-btn {
     /* border-bottom: 2px solid #1890ff; */
     /* קו תחתון בעובי 2 פיקסלים עם צבע כחול */
     padding-bottom: 2px;

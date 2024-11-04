@@ -5,9 +5,31 @@
 
 .menu-controls {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
+}
+
+.menu-controls button {
+  width: auto !important;
+}
+
+
+.left-controls {
+  display: flex;
+  flex-direction: column;
+  gap: .6em;
+  align-items: center;
+  justify-content: center;
+}
+
+.left-controls button {
+  width: 100% !important;
+}
+
+.ant-list-item-action {
+  justify-content: flex-start !important;
 }
 
 .menu-controls-div {
@@ -45,15 +67,9 @@
   align-items: center;
 }
 
-/* יישור תוכן של כל טאב למרכז והוספת padding */
-.ant-tabs-content-holder {
-  padding: 1em !important;
-  text-align: center;
-}
-
 @media (max-width: 768px) {
   .menu-page-container {
-    padding: 0px 10px !important;
+    /* padding: 0px 10px !important; */
   }
 
   .ant-tabs-tab {
@@ -61,10 +77,10 @@
   }
 
   .menu-controls {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 10px;
+    margin-bottom: 20px;
   }
 
   .sort-select {

@@ -1,9 +1,14 @@
 .top-bar {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding: 1em;
+    justify-content: space-between;
+    padding: 1em 0em;
     background-color: var(--bg-color);
+}
+
+.top-bar div {
+    display: flex;
+    align-items: center;
 }
 
 .menu-button,
@@ -38,8 +43,8 @@
         color: var(--primary-color);
     }
 
-    .menu-button {
+    /* .menu-button {
         position: absolute;
         right: 1em;
-    }
+    } */
 }

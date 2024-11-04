@@ -1,4 +1,9 @@
 /* src/pages/SuppliersPage.css */
+.supplier-list-card {
+  flex: 1;
+  overflow: auto;
+}
+
 .suppliers-page-container {
   max-width: 100%;
   overflow-x: hidden;
@@ -11,16 +16,26 @@
   margin-bottom: 20px;
 }
 
-
-
 .sort-select {
   width: 150px;
 }
 
+.scrollable-content {
+  width: 100%;
+}
+
+.ant-list-item-action{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
 @media (max-width: 768px) {
+
   .suppliers-controls {
-    flex-direction: column;
+    /* flex-direction: column; */
     align-items: stretch;
+    justify-content: space-between;
     gap: 10px;
   }
 

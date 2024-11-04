@@ -43,7 +43,7 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
     };
 
     return (
-        <Card title={initialValues ? "ערוך חומר גלם" : "הוסף חומר גלם חדש"} className="ingredient-form-card">
+        <Card className="ingredient-form-card">
             <AntdForm form={form} layout="vertical" onFinish={onFinish}>
                 <AntdForm.Item
                     label="שם חומר הגלם"

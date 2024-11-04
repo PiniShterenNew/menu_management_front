@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { List, Card, Button, Modal, Typography, Statistic, Row, Col } from 'antd';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../../context/AppContext';
 import ProductForm from './ProductForm';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
@@ -88,7 +88,7 @@ const ProductList = ({ sortKey, categoryId }) => {
     return (
         <Card title="רשימת מוצרים">
             <List
-                itemLayout="vertical"
+                itemLayout={"vertical"}
                 dataSource={sortedData}
                 renderItem={(product) => {
                     const price = parseFloat(product.price) || 0;
@@ -204,6 +204,7 @@ const ProductList = ({ sortKey, categoryId }) => {
                 title={editingProduct ? "ערוך מוצר" : "הוסף מוצר חדש"}
                 open={isModalVisible}
                 onCancel={handleModalClose}
+                className='popup-modal'
                 footer={null}
             >
                 <ProductForm

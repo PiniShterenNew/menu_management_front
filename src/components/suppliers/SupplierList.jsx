@@ -1,7 +1,7 @@
 // src/components/SupplierList.jsx - רשימת ספקים עם שימוש ב-Ant Design מותאם לנייד
 import React, { useContext, useState } from 'react';
 import { List, Card, Button, Modal, Space } from 'antd';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../../context/AppContext';
 import SupplierForm from './SupplierForm';
 import './SupplierList.css';
 import { useSelector } from 'react-redux';
@@ -34,10 +34,12 @@ const SupplierList = ({ sortKey }) => {
     <Card title="רשימת ספקים" className="supplier-list-card">
       <List
         itemLayout="vertical"
+        className="supplier-list-card"
         dataSource={sortedData}
         renderItem={(supplier) => (
           <List.Item
             key={supplier._id}
+            className="supplier-item"
             actions={[
               <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                 <Button type="link" onClick={() => handleEdit(supplier)}>ערוך</Button>,
@@ -62,6 +64,7 @@ const SupplierList = ({ sortKey }) => {
         title={editingSupplier ? "ערוך ספק" : "הוסף ספק חדש"}
         visible={isModalVisible}
         onCancel={handleModalClose}
+        className='popup-modal'
         footer={null}
       >
         <SupplierForm

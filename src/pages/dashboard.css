@@ -9,18 +9,28 @@
     --icons: #908e8e;
     --card-bg-color: #ffffff;
   } */
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.dashboard-card {
+    background-color: var(--card-bg-color);
+    border-radius: 2em;
+    /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); */
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    padding: 20px;
+}
+
 .dashboard-container .ant-card {
     padding: 0 !important;
 }
 
 .dashboard-container .ant-card-body {
     padding: 1em !important;
-}
-
-.dashboard-card {
-    position: relative;
-    padding: 20px 20px 20px 60px;
-    border-radius: 2em;
 }
 
 .icon-circle {
@@ -97,5 +107,14 @@
 
     .stat-value {
         font-size: 2em;
+    }
+
+    .icon-circle {
+        width: 3em;
+        height: 3em;
+    }
+
+    .icon-circle .svg-inline--fa {
+        font-size: 1.3em;
     }
 }
