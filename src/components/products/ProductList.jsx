@@ -15,6 +15,7 @@ const ProductList = ({ sortKey, categoryId }) => {
 
     const { updateProduct, deleteProduct, categoryData } = useContext(AppContext);
     const ingredientsState = useSelector((state) => state.ingredients);
+    const mixesState = useSelector((state) => state.mixes);
     const productsState = useSelector((state) => state.products);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -24,7 +25,6 @@ const ProductList = ({ sortKey, categoryId }) => {
     const filteredProducts = categoryId
         ? productsState.filter((product) => product.categoryId === categoryId)
         : productsState;
-
 
     const handleEdit = (product) => {
         setEditingProduct(product);
@@ -42,38 +42,6 @@ const ProductList = ({ sortKey, categoryId }) => {
 
     const handleExpand = (product) => {
         setExpandedProduct(expandedProduct?._id === product._id ? null : product);
-    };
-
-    const calculateTotalCost = (ingredients) => {
-        return ingredients.reduce((total, ingredient) => {
-            const ingredientDetails = ingredientsState.find((item) => item._id === ingredient.ingredientId);
-            if (!ingredientDetails) return total;
-
-            // Adjust quantity based on juice ratio if applicable
-            let quantity = ingredient.quantity;
-            if (ingredientDetails.isJuice && ingredientDetails.juiceRatio) {
-                quantity = ingredient.quantity / ingredientDetails.juiceRatio;
-            }
-
-            // Calculate the correct cost per unit based on adjusted quantity
-            const costPerUnit = ingredientDetails.pricePerUnit
-                ? ingredientDetails.pricePerUnit
-                : (ingredientDetails.price / ingredientDetails.quantity);
-
-            return total + costPerUnit * quantity;
-        }, 0).toFixed(2);
-    };
-
-    const calculateTotalQuantity = (ingredients) => {
-        return ingredients.reduce((total, ingredient) => {
-            const ingredientDetails = ingredientsState.find((item) => item._id === ingredient.ingredientId);
-            if (!ingredientDetails) return total;
-            if (ingredientDetails?.unit === "יחידות") return total;
-            // Adjust quantity based on juice ratio if applicable
-            let quantity = ingredient.quantity;
-
-            return total + quantity;
-        }, 0).toFixed(2);
     };
 
     const sortedData = [...filteredProducts].sort((a, b) => {
@@ -96,13 +64,10 @@ const ProductList = ({ sortKey, categoryId }) => {
                     const laborCost = parseFloat(product.laborCost) || 0;
                     const additionalCost = parseFloat(product.additionalCost) || 0;
 
-                    // Updated cost calculation
                     const costWithoutVAT = Number(product?.totalRawCost) || 0;
                     const totalCost = (costWithoutVAT + laborCost + additionalCost);
-                    const profit = (priceWithoutVAT - totalCost);
+                    const profit = (priceWithoutVAT - totalCost).toFixed(2);
                     const profitMargin = priceWithoutVAT > 0 ? ((profit / priceWithoutVAT) * 100).toFixed(2) : '0.00';
-
-                    const totalQuantity = calculateTotalQuantity(product.ingredients);
 
                     return (
                         <List.Item
@@ -149,13 +114,7 @@ const ProductList = ({ sortKey, categoryId }) => {
                                                 const ingredientDetails = ingredientsState.find((item) => item._id === ingredient.ingredientId);
                                                 if (!ingredientDetails) return null;
 
-                                                // Adjust quantity based on juice ratio if applicable
                                                 let quantityProcessed = ingredient.quantity;
-                                                let quantity = ingredient.quantity;
-                                                if (ingredientDetails.isJuice && ingredientDetails.juiceRatio) {
-                                                    quantity = ingredient.quantity / ingredientDetails.juiceRatio;
-                                                }
-                                                quantity = quantity.toFixed(2);
                                                 const totalIngredientCost = Number(ingredient?.processedCost || ingredient?.actualCost).toFixed(2);
 
                                                 return (
@@ -164,8 +123,7 @@ const ProductList = ({ sortKey, categoryId }) => {
                                                             title={<p>{ingredientDetails?.name || 'חומר גלם לא ידוע'}</p>}
                                                             description={
                                                                 <div>
-                                                                    <p>{`כמות: ${quantityProcessed.toFixed(2)} ${ingredientDetails?.isJuice ? "ליטר" : ingredient.unit}, עלות כוללת: ₪${totalIngredientCost}`}</p>
-                                                                    {ingredientDetails?.isJuice && <p>{`כמות גולמית: ${quantity} ${ingredientDetails?.unit}`}</p>}
+                                                                    <p>{`כמות: ${quantityProcessed.toFixed(2)} ${ingredientDetails.unit}, עלות כוללת: ₪${totalIngredientCost}`}</p>
                                                                     <Text type="secondary">{`מחיר ליחידה: ₪${ingredientDetails?.unitPrice} (${ingredientDetails?.unitDescription})`}</Text>
                                                                 </div>
                                                             }
@@ -177,9 +135,36 @@ const ProductList = ({ sortKey, categoryId }) => {
                                     ) : (
                                         <p>אין רכיבים למוצר זה.</p>
                                     )}
+                                    {product.mixes.length > 0 && (
+                                        <>
+                                            <h4>מיקסים במוצר:</h4>
+                                            <List
+                                                dataSource={product.mixes}
+                                                renderItem={(mix) => {
+                                                    const mixDetails = mixesState.find((item) => item._id === mix.mixId);
+                                                    if (!mixDetails) return null;
+
+                                                    const totalMixCost = Number(mix.actualCost).toFixed(2);
+
+                                                    return (
+                                                        <List.Item key={mix._id}>
+                                                            <List.Item.Meta
+                                                                title={<p>{mixDetails?.name || 'מיקס לא ידוע'}</p>}
+                                                                description={
+                                                                    <div>
+                                                                        <p>{`כמות: ${mix.quantity.toFixed(2)} ליטר, עלות כוללת: ₪${totalMixCost}`}</p>
+                                                                    </div>
+                                                                }
+                                                            />
+                                                        </List.Item>
+                                                    );
+                                                }}
+                                            />
+                                        </>
+                                    )}
                                     <h4>סיכום עלויות:</h4>
                                     <Row gutter={[16, 16]}>
-                                        <Col span={24}>עלות הרכיבים (ללא מע"מ): ₪{costWithoutVAT}</Col>
+                                        <Col span={24}>עלות רכיבים ומיקסים (ללא מע"מ): ₪{costWithoutVAT}</Col>
                                         <Col span={24}>עלויות עבודה: ₪{laborCost.toFixed(2)}</Col>
                                         <Col span={24}>עלויות נוספות: ₪{additionalCost.toFixed(2)}</Col>
                                     </Row>
@@ -187,11 +172,6 @@ const ProductList = ({ sortKey, categoryId }) => {
                                         <Col span={24}>עלות ייצור כוללת (ללא מע"מ): ₪{totalCost}</Col>
                                         <Col span={24}>רווח נטו לאחר עלויות נוספות: ₪{profit}</Col>
                                         <Col span={24}>שיעור רווחיות: {profitMargin}%</Col>
-                                    </Row>
-                                    <Row gutter={[16, 16]} style={{ marginTop: '10px' }}>
-                                        <Col span={24}>
-                                            סה"כ משקל/נפח של רכיבים: {totalQuantity} {totalQuantity < 1 ? `(${(totalQuantity * 1000).toFixed(0)} גרם)` : ''}
-                                        </Col>
                                     </Row>
                                 </div>
                             )}

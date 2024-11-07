@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addOrUpdateSupplierState, addSuppliersState, deleteSupplierState, updateSupplierState } from '../store/suppliers';
 import { addIngerdientsState, addOrUpdateIngredientState, deleteIngredientState, updateIngredientState } from '../store/ingredients';
 import { addOrUpdateProductState, deleteProductState, setProductsState, updateProductState } from '../store/products';
+import { addOrUpdateMixState, deleteMixState, setMixesState, updateMixState } from '../store/mixes';
 
 export const AppContext = createContext();
 
@@ -16,8 +17,8 @@ message.config({
 
 // const API_URL = 'http://192.168.1.172:5000/api'; // עדכן את כתובת ה-API שלך
 // const SOCKET_URL = 'http://192.168.1.172:5000';
-const API_URL = 'https://menu-management-server.onrender.com/api';
-const SOCKET_URL = 'https://menu-management-server.onrender.com';
+const API_URL = 'https://menu-server-c2b952e2c698.herokuapp.com/api';
+const SOCKET_URL = 'https://menu-server-c2b952e2c698.herokuapp.com/';
 
 export const AppProvider = ({ children, setLoading }) => {
 
@@ -58,14 +59,16 @@ export const AppProvider = ({ children, setLoading }) => {
     newSocket.on('productAdded', (newProduct) => {
       dispatch((dispatch, getState) => {
         const ingredientsState = getState().ingredients; // מקבל את ingredientsState העדכני
-        dispatch(addOrUpdateProductState({ newProduct, ingredientsState }));
+        const mixesState = getState().mixes; // מקבל את mixesState העדכני
+        dispatch(addOrUpdateProductState({ newProduct, ingredientsState, mixesState }));
       });
     });
 
     newSocket.on('productUpdated', (updatedProduct) => {
       dispatch((dispatch, getState) => {
         const ingredientsState = getState().ingredients; // מקבל את ingredientsState העדכני
-        dispatch(updateProductState({ updatedProduct, ingredientsState }));
+        const mixesState = getState().mixes; // מקבל את mixesState העדכני
+        dispatch(updateProductState({ updatedProduct, ingredientsState, mixesState }));
       });
     });
 
@@ -102,6 +105,24 @@ export const AppProvider = ({ children, setLoading }) => {
         prevData.filter((category) => category._id !== deletedCategory._id)
       );
     });
+    // Listen for specific events for mixes
+    newSocket.on('mixAdded', (newMix) => {
+      dispatch((dispatch, getState) => {
+        const ingredientsState = getState().ingredients;
+        dispatch(addOrUpdateMixState({ newMix, ingredientsState }));
+      });
+    });
+
+    newSocket.on('mixUpdated', (updatedMix) => {
+      dispatch((dispatch, getState) => {
+        const ingredientsState = getState().ingredients;
+        dispatch(updateMixState({ updatedMix, ingredientsState }));
+      });
+    });
+
+    newSocket.on('mixDeleted', (deletedMix) => {
+      dispatch(deleteMixState(deletedMix));
+    });
   }, [dispatch]);
 
   useEffect(() => {
@@ -118,17 +139,23 @@ export const AppProvider = ({ children, setLoading }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [ingredientsRes, suppliersRes, productsRes, categoriesRes] = await Promise.all([
+        const [ingredientsRes, suppliersRes, productsRes, categoriesRes, mixesRes] = await Promise.all([
           axios.get(`${API_URL}/ingredients`),
           axios.get(`${API_URL}/suppliers`),
           axios.get(`${API_URL}/products`),
           axios.get(`${API_URL}/categories`),
+          axios.get(`${API_URL}/mixes`),
         ]);
 
         dispatch(addIngerdientsState(ingredientsRes?.data?.reverse()));
         dispatch((dispatch, getState) => {
           const ingredientsState = getState().ingredients; // מקבל את ingredientsState העדכני
-          dispatch(setProductsState({ products: productsRes.data?.reverse(), ingredientsState }));
+          dispatch(setMixesState({ mixes: mixesRes?.data?.reverse(), ingredientsState }));
+        }); // הוספת תערובות למצב
+        dispatch((dispatch, getState) => {
+          const ingredientsState = getState().ingredients; // מקבל את ingredientsState העדכני
+          const mixesState = getState().mixes; // מקבל את ingredientsState העדכני
+          dispatch(setProductsState({ products: productsRes.data?.reverse(), ingredientsState, mixesState }));
         });
         setCategoryData(categoriesRes.data);
         dispatch(addSuppliersState(suppliersRes?.data?.reverse()));
@@ -308,6 +335,45 @@ export const AppProvider = ({ children, setLoading }) => {
       setLoading(false);
     }
   };
+  const addMix = async (mix) => {
+    setLoading(true);
+    try {
+      await axios.post(`${API_URL}/mixes`, mix);
+      message.success('התערובת נוספה בהצלחה');
+      setLoading(false);
+    } catch (error) {
+      console.error('Error adding mix:', error);
+      message.error('שגיאה בהוספת התערובת');
+      setLoading(false);
+    }
+  };
+
+  const updateMix = async (updatedMix) => {
+    setLoading(true);
+    try {
+      const encodedId = encodeURIComponent(updatedMix._id);
+      await axios.put(`${API_URL}/mixes/${encodedId}`, updatedMix);
+      message.success('התערובת עודכנה בהצלחה');
+      setLoading(false);
+    } catch (error) {
+      console.error('Error updating mix:', error);
+      message.error('שגיאה בעדכון התערובת');
+      setLoading(false);
+    }
+  };
+
+  const deleteMix = async (mixId) => {
+    setLoading(true);
+    try {
+      await axios.delete(`${API_URL}/mixes/${mixId}`);
+      message.success('התערובת נמחקה בהצלחה');
+      setLoading(false);
+    } catch (error) {
+      console.error('Error deleting mix:', error);
+      message.error('שגיאה במחיקת התערובת');
+      setLoading(false);
+    }
+  };
 
   return (
     <AppContext.Provider
@@ -325,6 +391,9 @@ export const AppProvider = ({ children, setLoading }) => {
         addCategory,
         updateCategory,
         deleteCategory,
+        addMix,
+        updateMix,
+        deleteMix,
       }}
     >
       {children}

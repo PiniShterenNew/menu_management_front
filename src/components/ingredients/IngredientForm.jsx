@@ -9,6 +9,11 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
     const [form] = AntdForm.useForm();
     const [isJuice, setIsJuice] = useState(initialValues?.isJuice || false);
 
+    // **New state to track if unit weight/volume is required**
+    const [isUnitRequired, setIsUnitRequired] = useState(
+        initialValues?.type !== "מכלים ואביזרים" && initialValues?.unit === "יחידות"
+    );
+
     useEffect(() => {
         if (initialValues) {
             form.setFieldsValue({
@@ -17,20 +22,21 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
                 price: Number(initialValues.price),
             });
 
-            // בדיקה של סוגי הערכים בשדות הבעייתיים
-            form.validateFields()
-                .then(values => {
-                    console.log("Initial Values:", values);
-                    console.log("Type of quantity:", typeof values.quantity);
-                    console.log("Type of price:", typeof values.price);
-                })
-                .catch(errorInfo => {
-                    console.log("Validation failed:", errorInfo);
-                });
-
             setIsJuice(initialValues.isJuice || false);
+
+            // **Update isUnitRequired when initial values change**
+            setIsUnitRequired(initialValues.type !== "מכלים ואביזרים" && initialValues.unit === "יחידות");
         }
     }, [initialValues, form]);
+
+    // Update isUnitRequired when type or unit changes
+    const handleTypeOrUnitChange = (changedField) => {
+        if (changedField === 'type' || changedField === 'unit') {
+            const type = form.getFieldValue('type');
+            const unit = form.getFieldValue('unit');
+            setIsUnitRequired(type !== "מכלים ואביזרים" && unit === "יחידות");
+        }
+    };
 
     const onFinish = (values) => {
         addIngredient({
@@ -58,9 +64,10 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
                     name="supplierId"
                     rules={[{ required: true, message: 'אנא בחר ספק' }]}
                 >
-                    <Select placeholder="בחר ספק"
-                        popupMatchSelectWidth={false} // מונע התאמה אוטומטית של הרוחב
-                        dropdownStyle={{ maxHeight: '60vh' }} // מגביל את הגובה כך שלא יחרוג מגובה המסך
+                    <Select
+                        placeholder="בחר ספק"
+                        popupMatchSelectWidth={false}
+                        dropdownStyle={{ maxHeight: '60vh' }}
                     >
                         {supplierState && supplierState.length > 0 ? (
                             supplierState.map((supplier) => (
@@ -79,9 +86,11 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
                     name="type"
                     rules={[{ required: true, message: 'אנא בחר סוג חומר גלם' }]}
                 >
-                    <Select placeholder="בחר סוג חומר גלם"
-                        popupMatchSelectWidth={false} // מונע התאמה אוטומטית של הרוחב
-                        dropdownStyle={{ maxHeight: '60vh' }} // מגביל את הגובה כך שלא יחרוג מגובה המסך
+                    <Select
+                        placeholder="בחר סוג חומר גלם"
+                        popupMatchSelectWidth={false}
+                        dropdownStyle={{ maxHeight: '60vh' }}
+                        onChange={() => handleTypeOrUnitChange('type')}
                     >
                         <Select.Option value="פירות">פירות</Select.Option>
                         <Select.Option value="נוזלים">נוזלים</Select.Option>
@@ -96,15 +105,28 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
                     name="unit"
                     rules={[{ required: true, message: 'אנא בחר יחידת מידה' }]}
                 >
-                    <Select placeholder="בחר יחידת מידה"
-                        popupMatchSelectWidth={false} // מונע התאמה אוטומטית של הרוחב
-                        dropdownStyle={{ maxHeight: '60vh' }} // מגביל את הגובה כך שלא יחרוג מגובה המסך
+                    <Select
+                        placeholder="בחר יחידת מידה"
+                        popupMatchSelectWidth={false}
+                        dropdownStyle={{ maxHeight: '60vh' }}
+                        onChange={() => handleTypeOrUnitChange('unit')}
                     >
                         <Select.Option value={`ק"ג`}>{`ק"ג`}</Select.Option>
                         <Select.Option value="ליטר">ליטר</Select.Option>
                         <Select.Option value="יחידות">יחידות</Select.Option>
                     </Select>
                 </AntdForm.Item>
+
+                {isUnitRequired && (
+                    <AntdForm.Item
+                        label="משקל/נפח ליחידה"
+                        name="weightOrVolumePerUnit"
+                        rules={[{ required: true, message: "אנא הזן משקל או נפח עבור יחידה זו" }]}
+                    >
+                        <InputNumber min={0.01} step="any" style={{ width: '100%' }} />
+                    </AntdForm.Item>
+                )}
+
                 <AntdForm.Item
                     label={"כמות"}
                     name="quantity"

@@ -66,6 +66,9 @@
 .yellow {
     background: linear-gradient(135deg, #faad14, #ffd666);
 }
+.purple {
+    background: linear-gradient(135deg, #8a2be2, #b794f6);
+}
 
 
 .stat-content {

@@ -1,0 +1,45 @@
+.mixes-page-container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.mix-controls {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+}
+
+.add-mix-button {
+  width: auto;
+}
+
+.ant-list-item-action {
+  justify-content: flex-start !important;
+}
+
+.mixes-tab .ant-tabs-nav-list {
+  direction: rtl;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mixes-tab .ant-tabs-nav-list::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mixes-page-container {
+      padding: 0px 10px !important;
+  }
+
+  .mix-controls {
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .add-mix-button {
+      width: 100% !important;
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "GainGuard",
   "short_name": "App",
-  "start_url": ".",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#171b20",

@@ -1,26 +1,20 @@
-// features/productsSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const VAT_RATE = 1.17;
 
-function processProductsData(products, ingredientsState) {
-  return ingredientsState?.length > 0 ? products.map(product => {
-    // מעבדים כל רכיב במוצר
+function processProductsData(products, ingredientsState, mixesState) {
+  return ingredientsState?.length > 0 && mixesState?.length > 0 ? products.map(product => {
     const updatedIngredients = product.ingredients.map(ingredient => {
-      // מוצאים את המידע המעודכן של הרכיב
       const ingredientData = ingredientsState.find(item => item._id === ingredient.ingredientId);
-      if (!ingredientData) return ingredient; // אם לא נמצא, מחזירים את הרכיב כפי שהוא
+      if (!ingredientData) return ingredient;
 
-      // מחשבים את עלות הרכיב לפי המחיר ליחידה, כמות היחידה והכמות הנדרשת
       const quantityRatio = ingredient.quantity / ingredientData.unitQuantity;
       const ingredientCost = quantityRatio * ingredientData.unitPrice;
 
-      // אם זה רכיב מיועד למיץ, נחשב את העלות המעובדת
       const processedCost = ingredientData.isJuice
         ? (ingredient.quantity / ingredientData.unitQuantity) * ingredientData.processedPrice
         : null;
 
-      // מוסיפים מפתחות חדשים לרכיב עם עלות בפועל ועלות מעובדת
       return {
         ...ingredient,
         actualCost: ingredientCost.toFixed(2),
@@ -28,17 +22,33 @@ function processProductsData(products, ingredientsState) {
       };
     });
 
-    // חישוב העלות הכוללת של המוצר
-    const totalRawCost = updatedIngredients.reduce((acc, ingredient) => acc + parseFloat(ingredient.processedCost || ingredient.actualCost || 0), 0);
+    const updatedMixes = product.mixes.map(mix => {
+      const mixData = mixesState.find(item => item._id === mix.mixId);
+      if (!mixData) return mix;
+
+      const realQuantity = mix.quantity / mixData.totalWeight; // חישוב כמות בפועל מתוך משקל כולל המיקס
+      const mixCost = realQuantity * mixData.totalCost;
+
+      return {
+        ...mix,
+        actualCost: mixCost.toFixed(2),
+        realQuantity: realQuantity.toFixed(2) // נפח בפועל מהמיקס
+      };
+    });
+
+    const totalIngredientCost = updatedIngredients.reduce((acc, ingredient) => acc + parseFloat(ingredient.processedCost || ingredient.actualCost || 0), 0);
+    const totalMixCost = updatedMixes.reduce((acc, mix) => acc + parseFloat(mix.actualCost || 0), 0);
+    const totalRawCost = totalIngredientCost + totalMixCost;
+
     const priceWithoutVAT = product?.price / VAT_RATE;
-    const costWithoutVAT = Number(totalRawCost) || 0;
-    const totalCost = (costWithoutVAT + (product?.laborCost || 0) + (product?.additionalCost || 0)).toFixed(2);
+    const totalCost = (totalRawCost + (product?.laborCost || 0) + (product?.additionalCost || 0)).toFixed(2);
     const profit = (priceWithoutVAT - totalCost).toFixed(2);
     const profitMargin = priceWithoutVAT > 0 ? ((profit / priceWithoutVAT) * 100).toFixed(2) : '0.00';
-    // החזרת המוצר עם העלויות המחושבות
+
     return {
       ...product,
       ingredients: updatedIngredients,
+      mixes: updatedMixes,
       totalRawCost: totalRawCost.toFixed(2),
       profitMargin: profitMargin,
     };
@@ -50,12 +60,12 @@ const productsSlice = createSlice({
   initialState: [],
   reducers: {
     setProductsState: (state, action) => {
-      const { products, ingredientsState } = action.payload;
-      return processProductsData(products, ingredientsState); // עיבוד הנתונים
+      const { products, ingredientsState, mixesState } = action.payload;
+      return processProductsData(products, ingredientsState, mixesState);
     },
     addOrUpdateProductState: (state, action) => {
-      const { newProduct, ingredientsState } = action.payload;
-      const updatedProduct = processProductsData([newProduct], ingredientsState)[0];
+      const { newProduct, ingredientsState, mixesState } = action.payload;
+      const updatedProduct = processProductsData([newProduct], ingredientsState, mixesState)[0];
 
       const existingIndex = state.findIndex((product) => product._id === newProduct._id);
       if (existingIndex !== -1) {
@@ -65,8 +75,8 @@ const productsSlice = createSlice({
       }
     },
     updateProductState: (state, action) => {
-      const { updatedProduct, ingredientsState } = action.payload;
-      const updatedProductState = processProductsData([updatedProduct], ingredientsState)[0];
+      const { updatedProduct, ingredientsState, mixesState } = action.payload;
+      const updatedProductState = processProductsData([updatedProduct], ingredientsState, mixesState)[0];
       return state.map((product) =>
         product._id === updatedProduct._id ? updatedProductState : product
       );

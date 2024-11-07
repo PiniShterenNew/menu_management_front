@@ -1,0 +1,14 @@
+/* MixList.css */
+.mix-name {
+    font-size: 2em;
+}
+
+@media (max-width: 768px) {
+    .mix-name {
+        font-size: 1.5em;
+    }
+
+    .expanded-mix {
+        margin-top: 8px;
+    }
+}

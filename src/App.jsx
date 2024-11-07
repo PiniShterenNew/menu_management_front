@@ -3,12 +3,13 @@ import MenuPage from './pages/MenuPage';
 import SuppliersPage from './pages/SuppliersPage';
 import IngredientsPage from './pages/IngredientsPage';
 import DashboardPage from './pages/DashboardPage';
+import MixesPage from "./pages/MixesPage";
 import { AppProvider } from './context/AppContext';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
 import { Layout, Button, Drawer, Image, Divider, Spin, Col } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartLine, faStore, faDolly, faTruck } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faStore, faDolly, faTruck, faFlask } from '@fortawesome/free-solid-svg-icons';
 import Logo from "./assets/logo.png";
 import TopBar from './components/topBar/TopBar';
 import { useMediaQuery } from 'react-responsive';
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/menu" element={<MenuPage />} />
                 <Route path="/suppliers" element={<SuppliersPage />} />
+                <Route path="/mixes" element={<MixesPage />} />
                 <Route path="/ingredients" element={<IngredientsPage />} />
               </Routes>
             </Content>
@@ -49,8 +51,8 @@ function App() {
           {/* Drawer לתפריט במובייל */}
           <Drawer
             title={<Col>
-            <Image className='logo' src={Logo} alt='GainGuard' preview={false} />
-            <p>ניווט</p>
+              <Image className='logo' src={Logo} alt='GainGuard' preview={false} />
+              <p>ניווט</p>
             </Col>}
             placement="right"
             closable={true}
@@ -81,6 +83,11 @@ function NavMenu({ onClose }) {
       <Button type="link" onClick={onClose} className={linkStyle('/menu')}>
         <Link to="/menu">
           <FontAwesomeIcon icon={faStore} /> <p>תפריט</p>
+        </Link>
+      </Button>
+      <Button type="link" onClick={onClose} className={linkStyle('/mixes')}>
+        <Link to="/mixes">
+          <FontAwesomeIcon icon={faFlask} /> <p>תערובות/תרכובות</p>
         </Link>
       </Button>
       <Button type="link" onClick={onClose} className={linkStyle('/ingredients')}>

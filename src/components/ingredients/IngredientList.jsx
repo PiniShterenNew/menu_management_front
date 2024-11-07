@@ -66,10 +66,17 @@ const IngredientList = ({ sortKey }) => {
                                         {/* <p>כמות: {ingredient.quantity} {ingredient.unit}</p> */}
                                         {/* <p>מחיר כולל מע"מ: ₪{ingredient.price}</p> */}
 
-                                        {ingredient?.juiceRatio ? <>
-                                            <p>יחס מיץ: {ingredient?.juiceRatio * 100}%</p>
-                                            <p>מחיר ליחידה מעובדת: ₪{ingredient?.processedPrice} ({ingredient?.unitDescription})</p>
-                                        </> : <p>מחיר ליחידה ללא מע"מ: ₪{ingredient?.unitPrice} ({ingredient?.unitDescription})</p>}
+                                        {ingredient?.juiceRatio ? (
+                                            <>
+                                                <p>יחס מיץ: {ingredient?.juiceRatio * 100}%</p>
+                                                <p>מחיר ליחידה מעובדת: ₪{ingredient?.processedPrice} ({ingredient?.unitDescription})</p>
+                                            </>
+                                        ) : (
+                                            <p>מחיר ליחידה ללא מע"מ: ₪{ingredient?.unitPrice} ({ingredient?.unitDescription})</p>
+                                        )}
+                                        {ingredient.weightOrVolumePerUnit && (
+                                            <p>משקל/נפח ליחידה: {ingredient.weightOrVolumePerUnit} {ingredient.unit === "יחידות" ? "גרם" : ingredient.unit}</p>
+                                        )}
                                     </div>
                                 }
                             />

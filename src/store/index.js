@@ -3,13 +3,15 @@ import suppliers from "./suppliers";
 import ingredients from "./ingredients";
 import products from "./products";
 import dashboard from "./dashboard";
+import mixesSlice from "./mixes";
 
 const store = configureStore({
     reducer: {
         suppliers: suppliers,
         ingredients: ingredients,
         products: products,
-        dashboard: dashboard
+        dashboard: dashboard,
+        mixes: mixesSlice
     }
 });
 
