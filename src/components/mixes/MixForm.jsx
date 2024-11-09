@@ -21,14 +21,14 @@ const MixForm = ({ addMix, initialValues, onClose }) => {
       ...initialValues,
       ...values,
       ...(initialValues && { _id: initialValues._id }),
-      ingredients: mixIngredients,
+      ingredients: mixIngredients?.filter((e) => e?.ingredientId),
     });
     form.resetFields();
     onClose();
   };
 
   const addIngredient = () => {
-    setMixIngredients([...mixIngredients, { ingredientId: '', quantity: 1, unit: '' }]);
+    setMixIngredients([{ ingredientId: '', quantity: 1, unit: '' }, ...mixIngredients]);
   };
 
   const updateIngredient = (index, field, value) => {

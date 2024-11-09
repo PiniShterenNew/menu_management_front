@@ -200,6 +200,7 @@ function DashboardPage() {
 
         <Col xs={24} md={12}>
           <Card
+           className='dashboard-card'
             title={
               <span>
                 <FontAwesomeIcon icon={faStore} style={{ marginLeft: '8px' }} />
