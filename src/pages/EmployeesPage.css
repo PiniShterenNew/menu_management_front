@@ -1,0 +1,36 @@
+/* src/pages/IngredientsPage.css */
+.scrollable-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.employees-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    /* מאפשר לשבור שורות בנייד */
+    margin-bottom: 20px;
+}
+
+.sort-select {
+    width: 200px;
+}
+
+@media (max-width: 768px) {
+    .employees-controls {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        /* יישור לאורך המסך */
+        gap: 15px;
+    }
+
+    .sort-select {
+        width: 100%;
+        /* משתרע על כל הרוחב במסכים קטנים */
+    }
+}

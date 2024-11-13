@@ -1,14 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { AppContext } from '../context/AppContext';
 import { Button, Modal } from 'antd';
 import MixForm from '../components/mixes/MixForm';
 import MixList from '../components/mixes/MixList';
 import './MixesPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useMixContext } from '../context/subcontexts/MixContext';
 
 function MixesPage() {
-  const { addMix } = useContext(AppContext);
+  const { addMix } = useMixContext();
   const [isMixModalVisible, setIsMixModalVisible] = useState(false);
 
   const showMixModal = () => {
@@ -31,10 +31,11 @@ function MixesPage() {
 
       <Modal
         title="הוסף תערובת חדשה"
-        visible={isMixModalVisible}
+        open={isMixModalVisible}
         onCancel={handleMixModalClose}
         className="popup-modal"
         footer={null}
+        destroyOnClose
       >
         <MixForm addMix={addMix} onClose={handleMixModalClose} />
       </Modal>

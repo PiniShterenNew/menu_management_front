@@ -1,0 +1,20 @@
+.employee-form-card {
+    max-width: 400px;
+    margin: auto;
+}
+
+.employee-form-card .ant-form-item-control-input-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em !important;
+}
+
+.employee-form-button {
+    width: 100%;
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}

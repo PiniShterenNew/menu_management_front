@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Card, Form as AntdForm, Input, Button, Tabs, Select, InputNumber } from 'antd';
-import { AppContext } from '../../context/AppContext';
 import './ProductForm.css';
 import { useSelector } from 'react-redux';
 
@@ -8,8 +7,8 @@ const { TabPane } = Tabs;
 
 const ProductForm = ({ addProduct, initialValues, onClose }) => {
   const [form] = AntdForm.useForm();
-  const { categoryData } = useContext(AppContext);
   const ingredientsState = useSelector((state) => state.ingredients);
+  const categoriesState = useSelector((state) => state.categories);
   const mixesState = useSelector((state) => state.mixes);
 
   const [productIngredients, setProductIngredients] = useState(initialValues?.ingredients || []);
@@ -99,7 +98,7 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
                 popupMatchSelectWidth={false}
                 dropdownStyle={{ maxHeight: '60vh' }}
               >
-                {categoryData.map((category) => (
+                {categoriesState.map((category) => (
                   <Select.Option key={category._id} value={category._id}>
                     {category.name}
                   </Select.Option>
@@ -121,6 +120,14 @@ const ProductForm = ({ addProduct, initialValues, onClose }) => {
               rules={[{ required: true, message: 'אנא הזן מחיר תקין' }]}
             >
               <InputNumber style={{ width: '100%' }} />
+            </AntdForm.Item>
+
+            <AntdForm.Item
+              label="משך זמן הכנה (בדקות)"
+              name="preparationTime"
+              rules={[{ required: true, message: "אנא הזן את משך זמן ההכנה בדקות" }, { required: true, message: "זמן הכנה יכול להיות מינימום דקה!" }]}
+            >
+              <InputNumber min={1} />
             </AntdForm.Item>
           </AntdForm>
         </TabPane>

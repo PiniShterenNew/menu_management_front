@@ -6,10 +6,9 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
-      devOptions: {
-        enabled: true,
-      },
+      registerType: 'disabled', // מבטל את רישום ה-Service Worker
+      workbox: false,           // מבטל את כל הפונקציות הקשורות ל-workbox
+      injectRegister: 'null',    // מונע רישום אוטומטי
       manifest: {
         name: 'השם של האפליקציה שלך',
         short_name: 'שם קצר',

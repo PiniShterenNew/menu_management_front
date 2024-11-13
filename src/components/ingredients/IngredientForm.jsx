@@ -1,18 +1,28 @@
 // src/components/IngredientForm.jsx - טופס להוספה/עריכת חומרי גלם עם שימוש ב-Ant Design מותאם לנייד
-import React, { useEffect, useState } from 'react';
-import { Card, Form as AntdForm, Input, Button, Select, Checkbox, InputNumber } from 'antd';
+import React, { forwardRef, useEffect, useState } from 'react';
+import { Card, Form as AntdForm, Input, Button, Select, Checkbox, InputNumber, Typography } from 'antd';
 import './IngredientForm.css';
 import { useSelector } from 'react-redux';
 
-const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
+const { Text } = Typography;
+
+const IngredientForm = forwardRef(({ addIngredient, initialValues, onClose }, ref) => {
     const supplierState = useSelector((state) => state.suppliers);
+    const ingredientsState = useSelector((state) => state.ingredients);
+
     const [form] = AntdForm.useForm();
+
     const [isJuice, setIsJuice] = useState(initialValues?.isJuice || false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     // **New state to track if unit weight/volume is required**
     const [isUnitRequired, setIsUnitRequired] = useState(
         initialValues?.type !== "מכלים ואביזרים" && initialValues?.unit === "יחידות"
     );
+
+    React.useImperativeHandle(ref, () => ({
+        resetFields: () => form.resetFields(),
+    }));
 
     useEffect(() => {
         if (initialValues) {
@@ -39,11 +49,35 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
     };
 
     const onFinish = (values) => {
+        // מוודאים שהרשימה מסודרת מהחדש לישן
+        const sortedIngredients = [...ingredientsState].sort((a, b) => b.createdAt - a.createdAt);
+
+        const duplicateIngredient = sortedIngredients.find((ingredient) => {
+            return (
+                ingredient.name === values.name &&
+                ingredient.supplierId === values.supplierId &&
+                ingredient.type === values.type &&
+                ingredient.unit === values.unit &&
+                ingredient.quantity === values.quantity &&
+                ingredient.price === values.price &&
+                ingredient.isJuice === isJuice
+            );
+        });
+
+        if (
+            duplicateIngredient &&
+            (!initialValues?._id || initialValues._id !== duplicateIngredient._id)
+        ) {
+            setErrorMessage('קיים כבר חומר גלם עם פרטים זהים במערכת!');
+            return;
+        }
+
         addIngredient({
             ...values,
             ...(initialValues && { _id: initialValues._id }),
             isJuice: isJuice,
         });
+
         form.resetFields();
         onClose();
     };
@@ -58,7 +92,6 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
                 >
                     <Input />
                 </AntdForm.Item>
-
                 <AntdForm.Item
                     label="ספק"
                     name="supplierId"
@@ -157,7 +190,7 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
                         <InputNumber style={{ width: '100%' }} min={0.01} step={0.01} />
                     </AntdForm.Item>
                 )}
-
+                {errorMessage && <Text type="danger" className="error-message">{errorMessage}</Text>}
                 <AntdForm.Item>
                     <Button type="primary" htmlType="submit" className="ingredient-form-button">
                         {initialValues ? "עדכן חומר גלם" : "הוסף חומר גלם"}
@@ -166,6 +199,6 @@ const IngredientForm = ({ addIngredient, initialValues, onClose }) => {
             </AntdForm>
         </Card>
     );
-};
+});
 
 export default IngredientForm;

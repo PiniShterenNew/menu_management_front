@@ -1,13 +1,13 @@
 // src/pages/IngredientsPage.jsx - דף חומרי הגלם עם שימוש ב-Ant Design מותאם לנייד
 import React, { useContext, useState } from 'react';
-import { AppContext } from '../context/AppContext';
 import { Button, Modal, Select } from 'antd';
 import IngredientForm from '../components/ingredients/IngredientForm';
 import IngredientList from '../components/ingredients/IngredientList';
 import './IngredientsPage.css';
+import { useIngredientContext } from '../context/subcontexts/IngredientContext';
 
 function IngredientsPage() {
-  const { addIngredient } = useContext(AppContext);
+  const { addIngredient } = useIngredientContext();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [sortKey, setSortKey] = useState('');
 
@@ -42,10 +42,11 @@ function IngredientsPage() {
 
       <Modal
         title="הוסף חומר גלם חדש"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleModalClose}
         className='popup-modal'
         footer={null}
+        destroyOnClose
       >
         <IngredientForm
           addIngredient={addIngredient}

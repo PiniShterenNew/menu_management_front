@@ -1,22 +1,25 @@
 import React, { useContext, useState } from 'react';
-import { List, Card, Button, Modal, Typography, Statistic, Row, Col } from 'antd';
-import { AppContext } from '../../context/AppContext';
+import { List, Card, Button, Modal, Typography, Statistic, Row, Col, Popconfirm, Collapse } from 'antd';
 import ProductForm from './ProductForm';
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 import "./ProductList.css";
 import { useSelector } from 'react-redux';
-
+import { useProductContext } from '../../context/subcontexts/ProductContext';
+import { } from '@ant-design/icons';
 const { Text } = Typography;
+const Panel = Collapse.Panel;
 const VAT_RATE = 1.17;
 
 const ProductList = ({ sortKey, categoryId }) => {
     const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
-    const { updateProduct, deleteProduct, categoryData } = useContext(AppContext);
+    const { updateProduct, deleteProduct } = useProductContext();
+    const categoriesState = useSelector((state) => state.categories);
     const ingredientsState = useSelector((state) => state.ingredients);
     const mixesState = useSelector((state) => state.mixes);
     const productsState = useSelector((state) => state.products);
+    const overallAverageHourlyRateState = useSelector((state) => state.employeeHours.overallAverageHourlyRate);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
@@ -61,7 +64,7 @@ const ProductList = ({ sortKey, categoryId }) => {
                 renderItem={(product) => {
                     const price = parseFloat(product.price) || 0;
                     const priceWithoutVAT = (price / VAT_RATE).toFixed(2);
-                    const laborCost = parseFloat(product.laborCost) || 0;
+                    const laborCost = parseFloat(product.laborCost) || overallAverageHourlyRateState / 60 * product?.preparationTime;
                     const additionalCost = parseFloat(product.additionalCost) || 0;
 
                     const costWithoutVAT = Number(product?.totalRawCost) || 0;
@@ -74,7 +77,14 @@ const ProductList = ({ sortKey, categoryId }) => {
                             key={product._id}
                             actions={[
                                 <Button type="dashed" onClick={() => handleEdit(product)}>ערוך</Button>,
-                                <Button type="dashed" danger onClick={() => handleDelete(product._id)}>מחק</Button>,
+                                <Popconfirm
+                                    title="האם אתה בטוח שברצונך למחוק את המוצר?"
+                                    onConfirm={() => handleDelete(product._id)}
+                                    okText="כן"
+                                    cancelText="לא"
+                                >
+                                    <Button icon={<DeleteOutlined />} danger />
+                                </Popconfirm>,
                                 <Button type="dashed" onClick={() => handleExpand(product)}>
                                     {expandedProduct?._id === product._id ? <UpOutlined /> : <DownOutlined />}
                                 </Button>
@@ -88,7 +98,7 @@ const ProductList = ({ sortKey, categoryId }) => {
                                             <p>גודל: {product.size}</p>
                                             <p style={{ color: 'gray', margin: 0, fontWeight: 500 }}>
                                                 קטגוריה: {
-                                                    categoryData.find((category) => category._id === product.category)?.name || 'לא ידוע'
+                                                    categoriesState.find((category) => category._id === product.category)?.name || 'לא ידוע'
                                                 }
                                             </p>
                                         </Col>
@@ -101,67 +111,14 @@ const ProductList = ({ sortKey, categoryId }) => {
                                         <Col xs={24} sm={12} md={8} lg={4} style={{ textAlign: 'center', marginTop: '10px' }}>
                                             <Statistic title={`שיעור רווחיות`} value={`${profitMargin}%`} />
                                         </Col>
+                                        <Col xs={24} sm={12} md={8} lg={4} style={{ textAlign: 'center', marginTop: '10px' }}>
+                                            <Statistic valueStyle={{ direction: "rtl" }} title={`משך זמן הכנה (בדקות)`} value={`דק' ${product?.preparationTime}`} />
+                                        </Col>
                                     </Row>
                                 }
                             />
                             {expandedProduct?._id === product._id && (
                                 <div style={{ marginTop: '10px' }}>
-                                    <h4>רכיבי המוצר:</h4>
-                                    {product.ingredients.length > 0 ? (
-                                        <List
-                                            dataSource={product.ingredients}
-                                            renderItem={(ingredient) => {
-                                                const ingredientDetails = ingredientsState.find((item) => item._id === ingredient.ingredientId);
-                                                if (!ingredientDetails) return null;
-
-                                                let quantityProcessed = ingredient.quantity;
-                                                const totalIngredientCost = Number(ingredient?.processedCost || ingredient?.actualCost).toFixed(2);
-
-                                                return (
-                                                    <List.Item key={ingredient._id}>
-                                                        <List.Item.Meta
-                                                            title={<p>{ingredientDetails?.name || 'חומר גלם לא ידוע'}</p>}
-                                                            description={
-                                                                <div>
-                                                                    <p>{`כמות: ${quantityProcessed.toFixed(2)} ${ingredientDetails.unit}, עלות כוללת: ₪${totalIngredientCost}`}</p>
-                                                                    <Text type="secondary">{`מחיר ליחידה: ₪${ingredientDetails?.unitPrice} (${ingredientDetails?.unitDescription})`}</Text>
-                                                                </div>
-                                                            }
-                                                        />
-                                                    </List.Item>
-                                                );
-                                            }}
-                                        />
-                                    ) : (
-                                        <p>אין רכיבים למוצר זה.</p>
-                                    )}
-                                    {product.mixes.length > 0 && (
-                                        <>
-                                            <h4>מיקסים במוצר:</h4>
-                                            <List
-                                                dataSource={product.mixes}
-                                                renderItem={(mix) => {
-                                                    const mixDetails = mixesState.find((item) => item._id === mix.mixId);
-                                                    if (!mixDetails) return null;
-
-                                                    const totalMixCost = Number(mix.actualCost).toFixed(2);
-
-                                                    return (
-                                                        <List.Item key={mix._id}>
-                                                            <List.Item.Meta
-                                                                title={<p>{mixDetails?.name || 'מיקס לא ידוע'}</p>}
-                                                                description={
-                                                                    <div>
-                                                                        <p>{`כמות: ${mix.quantity.toFixed(2)} ליטר, עלות כוללת: ₪${totalMixCost}`}</p>
-                                                                    </div>
-                                                                }
-                                                            />
-                                                        </List.Item>
-                                                    );
-                                                }}
-                                            />
-                                        </>
-                                    )}
                                     <h4>סיכום עלויות:</h4>
                                     <Row gutter={[16, 16]}>
                                         <Col span={24}>עלות רכיבים ומיקסים (ללא מע"מ): ₪{costWithoutVAT}</Col>
@@ -173,6 +130,69 @@ const ProductList = ({ sortKey, categoryId }) => {
                                         <Col span={24}>רווח נטו לאחר עלויות נוספות: ₪{profit}</Col>
                                         <Col span={24}>שיעור רווחיות: {profitMargin}%</Col>
                                     </Row>
+
+                                    <Collapse bordered={false}>
+                                        <Panel header="פירוט מרכיבים" key="1">
+                                            <>
+                                                <h4>רכיבי המוצר:</h4>
+                                                {product.ingredients.length > 0 ? (
+                                                    <List
+                                                        dataSource={product.ingredients}
+                                                        renderItem={(ingredient) => {
+                                                            const ingredientDetails = ingredientsState.find((item) => item._id === ingredient.ingredientId);
+                                                            if (!ingredientDetails) return null;
+
+                                                            let quantityProcessed = ingredient.quantity;
+                                                            const totalIngredientCost = Number(ingredient?.processedCost || ingredient?.actualCost).toFixed(2);
+
+                                                            return (
+                                                                <List.Item key={ingredient._id}>
+                                                                    <List.Item.Meta
+                                                                        title={<p>{ingredientDetails?.name || 'חומר גלם לא ידוע'}</p>}
+                                                                        description={
+                                                                            <div>
+                                                                                <p>{`כמות: ${quantityProcessed.toFixed(2)} ${ingredientDetails.unit}, עלות כוללת: ₪${totalIngredientCost}`}</p>
+                                                                                <Text type="secondary">{`מחיר ליחידה: ₪${ingredientDetails?.unitPrice} (${ingredientDetails?.unitDescription})`}</Text>
+                                                                            </div>
+                                                                        }
+                                                                    />
+                                                                </List.Item>
+                                                            );
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <p>אין רכיבים למוצר זה.</p>
+                                                )}
+                                                {product.mixes.length > 0 && (
+                                                    <>
+                                                        <h4>מיקסים במוצר:</h4>
+                                                        <List
+                                                            dataSource={product.mixes}
+                                                            renderItem={(mix) => {
+                                                                const mixDetails = mixesState.find((item) => item._id === mix.mixId);
+                                                                if (!mixDetails) return null;
+
+                                                                const totalMixCost = Number(mix.actualCost).toFixed(2);
+
+                                                                return (
+                                                                    <List.Item key={mix._id}>
+                                                                        <List.Item.Meta
+                                                                            title={<p>{mixDetails?.name || 'מיקס לא ידוע'}</p>}
+                                                                            description={
+                                                                                <div>
+                                                                                    <p>{`כמות: ${mix.quantity.toFixed(2)} ליטר, עלות כוללת: ₪${totalMixCost}`}</p>
+                                                                                </div>
+                                                                            }
+                                                                        />
+                                                                    </List.Item>
+                                                                );
+                                                            }}
+                                                        />
+                                                    </>
+                                                )}
+                                            </>
+                                        </Panel>
+                                    </Collapse>
                                 </div>
                             )}
                         </List.Item>

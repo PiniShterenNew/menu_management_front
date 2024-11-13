@@ -1,0 +1,10 @@
+.today-row {
+    background-color: #e6f7ff !important;
+    font-weight: bold;
+  }
+  
+  .past-row {
+    background-color: #f0f0f0 !important;
+    color: #b0b0b0;
+  }
+  

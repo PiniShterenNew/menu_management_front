@@ -4,6 +4,9 @@ import ingredients from "./ingredients";
 import products from "./products";
 import dashboard from "./dashboard";
 import mixesSlice from "./mixes";
+import categories from "./categories";
+import employees from "./employees";
+import employeeHours from "./employeeHours";
 
 const store = configureStore({
     reducer: {
@@ -11,7 +14,10 @@ const store = configureStore({
         ingredients: ingredients,
         products: products,
         dashboard: dashboard,
-        mixes: mixesSlice
+        mixes: mixesSlice,
+        categories: categories,
+        employees: employees,
+        employeeHours: employeeHours
     }
 });
 

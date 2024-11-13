@@ -1,11 +1,16 @@
 // src/components/SupplierForm.jsx - טופס להוספה/עריכת ספקים עם שימוש ב-Ant Design מותאם לנייד
-import React, { useEffect } from 'react';
-import { Card, Form as AntdForm, Input, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Form as AntdForm, Input, Button, Typography } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import './SupplierForm.css';
+import { useSelector } from 'react-redux';
+
+const { Text } = Typography;
 
 const SupplierForm = ({ addSupplier, initialValues, onClose }) => {
     const [form] = AntdForm.useForm();
+    const supplierState = useSelector((state) => state.suppliers);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         if (initialValues) {
@@ -14,6 +19,10 @@ const SupplierForm = ({ addSupplier, initialValues, onClose }) => {
     }, [initialValues, form]);
 
     const onFinish = (values) => {
+        if (supplierState.some((supplier) => supplier.name === values.name.trim())) {
+            setErrorMessage('קיים כבר ספק בעל שם דומה');
+            return;
+        }
         addSupplier({ ...initialValues, ...values });
         form.resetFields();
         onClose();
@@ -45,7 +54,7 @@ const SupplierForm = ({ addSupplier, initialValues, onClose }) => {
                 >
                     <Input />
                 </AntdForm.Item>
-
+                {errorMessage && <Text type="danger" className="error-message">{errorMessage}</Text>}
                 <AntdForm.Item>
                     <Button type="primary" htmlType="submit" className="supplier-form-button">
                         {initialValues ? "עדכן ספק" : "הוסף ספק"}

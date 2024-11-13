@@ -1,12 +1,15 @@
 import React, { useState, useContext } from 'react';
-import { Modal, Input, List, Button, Typography } from 'antd';
-import { AppContext } from '../../context/AppContext';
+import { Modal, Input, List, Button, Typography, Popconfirm } from 'antd';
 import './CategoryForm.css';
+import { useSelector } from 'react-redux';
+import { useCategoryContext } from '../../context/subcontexts/CategoryContext';
+import { DeleteOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
 const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => {
-    const { categoryData, addCategory, updateCategory, deleteCategory } = useContext(AppContext);
+    const { addCategory, updateCategory, deleteCategory } = useCategoryContext();
+    const categoriesState = useSelector((state) => state.categories);
     const [categoryName, setCategoryName] = useState('');
     const [editingCategory, setEditingCategory] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
@@ -16,7 +19,7 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
             setErrorMessage('אנא הזן שם קטגוריה תקין');
             return;
         }
-        if (categoryData.some((category) => category.name === categoryName.trim() && category !== editingCategory)) {
+        if (categoriesState.some((category) => category.name === categoryName.trim() && category !== editingCategory)) {
             setErrorMessage('קטגוריה זו כבר קיימת');
             return;
         }
@@ -61,7 +64,7 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
     return (
         <Modal
             title={editingCategory ? "ערוך קטגוריה" : "הוסף קטגוריה חדשה"}
-            visible={isCategoryModalVisible}
+            open={isCategoryModalVisible}
             onCancel={handleCancel}
             footer={null}
             className="category-modal popup-modal"
@@ -84,7 +87,7 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
                 <Title level={4} style={{ marginTop: '20px' }}>קטגוריות קיימות:</Title>
                 <List
                     bordered
-                    dataSource={categoryData}
+                    dataSource={categoriesState}
                     renderItem={(item) => (
                         <List.Item
                             className={editingCategory && editingCategory._id === item._id ? 'editing-item' : ''}
@@ -94,7 +97,14 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
                                 ) : (
                                     <Button type="link" onClick={() => handleEdit(item)}>ערוך</Button>
                                 ),
-                                <Button type="link" danger onClick={() => handleDelete(item._id)}>מחק</Button>,
+                                <Popconfirm
+                                    title="האם אתה בטוח שברצונך למחוק את הקטגוריה?"
+                                    onConfirm={() => handleDelete(item._id)}
+                                    okText="כן"
+                                    cancelText="לא"
+                                >
+                                    <Button icon={<DeleteOutlined />} danger />
+                                </Popconfirm>,
                             ]}
                         >
                             {editingCategory && editingCategory._id === item._id ? (

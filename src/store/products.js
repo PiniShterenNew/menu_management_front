@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const VAT_RATE = 1.17;
 
 function processProductsData(products, ingredientsState, mixesState) {
-  return ingredientsState?.length > 0 && mixesState?.length > 0 ? products.map(product => {
+  return (ingredientsState?.length > 0 || mixesState?.length > 0) ? products.map(product => {
     const updatedIngredients = product.ingredients.map(ingredient => {
       const ingredientData = ingredientsState.find(item => item._id === ingredient.ingredientId);
       if (!ingredientData) return ingredient;

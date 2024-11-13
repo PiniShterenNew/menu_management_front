@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Form as AntdForm, Input, Button, Select, InputNumber } from 'antd';
+import { Card, Form as AntdForm, Input, Button, Select, InputNumber, Typography } from 'antd';
 import './MixForm.css';
 import { useSelector } from 'react-redux';
+
+const { Text } = Typography;
 
 const MixForm = ({ addMix, initialValues, onClose }) => {
   const [form] = AntdForm.useForm();
   const ingredientsState = useSelector((state) => state.ingredients);
-
+  const mixesState = useSelector((state) => state.mixes);
+  const [errorMessage, setErrorMessage] = useState('');
   const [mixIngredients, setMixIngredients] = useState(initialValues?.ingredients || []);
 
   useEffect(() => {
@@ -17,6 +20,14 @@ const MixForm = ({ addMix, initialValues, onClose }) => {
   }, [initialValues, form]);
 
   const onFinish = (values) => {
+    // בדיקה אם יש תערובת קיימת עם אותו שם ושזו אינה התערובת הנוכחית בעריכה
+    const existingMix = mixesState.find((mix) => mix.name === values.name.trim());
+
+    if (existingMix && (!initialValues || existingMix._id !== initialValues._id)) {
+      setErrorMessage('קיימת כבר תערובת בעלת שם דומה במערכת!');
+      return;
+    }
+
     addMix({
       ...initialValues,
       ...values,
@@ -28,7 +39,7 @@ const MixForm = ({ addMix, initialValues, onClose }) => {
   };
 
   const addIngredient = () => {
-    setMixIngredients([{ ingredientId: '', quantity: 1, unit: '' }, ...mixIngredients]);
+    setMixIngredients((prevIngredients) => [{ ingredientId: '', quantity: 1, unit: '' }, ...prevIngredients]);
   };
 
   const updateIngredient = (index, field, value) => {
@@ -60,7 +71,13 @@ const MixForm = ({ addMix, initialValues, onClose }) => {
         >
           <Input />
         </AntdForm.Item>
-
+        <AntdForm.Item
+          label="משך זמן הכנה (בדקות)"
+          name="preparationTime"
+          rules={[{ required: true, message: "אנא הזן את משך זמן ההכנה בדקות" }, { required: true, message: "זמן הכנה יכול להיות מינימום דקה!" }]}
+        >
+          <InputNumber min={1} />
+        </AntdForm.Item>
         <div style={{ marginBottom: '20px' }}>
           <Button type="dashed" onClick={addIngredient}>
             הוסף רכיב לתערובת
@@ -107,7 +124,7 @@ const MixForm = ({ addMix, initialValues, onClose }) => {
             </Button>
           </div>
         ))}
-
+        {errorMessage && <Text type="danger" className="error-message">{errorMessage}</Text>}
         <AntdForm.Item style={{ marginTop: '20px' }}>
           <Button type="primary" onClick={() => form.submit()}>
             {initialValues ? "עדכן תערובת" : "הוסף תערובת"}

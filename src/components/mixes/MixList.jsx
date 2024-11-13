@@ -1,16 +1,18 @@
 import React, { useContext, useState } from 'react';
-import { List, Card, Button, Modal, Statistic, Row, Col } from 'antd';
-import { AppContext } from '../../context/AppContext';
+import { List, Card, Button, Modal, Statistic, Row, Col, Popconfirm } from 'antd';
 import MixForm from './MixForm';
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 import "./MixList.css";
 import { useSelector } from 'react-redux';
+import { useMixContext } from '../../context/subcontexts/MixContext';
+import { } from '@ant-design/icons';
 
 const MixList = ({ sortKey }) => {
     const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
-    const { updateMix, deleteMix } = useContext(AppContext);
+    const { updateMix, deleteMix } = useMixContext();
     const mixesState = useSelector((state) => state.mixes);
+    const overallAverageHourlyRateState = useSelector((state) => state.employeeHours.overallAverageHourlyRate);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingMix, setEditingMix] = useState(null);
@@ -49,13 +51,20 @@ const MixList = ({ sortKey }) => {
                 renderItem={(mix) => {
                     const totalCost = mix.totalCost;
                     const totalWeight = mix.totalWeight; // נוסיף את totalWeight
-
+                    const laborCost = parseFloat(mix?.laborCost) || overallAverageHourlyRateState / 60 * mix?.preparationTime;
                     return (
                         <List.Item
                             key={mix._id}
                             actions={[
                                 <Button type="dashed" onClick={() => handleEdit(mix)}>ערוך</Button>,
-                                <Button type="dashed" danger onClick={() => handleDelete(mix._id)}>מחק</Button>,
+                                <Popconfirm
+                                    title="האם אתה בטוח שברצונך למחוק את התערובת?"
+                                    onConfirm={() => handleDelete(mix._id)}
+                                    okText="כן"
+                                    cancelText="לא"
+                                >
+                                    <Button icon={<DeleteOutlined />} danger />
+                                </Popconfirm>,
                                 <Button type="dashed" onClick={() => handleExpand(mix)}>
                                     {expandedMix?._id === mix._id ? <UpOutlined /> : <DownOutlined />}
                                 </Button>
@@ -69,7 +78,15 @@ const MixList = ({ sortKey }) => {
                                         </Col>
                                         <Col xs={24} sm={12} md={8} lg={4} style={{ textAlign: 'center', marginTop: '10px' }}>
                                             <Statistic title={`עלות כוללת`} value={`₪${totalCost.toFixed(2)}`} />
+                                        </Col>
+                                        <Col xs={24} sm={12} md={8} lg={4} style={{ textAlign: 'center', marginTop: '10px' }}>
                                             <Statistic title={`נפח כולל (ק"ג/ליטר)`} value={`${totalWeight.toFixed(2)}`} /> {/* הצגת הנפח הכולל */}
+                                        </Col>
+                                        <Col xs={24} sm={12} md={8} lg={4} style={{ textAlign: 'center', marginTop: '10px' }}>
+                                            <Statistic valueStyle={{ direction: "rtl" }} title={`משך זמן הכנה (בדקות)`} value={`דק' ${mix?.preparationTime}`} />
+                                        </Col>
+                                        <Col xs={24} sm={12} md={8} lg={4} style={{ textAlign: 'center', marginTop: '10px' }}>
+                                            <Statistic valueStyle={{ direction: "rtl" }} title={`עלות הכנה`} value={`₪${laborCost?.toFixed(2)}`} />
                                         </Col>
                                     </Row>
                                 }

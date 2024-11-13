@@ -1,0 +1,8 @@
+.workhours-container{
+  flex: 1;
+}
+
+.workhours-error {
+  color: red;
+  font-weight: bold;
+}

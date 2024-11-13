@@ -1,5 +1,4 @@
 import React, { useContext, useMemo } from 'react';
-import { AppContext } from '../context/AppContext';
 import { Row, Col, Card, Typography, Divider, Statistic } from 'antd';
 import { useMediaQuery } from 'react-responsive';
 import { Doughnut, Bar } from 'react-chartjs-2';
@@ -15,16 +14,17 @@ const { Text } = Typography;
 const COLORS = ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F'];
 
 function DashboardPage() {
-  const { categoryData } = useContext(AppContext);
+  const categoriesState = useSelector((state) => state.categories);
   const productsState = useSelector((state) => state.products);
   const supplierState = useSelector((state) => state.suppliers);
   const ingredientsState = useSelector((state) => state.ingredients);
   const mixesState = useSelector((state) => state.mixes);
+  const employees = useSelector((state) => state.employees);
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
   const productsByCategory = useMemo(() => {
     const categoryCounts = productsState.reduce((acc, product) => {
-      const categoryName = categoryData.find(cat => cat._id === product.category)?.name || 'לא מוגדר';
+      const categoryName = categoriesState.find(cat => cat._id === product.category)?.name || 'לא מוגדר';
       acc[categoryName] = (acc[categoryName] || 0) + 1;
       return acc;
     }, {});
@@ -35,7 +35,7 @@ function DashboardPage() {
         backgroundColor: COLORS,
       }]
     };
-  }, [productsState, categoryData]);
+  }, [productsState, categoriesState]);
 
   const expensiveIngredients = useMemo(() => {
     return [...ingredientsState]
@@ -132,7 +132,7 @@ function DashboardPage() {
             </div>
             <div className="stat-content">
               <div className="stat-title">קטגוריות</div>
-              <div className="stat-value">{categoryData.length}</div>
+              <div className="stat-value">{categoriesState.length}</div>
             </div>
           </Card>
         </Col>
@@ -144,6 +144,17 @@ function DashboardPage() {
             <div className="stat-content">
               <div className="stat-title">תערובות</div>
               <div className="stat-value">{mixesState.length}</div>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={12} sm={12} md={10} lg={8} xl={6}>
+          <Card className="dashboard-card">
+            <div className="icon-circle aqua">
+              <FontAwesomeIcon icon={faBox} />
+            </div>
+            <div className="stat-content">
+              <div className="stat-title">עובדים</div>
+              <div className="stat-value">{employees?.length}</div>
             </div>
           </Card>
         </Col>
@@ -200,7 +211,7 @@ function DashboardPage() {
 
         <Col xs={24} md={12}>
           <Card
-           className='dashboard-card'
+            className='dashboard-card'
             title={
               <span>
                 <FontAwesomeIcon icon={faStore} style={{ marginLeft: '8px' }} />

@@ -1,16 +1,29 @@
 /* src/components/SupplierForm.css */
 .supplier-form-card {
-    max-width: 100%;
-    margin-bottom: 20px;
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+
+.supplier-form-button {
+  width: 100%;
+}
+
+/* הודעות שגיאה */
+.error-message {
+  margin: 8px 0px;
+  align-self: center;
+  font-size: 0.95em;
+  font-weight: bold;
+  font-family: var(--primary-font);
+}
+
+.supplier-form-card .ant-form{
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .supplier-form-card {
+    padding: 15px;
   }
-  
-  .supplier-form-button {
-    width: 100%;
-  }
-  
-  @media (max-width: 768px) {
-    .supplier-form-card {
-      padding: 15px;
-    }
-  }
-  
+}

@@ -1,13 +1,13 @@
 // src/pages/SuppliersPage.jsx - דף הספקים עם שימוש ב-Ant Design מותאם לנייד
 import React, { useContext, useState } from 'react';
-import { AppContext } from '../context/AppContext';
 import { Button, Modal, Select } from 'antd';
 import SupplierForm from '../components/suppliers/SupplierForm';
 import SupplierList from '../components/suppliers/SupplierList';
 import './SuppliersPage.css';
+import { useSupplierContext } from '../context/subcontexts/SupplierContext';
 
 function SuppliersPage() {
-  const { addSupplier } = useContext(AppContext);
+  const { addSupplier } = useSupplierContext();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [sortKey, setSortKey] = useState('');
 
@@ -41,10 +41,11 @@ function SuppliersPage() {
 
       <Modal
         title="הוסף ספק חדש"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleModalClose}
         className='popup-modal'
         footer={null}
+        destroyOnClose
       >
         <SupplierForm
           addSupplier={addSupplier}

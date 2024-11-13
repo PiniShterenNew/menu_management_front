@@ -1,15 +1,20 @@
 // src/components/IngredientList.jsx - רשימת חומרי גלם עם שימוש ב-Ant Design מותאם לנייד
-import React, { useContext, useState } from 'react';
-import { List, Card, Button, Modal } from 'antd';
-import { AppContext } from '../../context/AppContext';
+import React, { useContext, useRef, useState } from 'react';
+import { List, Card, Button, Modal, Popconfirm } from 'antd';
 import IngredientForm from './IngredientForm';
 import './IngredientList.css';
 import { useSelector } from 'react-redux';
+import { useIngredientContext } from '../../context/subcontexts/IngredientContext';
+import { DeleteOutlined } from '@ant-design/icons';
 
 const IngredientList = ({ sortKey }) => {
-    const { updateIngredient, deleteIngredient } = useContext(AppContext);
+    const { updateIngredient, deleteIngredient } = useIngredientContext();
     const supplierState = useSelector((state) => state.suppliers);
     const ingredientsState = useSelector((state) => state.ingredients);
+
+    const ingredientFormRef = useRef();
+
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingIngredient, setEditingIngredient] = useState(null);
 
@@ -25,6 +30,7 @@ const IngredientList = ({ sortKey }) => {
     const handleModalClose = () => {
         setEditingIngredient(null);
         setIsModalVisible(false);
+        // ingredientFormRef.current?.resetFields();
     };
 
     const sortedData = [...ingredientsState].sort((a, b) => {
@@ -54,7 +60,14 @@ const IngredientList = ({ sortKey }) => {
                             actions={
                                 [
                                     <Button type="link" onClick={() => handleEdit(ingredient)}>ערוך</Button>,
-                                    <Button type="link" danger onClick={() => handleDelete(ingredient._id)}>מחק</Button>
+                                    <Popconfirm
+                                        title="האם אתה בטוח שברצונך למחוק את חומר גלם זה?"
+                                        onConfirm={() => handleDelete(ingredient._id)}
+                                        okText="כן"
+                                        cancelText="לא"
+                                    >
+                                        <Button icon={<DeleteOutlined />} danger />
+                                    </Popconfirm>
                                 ]}
                         >
                             <List.Item.Meta
@@ -87,15 +100,18 @@ const IngredientList = ({ sortKey }) => {
 
             <Modal
                 title={editingIngredient ? "ערוך חומר גלם" : "הוסף חומר גלם חדש"}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onCancel={handleModalClose}
                 className='popup-modal'
+                afterClose={handleModalClose} // הוספת afterClose
                 footer={null}
+                destroyOnClose
             >
                 <IngredientForm
                     addIngredient={updateIngredient}
                     initialValues={editingIngredient}
                     onClose={handleModalClose}
+                    ref={ingredientFormRef}
                 />
             </Modal>
         </Card >

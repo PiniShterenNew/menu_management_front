@@ -4,12 +4,14 @@ import SuppliersPage from './pages/SuppliersPage';
 import IngredientsPage from './pages/IngredientsPage';
 import DashboardPage from './pages/DashboardPage';
 import MixesPage from "./pages/MixesPage";
+import EmployeesPage from "./pages/EmployeesPage";
+import WorkHoursPage from './pages/WorkHoursPage.jsx';
 import { AppProvider } from './context/AppContext';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
 import { Layout, Button, Drawer, Image, Divider, Spin, Col } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartLine, faStore, faDolly, faTruck, faFlask } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faStore, faDolly, faTruck, faFlask, faUserTie, faClock } from '@fortawesome/free-solid-svg-icons'; // אייקון לעובדים
 import Logo from "./assets/logo.png";
 import TopBar from './components/topBar/TopBar';
 import { useMediaQuery } from 'react-responsive';
@@ -44,11 +46,12 @@ function App() {
                 <Route path="/suppliers" element={<SuppliersPage />} />
                 <Route path="/mixes" element={<MixesPage />} />
                 <Route path="/ingredients" element={<IngredientsPage />} />
+                <Route path="/employees" element={<EmployeesPage />} />
+                <Route path="/work-hours" element={<WorkHoursPage />} />
               </Routes>
             </Content>
             <Footer className="footer">© 2024 מערכת ניהול תפריט ועץ מוצר</Footer>
           </div>
-          {/* Drawer לתפריט במובייל */}
           <Drawer
             title={<Col>
               <Image className='logo' src={Logo} alt='GainGuard' preview={false} />
@@ -57,7 +60,7 @@ function App() {
             placement="right"
             closable={true}
             onClose={() => setDrawerVisible(false)}
-            visible={drawerVisible}
+            open={drawerVisible}
             width={240}
           >
             <NavMenu onClose={() => setDrawerVisible(false)} />
@@ -98,6 +101,16 @@ function NavMenu({ onClose }) {
       <Button type="link" onClick={onClose} className={linkStyle('/suppliers')}>
         <Link to="/suppliers">
           <FontAwesomeIcon icon={faTruck} /> <p>ספקים</p>
+        </Link>
+      </Button>
+      <Button type="link" onClick={onClose} className={linkStyle('/employees')}>
+        <Link to="/employees">
+          <FontAwesomeIcon icon={faUserTie} /> <p>עובדים</p>
+        </Link>
+      </Button>
+      <Button type="link" onClick={onClose} className={linkStyle('/work-hours')}>
+        <Link to="/work-hours">
+          <FontAwesomeIcon icon={faClock} /> <p>ניהול שעות עבודה</p>
         </Link>
       </Button>
     </div>

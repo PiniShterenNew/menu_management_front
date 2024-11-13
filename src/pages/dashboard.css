@@ -64,10 +64,27 @@
 }
 
 .yellow {
-    background: linear-gradient(135deg, #faad14, #ffd666);
+    background: linear-gradient(135deg, #fadb14, #fff566);
+    /* צבע צהוב מעודכן עם מראה בהיר וקליל */
 }
+
 .purple {
     background: linear-gradient(135deg, #8a2be2, #b794f6);
+}
+
+.aqua {
+    background: linear-gradient(135deg, #3dd5f3, #6fe7f9);
+    /* גווני כחול-תכלת, נותנים תחושת רעננות */
+}
+
+.lavender {
+    background: linear-gradient(135deg, #b388eb, #d4a8ff);
+    /* גווני סגול-לילך רכים ואלגנטיים */
+}
+
+.mint {
+    background: linear-gradient(135deg, #a0e9a1, #c3fdb5);
+    /* גווני ירוק-מנטה עדינים וקרירים */
 }
 
 
