@@ -49,7 +49,10 @@ const IngredientList = ({ sortKey }) => {
     return (
         <Card title="רשימת חומרי גלם" className="ingredient-list-card">
             <List
-                itemLayout="vertical"
+                grid={{
+                    gutter: 16,
+                    column: 4,
+                }}
                 dataSource={sortedData}
                 renderItem={(ingredient) => {
                     const supplierName = supplierState ? supplierState.find((supplier) => supplier._id === ingredient.supplierId)?.name || 'לא ידוע' : 'לא ידוע';

@@ -5,37 +5,6 @@ import 'moment/locale/he';
 
 moment.locale('he');
 
-// פונקציה לחישוב ממוצע שכר חודשי לכל העובדים יחד
-export const calculateMonthlyAverageHourlyRateThunk = createAsyncThunk(
-  'employeeHours/calculateMonthlyAverageHourlyRate',
-  async (monthData, { dispatch }) => {
-    let totalHoursAllEmployees = 0;
-    let totalPayAllEmployees = 0;
-
-    monthData.forEach((day) => {
-      day.employees.forEach((employee) => {
-        const { hourlyRate, hoursWorked } = employee;
-
-        let regularHours = Math.min(hoursWorked, 8);
-        let overtime125 = Math.min(Math.max(hoursWorked - 8, 0), 2);
-        let overtime150 = Math.max(hoursWorked - 10, 0);
-
-        const regularPay = regularHours * hourlyRate;
-        const overtime125Pay = overtime125 * hourlyRate * 1.25;
-        const overtime150Pay = overtime150 * hourlyRate * 1.5;
-
-        const dailyTotalPay = regularPay + overtime125Pay + overtime150Pay;
-
-        totalPayAllEmployees += dailyTotalPay;
-        totalHoursAllEmployees += hoursWorked;
-      });
-    });
-
-    const overallAverageHourlyRate = totalHoursAllEmployees > 0 ? totalPayAllEmployees / totalHoursAllEmployees : 0;
-    dispatch(setOverallAverageHourlyRate(overallAverageHourlyRate));
-  }
-);
-
 // פונקציה לבניית מערך הנתונים לכל הימים בחודש
 export const buildMonthDataThunk = createAsyncThunk(
   'employeeHours/buildMonthData',
@@ -87,7 +56,6 @@ export const buildMonthDataThunk = createAsyncThunk(
     });
 
     dispatch(setEmployeeHoursState(monthData));
-    dispatch(calculateMonthlyAverageHourlyRateThunk(monthData)); // חישוב ממוצע אחרי הבנייה
   }
 );
 
@@ -96,17 +64,17 @@ const employeeHoursSlice = createSlice({
   initialState: {
     data: [],
     selectedDate: moment().startOf('month').format('YYYY-MM'), // ברירת מחדל לחודש הנוכחי
-    overallAverageHourlyRate: 0,
+    overallAverageHourlyRate: 34.39, // ממוצע קבוע שנקבע כ-34.39 ש"ח
   },
   reducers: {
     setEmployeeHoursState: (state, action) => {
       state.data = action.payload;
     },
-    setOverallAverageHourlyRate: (state, action) => {
-      state.overallAverageHourlyRate = action.payload;
-    },
     setSelectedDate: (state, action) => {
       state.selectedDate = action.payload;
+    },
+    setOverallAverageHourlyRate: (state, action) => { // מאפשר שינוי ידני של הממוצע
+      state.overallAverageHourlyRate = action.payload;
     },
     addOrUpdateEmployeeHoursState: (state, action) => {
       const newHours = action.payload;
@@ -136,7 +104,7 @@ export const {
   updateEmployeeHoursState,
   deleteEmployeeHoursState,
   setSelectedDate,
-  setOverallAverageHourlyRate,
+  setOverallAverageHourlyRate, // ייצוא הפונקציה החדשה לעדכון הממוצע הקבוע
 } = employeeHoursSlice.actions;
 
 export default employeeHoursSlice.reducer;

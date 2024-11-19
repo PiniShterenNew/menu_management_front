@@ -16,7 +16,7 @@ function calculateMixCost(mix, ingredientsState) {
       totalCost += cost;
 
       // חישוב משקל או נפח רכיב, בהתחשב אם מדובר ביחידות שיש להן משקל/נפח ליחידה
-      const weight = (ingredientData.unit === "יחידות" && ingredientData.type !== "מכלים ואביזרים")
+      const weight = (ingredientData.unit === "יחידות" && ingredientData.type !== "אריזות וחד פעמי")
         ? ingredient.quantity * (ingredientData.weightOrVolumePerUnit || 0)
         : ingredient.quantity;
 

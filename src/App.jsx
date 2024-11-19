@@ -61,7 +61,7 @@ function App() {
             closable={true}
             onClose={() => setDrawerVisible(false)}
             open={drawerVisible}
-            width={240}
+            width={300}
           >
             <NavMenu onClose={() => setDrawerVisible(false)} />
           </Drawer>

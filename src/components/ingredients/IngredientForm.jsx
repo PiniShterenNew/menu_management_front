@@ -3,6 +3,7 @@ import React, { forwardRef, useEffect, useState } from 'react';
 import { Card, Form as AntdForm, Input, Button, Select, Checkbox, InputNumber, Typography } from 'antd';
 import './IngredientForm.css';
 import { useSelector } from 'react-redux';
+import { typesOptions } from '../../utils/TypeOptions';
 
 const { Text } = Typography;
 
@@ -17,7 +18,7 @@ const IngredientForm = forwardRef(({ addIngredient, initialValues, onClose }, re
 
     // **New state to track if unit weight/volume is required**
     const [isUnitRequired, setIsUnitRequired] = useState(
-        initialValues?.type !== "מכלים ואביזרים" && initialValues?.unit === "יחידות"
+        initialValues?.type !== "אריזות וחד פעמי" && initialValues?.unit === "יחידות"
     );
 
     React.useImperativeHandle(ref, () => ({
@@ -35,7 +36,7 @@ const IngredientForm = forwardRef(({ addIngredient, initialValues, onClose }, re
             setIsJuice(initialValues.isJuice || false);
 
             // **Update isUnitRequired when initial values change**
-            setIsUnitRequired(initialValues.type !== "מכלים ואביזרים" && initialValues.unit === "יחידות");
+            setIsUnitRequired(initialValues.type !== "אריזות וחד פעמי" && initialValues.unit === "יחידות");
         }
     }, [initialValues, form]);
 
@@ -44,7 +45,7 @@ const IngredientForm = forwardRef(({ addIngredient, initialValues, onClose }, re
         if (changedField === 'type' || changedField === 'unit') {
             const type = form.getFieldValue('type');
             const unit = form.getFieldValue('unit');
-            setIsUnitRequired(type !== "מכלים ואביזרים" && unit === "יחידות");
+            setIsUnitRequired(type !== "אריזות וחד פעמי" && unit === "יחידות");
         }
     };
 
@@ -125,11 +126,11 @@ const IngredientForm = forwardRef(({ addIngredient, initialValues, onClose }, re
                         dropdownStyle={{ maxHeight: '60vh' }}
                         onChange={() => handleTypeOrUnitChange('type')}
                     >
-                        <Select.Option value="פירות">פירות</Select.Option>
-                        <Select.Option value="נוזלים">נוזלים</Select.Option>
-                        <Select.Option value="אבקות">אבקות</Select.Option>
-                        <Select.Option value="מוצקים">מוצקים</Select.Option>
-                        <Select.Option value="מכלים ואביזרים">מכלים ואביזרים</Select.Option>
+                        {typesOptions?.map((e) => {
+                            return (
+                                <Select.Option key={e.value} value={e.value}>{e.value}</Select.Option>
+                            )
+                        })}
                     </Select>
                 </AntdForm.Item>
 

@@ -24,6 +24,7 @@ export default function TopBar({ drawerVisible, setDrawerVisible, isMobile }) {
                         <FontAwesomeIcon icon={faBars} />
                     </button>
                 )}
+                {<Settings flag={showSettings} setFlag={() => setShowSettings(false)} />}
             </div>
         </div>
     );
