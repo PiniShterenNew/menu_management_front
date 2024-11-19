@@ -10,11 +10,11 @@ function processIngredientData(ingredient) {
     if (ingredient.unit === 'ק"ג') {
         unitQuantity = 0.1; // 100 גרם
         unitDescription = '100 גרם';
-        unitPrice = priceExcludingVAT * unitQuantity; // חישוב המחיר ל-100 גרם
+        unitPrice = (priceExcludingVAT / ingredient.quantity) * unitQuantity; // חישוב המחיר ל-100 גרם לפי הכמות המלאה
     } else if (ingredient.unit === 'ליטר') {
         unitQuantity = 0.1; // 100 מ"ל
         unitDescription = '100 מ"ל';
-        unitPrice = priceExcludingVAT * unitQuantity; // חישוב המחיר ל-100 מ"ל
+        unitPrice = (priceExcludingVAT / ingredient.quantity) * unitQuantity; // חישוב המחיר ל-100 מ"ל לפי הכמות המלאה
     } else if (ingredient.unit === 'יחידות') {
         unitQuantity = 1; // יחידה בודדת
         unitDescription = 'יחידה';
