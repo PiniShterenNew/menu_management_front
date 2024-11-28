@@ -33,6 +33,7 @@ message.config({
 export const AppProvider = ({ children, setLoading }) => {
   const dispatch = useDispatch();
   const selectedDate = useSelector((state) => state.employeeHours.selectedDate);
+  const averageHourlyRate = useSelector((state) => state.employeeHours.overallAverageHourlyRate);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,7 +59,7 @@ export const AppProvider = ({ children, setLoading }) => {
         dispatch((dispatch, getState) => {
           const ingredientsState = getState().ingredients; // מקבל את ingredientsState העדכני
           const mixesState = getState().mixes; // מקבל את ingredientsState העדכני
-          dispatch(setProductsState({ products: productsRes.data?.reverse(), ingredientsState, mixesState }));
+          dispatch(setProductsState({ products: productsRes.data?.reverse(), ingredientsState, mixesState, averageHourlyRate }));
         });
         dispatch(setCategories(categoriesRes.data));
         dispatch(addSuppliersState(suppliersRes?.data?.reverse()));

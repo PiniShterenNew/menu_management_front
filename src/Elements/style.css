@@ -8,9 +8,10 @@
   border: none !important;
 }
 
-.padding-card{
+.padding-card {
   padding: 0 !important;
 }
+
 .ant-card-body {
   padding: 0em 1.3em 1.3em 1.3em !important;
 }
@@ -20,16 +21,20 @@
   height: fit-content;
 }
 
-.container .ant-card{
+.container .ant-card {
   margin: 0 !important;
 }
 
-.container .rc-virtual-list-holder-inner{
+.container .rc-virtual-list-holder-inner {
   gap: 0.5em;
 }
 
-.card-actions .ant-btn{
+.card-actions .ant-btn {
   width: 20%;
+}
+
+.ant-modal-confirm-btns {
+  display: flex !important;
 }
 
 .container .ant-input-affix-wrapper,
@@ -37,6 +42,33 @@
   height: 3em !important;
   max-height: 3em !important;
   min-height: 3em !important;
+}
+
+.add-btn-mobile {
+  position: absolute;
+  top: -33px;
+  left: 0px;
+  width: 1.6em !important;
+  min-height: 0px;
+  height: 1.6em !important;
+  padding: 0px !important;
+  margin: 0px !important;
+  border-radius: 100% !important;
+  color: var(--card-bg-color) !important;
+  background-color: var(--secondary-color) !important;
+}
+
+@keyframes highlightFade {
+  0% {
+    background-color: #e6f7ff;
+  }
+  100% {
+    background-color: #fafafa;
+  }
+}
+
+.highlight-new {
+  animation: highlightFade 3s ease-out;
 }
 
 @media (max-width: 767px) {

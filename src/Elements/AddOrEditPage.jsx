@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Form as AntdForm, Input, Button, Select, InputNumber, Typography, Row, Col, Divider } from 'antd';
+import { Card, Form as AntdForm, Input, Button, Select, InputNumber, Typography, Row, Col, Divider, Flex } from 'antd';
+import IngredientsManager from "./IngredientsManager";
 
 const { Option } = Select;
 const { Text } = Typography;
+const { TextArea } = Input;
 
 export default function DynamicFormPage({
     mode = "view", // view, add, edit
@@ -10,7 +12,8 @@ export default function DynamicFormPage({
     onSubmit,
     initialValues = {},
     onClose,
-    tableKeys
+    tableKeys,
+    ingredientsArr
 }) {
     const [form] = AntdForm.useForm();
 
@@ -19,7 +22,14 @@ export default function DynamicFormPage({
 
     useEffect(() => {
         if (initialValues) {
-            form.setFieldsValue(initialValues);
+            const normalizedQuantity = initialValues.quantity < 1
+                ? initialValues.quantity * 1000
+                : initialValues.quantity;
+
+            form.setFieldsValue({
+                ...initialValues,
+                quantity: normalizedQuantity,
+            });
             setSelectedUnit(initialValues.unit);
             setSelectedSubUnit(initialValues.subUnit || "kg");
         }
@@ -58,15 +68,19 @@ export default function DynamicFormPage({
                 </Typography.Title>
                 <Row align={"middle"} justify={"space-between"} style={{ margin: "1em 0em" }}>
                     <Text strong style={{ fontSize: "1.5em" }}>{initialValues?.name}</Text>
-                    {tableKeys?.find((e) => e.key === "type")?.render("", initialValues)}
+                    {tableKeys?.find((e) => e.key === "type")?.render("", initialValues, "view")}
                 </Row>
                 {tableKeys?.filter((e) => e.key !== "type" && e?.key !== "name").map((field, i, arr) => (
                     <>
-                        <div key={field.key} style={{ marginBottom: "12px", display: "flex", justifyContent: "space-between" }}>
-                            <Text strong>{field.title}:</Text>
-                            <Text style={{ marginLeft: "8px" }}>
-                                {initialValues[field.key] || "—"}
-                            </Text>
+                        <div key={field.key} style={{ marginBottom: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <Flex flex={1}>
+                                <Text strong>{field.title}:</Text>
+                            </Flex>
+                            <Flex flex={1}>
+                                <p style={{}}>
+                                    {(field?.render && field?.render("", initialValues, mode, "view")) || initialValues[field.key] || "—"}
+                                </p>
+                            </Flex>
                         </div>
                         {i < arr?.length - 1 && <Divider style={{ margin: "8px 0" }} />}
                     </>
@@ -101,6 +115,30 @@ export default function DynamicFormPage({
                         case "number":
                             return (
                                 <>
+                                    <AntdForm.Item key={key} name={key} label={title}
+                                        rules={rules?.map((rule) =>
+                                            rule.validator
+                                                ? {
+                                                    ...rule,
+                                                    validator: (ruleContext, value) =>
+                                                        rule.validator(ruleContext, value, initialValues),
+                                                }
+                                                : rule
+                                        )}
+                                    >
+                                        <InputNumber
+                                            suffix={coin && "₪"}
+                                            min={0}
+                                            style={{ width: "100%" }}
+                                            {...props}
+                                        />
+                                    </AntdForm.Item>
+                                    {divider && <Divider style={{ margin: "0.2em" }} />}
+                                </>
+                            );
+                        case "float":
+                            return (
+                                <>
                                     <AntdForm.Item key={key} name={key} label={title} rules={rules}>
                                         <InputNumber
                                             suffix={coin && "₪"}
@@ -118,6 +156,7 @@ export default function DynamicFormPage({
                                 <>
                                     <AntdForm.Item key={key} name={key} label={title} rules={rules}>
                                         <Select {...props}
+                                            showSearch
                                             onChange={(value) => {
                                                 if (key === "unit") {
                                                     setSelectedUnit(value); // עדכון state של unit
@@ -133,18 +172,30 @@ export default function DynamicFormPage({
                                         </Select>
                                     </AntdForm.Item>
                                     {/* תפריט לבחירת יחידת משנה אם unit הוא weight או volume */}
-                                    {key === "unit" && (selectedUnit === "weight" || selectedUnit === "volume") && (
+                                    {key === "unit" && (form.getFieldValue("unit") === "weight" || form.getFieldValue("unit") === "volume") && (
                                         <AntdForm.Item
                                             name="subUnit"
+
+                                            initialValue={
+                                                form.getFieldValue("subUnit") || // ערך שהוזן בטופס
+                                                (form.getFieldValue("unit") === "weight" ? // חישוב יחידת משנה למשקל
+                                                    (initialValues?.quantity >= 1 ? "kg" : "g") :
+                                                    (form.getFieldValue("unit") === "volume" ? // חישוב יחידת משנה לנפח
+                                                        (initialValues?.quantity >= 1 ? "liter" : "ml") :
+                                                        undefined)
+                                                )
+                                            }
                                             label={
-                                                selectedUnit === "weight"
+                                                form.getFieldValue("unit") === "weight"
                                                     ? "בחר יחידת משקל (ק\"ג / גרם)"
                                                     : "בחר יחידת נפח (ליטר / מ\"ל)"
                                             }
-                                            rules={[{ required: true, message: "אנא בחר יחידת משנה" }]}
+                                            rules={[{ required: true, message: "אנא בחר יחידת משנה" },]}
                                         >
-                                            <Select>
-                                                {selectedUnit === "weight" ? (
+                                            <Select
+                                                onChange={(value) => form.setFieldsValue({ subUnit: value })}
+                                            >
+                                                {form.getFieldValue("unit") === "weight" ? (
                                                     <>
                                                         <Option value="kg">ק"ג</Option>
                                                         <Option value="g">גרם</Option>
@@ -158,15 +209,39 @@ export default function DynamicFormPage({
                                             </Select>
                                         </AntdForm.Item>
                                     )}
+
                                     {divider && <Divider style={{ margin: "0.2em" }} />}
+                                </>
+                            );
+                        case "ingredientsManager":
+                            return (
+                                <>
+                                    <Divider style={{ margin: "0.5em" }} />
+                                    <AntdForm.Item key={key} name={key} label={title} rules={rules}>
+                                        <IngredientsManager
+                                            value={form.getFieldValue(key)}
+                                            onChange={(newValue) => form.setFieldsValue({ [key]: newValue })}
+                                            fields={field?.fields} // העברת האופציות של רכיבים
+                                            ingredientsArr={ingredientsArr}
+                                        />
+                                    </AntdForm.Item>
                                 </>
                             );
                         case "custom":
                             return (
                                 <>
                                     {/* <AntdForm.Item key={key} name={key} label={title} rules={rules}> */}
-                                        {field.render && field.render(form)}
+                                    {field.render && field.render("", initialValues, "edit", form)}
                                     {/* </AntdForm.Item> */}
+                                    {divider && <Divider style={{ margin: "0.2em" }} />}
+                                </>
+                            );
+                        case "textArea":
+                            return (
+                                <>
+                                    <AntdForm.Item key={key} name={key} label={title} rules={rules}>
+                                        <TextArea style={{ resize: 'none', }} showCount maxLength={field?.maxLength} />
+                                    </AntdForm.Item>
                                     {divider && <Divider style={{ margin: "0.2em" }} />}
                                 </>
                             );

@@ -90,7 +90,7 @@ function NavMenu({ onClose }) {
       </Button>
       <Button type="link" onClick={onClose} className={linkStyle('/mixes')}>
         <Link to="/mixes">
-          <FontAwesomeIcon icon={faFlask} /> <p>תערובות/תרכובות</p>
+          <FontAwesomeIcon icon={faFlask} /> <p>מיקסים</p>
         </Link>
       </Button>
       <Button type="link" onClick={onClose} className={linkStyle('/ingredients')}>

@@ -1,27 +1,28 @@
 // src/pages/IngredientsPage.jsx - דף חומרי הגלם עם שימוש ב-Ant Design מותאם לנייד
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Checkbox, InputNumber, Modal, Form as AntdForm, Space, Tag } from 'antd';
-import IngredientForm from '../components/ingredients/IngredientForm';
-import IngredientList from '../components/ingredients/IngredientList';
+import { Button, Checkbox, InputNumber, Modal, Form as AntdForm, Space, Tag, Col, Row, Tooltip, Typography } from 'antd';
 import './IngredientsPage.css';
 import { useIngredientContext } from '../context/subcontexts/IngredientContext';
 import Page from '../Elements/Page';
 import { useSelector } from 'react-redux';
-import { typesOptions } from '../utils/TypeOptions';
+import { optionsUnits, typesOptions } from '../utils/TypeOptions';
+import { faDolly } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+const { Text } = Typography;
 
 function IngredientsPage() {
 
   const supplierState = useSelector((state) => state.suppliers);
   const ingredientsState = useSelector((state) => state.ingredients);
+  const productsState = useSelector((state) => state.products);
+  const mixesState = useSelector((state) => state.mixes);
 
-  const { addIngredient } = useIngredientContext();
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { addIngredient, updateIngredient, deleteIngredient } = useIngredientContext();
   const [data, setData] = useState([]);
   const [dataPrint, setDataPrint] = useState([]);
-  const [sortKey, setSortKey] = useState('');
 
-  const searchKeys = ["name", "type", "supplierName"];
-  const mobileKeys = ["unit", "unitPrice", "supplierName"]
+  const searchKeys = ["name", "type", "supplierId"];
+  const mobileKeys = ["unit", "unitPrice", "supplierId", "usedInMixes", "usedInProducts"]
   const sortKeys = [
     {
       key: "name",
@@ -35,6 +36,11 @@ function IngredientsPage() {
       title: "סוג",
     },
     {
+      key: "usedCount",
+      dataIndex: "usedCount",
+      title: "בשימוש",
+    },
+    {
       key: "unit",
       dataIndex: "unit",
       title: "יחידת מידה",
@@ -45,7 +51,42 @@ function IngredientsPage() {
       title: "שם ספק",
     }
   ];
+  
   const tableKeys = [
+    {
+      key: "SKU",
+      dataIndex: "SKU",
+      title: "מק\"ט",
+      editable: true,
+      type: "number",
+      width: 100,
+      rules: [
+        {
+          validator: async (_, value, initialValues) => {
+            if (!value) {
+              return Promise.resolve();
+            }
+            if (typeof value !== "number") {
+              return Promise.reject("מק\"ט חייב להיות מספר תקין");
+            }
+
+            if (value.toString().length < 6) {
+              return Promise.reject("מק\"ט חייב להיות מינימום 6 ספרות");
+            }
+
+            const isDuplicate = data.some(
+              (item) => item.SKU === value && item._id !== initialValues?._id
+            );
+
+            if (isDuplicate) {
+              return Promise.reject("מק\"ט זה כבר קיים במערכת");
+            }
+
+            return Promise.resolve();
+          },
+        },
+      ]
+    },
     {
       key: "name",
       dataIndex: "name",
@@ -53,25 +94,46 @@ function IngredientsPage() {
       required: true,
       editable: true,
       type: "text",
+      width: 100,
       rules: [
         { required: true, message: "השדה חובה" },
         { min: 3, message: "השם חייב להיות לפחות 3 תווים" },
         {
-          pattern: /^[א-תa-zA-Z\s]+$/,
-          message: "השם יכול להכיל רק אותיות בעברית או אנגלית"
+          pattern: /^[א-תa-zA-Z\s0-9%-]+$/,
+          message: "השם יכול להכיל אותיות בעברית או אנגלית, מספרים והתווים הבאים: ' % ', ' - '"
         }
       ]
     },
     {
-      key: "supplierName",
-      dataIndex: "supplierName",
+      key: "supplierId",
+      dataIndex: "supplierId",
       title: "שם ספק",
       editable: true,
       type: "select",
-      options: [
-        { value: "supplier1", label: "ספק 1" },
-        { value: "supplier2", label: "ספק 2" },
+      width: 100,
+      render: (_, record) => {
+        return <p>{supplierState?.find((e) => e?._id === record?.supplierId)?.name}</p>
+      },
+      options: supplierState?.map((e) => ({ value: e._id, label: e?.name })),
+      rules: [
+        {
+          required: true,
+          message: "יש לבחור ספק",
+        },
+        {
+          validator: (_, value) => {
+            const isValid = supplierState?.some((e) => e._id === value);
+            return isValid ? Promise.resolve() : Promise.reject("ספק לא חוקי נבחר");
+          },
+        },
       ],
+    },
+    {
+      key: "usedCount",
+      dataIndex: "usedCount",
+      title: "בשימוש",
+      editable: false,
+      width: 100
     },
     {
       key: "type",
@@ -84,7 +146,20 @@ function IngredientsPage() {
       required: true,
       editable: true,
       options: typesOptions.map((e) => ({ value: e.value, label: e.value })),
-      divider: true
+      divider: true,
+      width: 100,
+      rules: [
+        {
+          required: true,
+          message: "יש לבחור סוג",
+        },
+        {
+          validator: (_, value) => {
+            const isValid = typesOptions?.some((e) => e.value === value);
+            return isValid ? Promise.resolve() : Promise.reject("סוג לא חוקי נבחר");
+          },
+        },
+      ],
     },
     {
       key: "unit",
@@ -92,10 +167,22 @@ function IngredientsPage() {
       title: "יחידת מידה",
       editable: true,
       type: "select",
-      options: [
-        { value: "weight", label: "משקל" },
-        { value: "volume", label: "נפח" },
-        { value: "units", label: "יחידות" },
+      options: optionsUnits,
+      width: 100,
+      render: (_, record) => {
+        return <p>{optionsUnits.find((e) => e.value === record?.unit)?.label || record?.unit}</p>
+      },
+      rules: [
+        {
+          required: true,
+          message: "יש לבחור יחידת מידה",
+        },
+        {
+          validator: (_, value) => {
+            const isValid = optionsUnits?.some((e) => e.value === value);
+            return isValid ? Promise.resolve() : Promise.reject("יחידת מידה לא חוקית");
+          },
+        },
       ],
     },
     {
@@ -103,7 +190,75 @@ function IngredientsPage() {
       dataIndex: "quantity",
       title: "כמות",
       editable: true,
-      type: "number",
+      type: "custom",
+      width: 100,
+      render: (_, record, mode, form) => {
+        if (mode == 'edit') {
+          return (
+            <AntdForm.Item
+              key={'quantity'}
+              name={'quantity'}
+              label={'כמות'}
+              rules={[
+                {
+                  required: true,
+                  message: "אנא הזן כמות",
+                },
+                {
+                  validator: (_, value) => {
+                    let t = form.getFieldValue('subUnit');
+                    if (value === null || value === undefined) {
+                      return Promise.reject("כמות נדרשת");
+                    }
+                    if (value < 0) {
+                      return Promise.reject("הכמות לא יכולה להיות שלילית");
+                    }
+                    if (form.getFieldValue('subUnit') === "g" || form.getFieldValue('subUnit') === "ml") {
+                      if (value < 0.1 || value > 999) {
+                        return Promise.reject("עבור גרם או מ\"ל הכמות חייבת להיות בין 0.1 ל-999");
+                      }
+                    }
+                    if (form.getFieldValue('subUnit') === "kg" || form.getFieldValue('subUnit') === "liter") {
+                      if (value < 1 || value > 1000000) {
+                        return Promise.reject("עבור ק\"ג או ליטר הכמות חייבת להיות מ-1 ומעלה, ובתוך הטווח המותר");
+                      }
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <InputNumber
+                // min={0.1}
+                // max={record.selectedUnit !== "kg" && record.selectedUnit !== "liter" ? 999 : 1000000}
+                // step={record.selectedUnit === "kg" || record.selectedUnit === "liter" ? 0.1 : 1}
+                style={{ width: "100%" }}
+              />
+            </AntdForm.Item>
+          );
+        }
+
+        // עיבוד יחידות מידה להצגה במצב קריאה בלבד
+        let typeUnits = record.unit;
+        let exactUnits = "";
+
+        if (typeUnits === "weight") {
+          exactUnits = record.quantity >= 1 ? "ק\"ג" : "גרם";
+        } else if (typeUnits === "volume") {
+          exactUnits = record.quantity >= 1 ? "ליטר" : "מ\"ל";
+        } else if (typeUnits === "units") {
+          exactUnits = "יחידות";
+        }
+
+        return (
+          <p>
+            {record.quantity < 1
+              ? (record.quantity * 1000) // המרה למ"ל או גרם
+              : record.quantity}{" "}
+            {exactUnits}
+          </p>
+        );
+      },
     },
     {
       key: "price",
@@ -114,11 +269,17 @@ function IngredientsPage() {
       ),
       editable: true,
       type: "number",
-      coin: true
+      coin: true,
+      width: 100,
+      rules: [
+        { required: true, message: "מחיר חסר" }
+      ],
+      show: false
     },
     {
       key: "priceExcludingVAT",
       dataIndex: "priceExcludingVAT",
+      width: 100,
       title: "מחיר ללא מעמ",
       render: (_, record) => (
         <p>₪{record?.priceExcludingVAT}</p>
@@ -130,23 +291,27 @@ function IngredientsPage() {
       key: "unitPrice",
       dataIndex: "unitPrice",
       title: "כמות מינימלית",
+      width: 100,
       render: (_, record) => (
-        <Space>
-          <p>{record.unitQuantity < 1 ? record.unitQuantity * 1000 : record.unitQuantity}</p>
-          <p>{record?.unitDescription}</p>
+        <Col>
+          <Row>
+            <p>{record.unitQuantity < 1 ? record.unitQuantity * 1000 : record.unitQuantity} {record?.unitDescription}</p>
+            <br />
+          </Row>
           <p>₪{record?.unitPrice}</p>
-        </Space>
+        </Col>
       ),
     },
     {
       key: "juiceRatio",
       dataIndex: "juiceRatio",
-      title: "יחס המיץ (כמות מיץ מתקבלת לעומת חומר גלם בשימוש)",
+      title: "יחס עיבוד (תפוקת חומר מעובד)",
       editable: true,
+      width: 100,
       type: "custom",
-      render: (form) => {
+      render: (_, record, mode, form) => {
         // קבלת הערך של isJuice מתוך הטופס
-        const isJuice = form.getFieldValue("isJuice") || false;
+        if (mode == "view" || mode !== "edit") return <p>{record?.juiceRatio ? `${(record?.juiceRatio * 100)?.toFixed(0)}%` : ''}</p>;
 
         return (
           <>
@@ -165,23 +330,27 @@ function IngredientsPage() {
             </AntdForm.Item>
 
             {/* שדה להזנת יחס המיץ (מופיע רק אם isJuice=true) */}
-            {isJuice && (
-              <AntdForm.Item
-                name="juiceRatio"
-                label="יחס המיץ (0.1 עד 0.99)"
-                rules={[
-                  { required: true, message: "אנא הזן יחס מיץ" },
-                  {
-                    type: "number",
-                    min: 0.1,
-                    max: 0.99,
-                    message: "היחס חייב להיות בין 0.1 ל-0.99",
-                  },
-                ]}
-              >
-                <InputNumber style={{ width: "100%" }} />
-              </AntdForm.Item>
-            )}
+            <AntdForm.Item noStyle shouldUpdate={(prevValues, currentValues) => prevValues.isJuice !== currentValues.isJuice}>
+              {({ getFieldValue }) =>
+                getFieldValue("isJuice") && (
+                  <AntdForm.Item
+                    name="juiceRatio"
+                    label="יחס המיץ (0.1 עד 0.99)"
+                    rules={[
+                      { required: true, message: "אנא הזן יחס מיץ" },
+                      {
+                        type: "number",
+                        min: 0.1,
+                        max: 0.99,
+                        message: "היחס חייב להיות בין 0.1 ל-0.99",
+                      },
+                    ]}
+                  >
+                    <InputNumber style={{ width: "100%" }} />
+                  </AntdForm.Item>
+                )
+              }
+            </AntdForm.Item>
           </>
         );
       },
@@ -190,27 +359,65 @@ function IngredientsPage() {
       key: "processedPrice",
       dataIndex: "processedPrice",
       title: "מחיר לכמות מינימלית מעובדת",
+      width: 100,
+      render: (_, record) => {
+        return <p>{record?.processedPrice ? `₪${record?.processedPrice}` : ''}</p>
+      },
       editable: false, // לא ניתן לערוך
-      hiddenInForm: true, // לא מוצג בטופס
+      hiddenInForm: true, // לא מוצג בטופס,
     },
+    {
+      key: "notes",
+      dataIndex: "notes",
+      title: "הערות",
+      width: 100,
+      editable: true,
+      render: (_, record) => {
+        const text = record?.notes || "—"; // ברירת מחדל אם אין תוכן
+
+        return (
+          <Tooltip title={text}>
+            <Text
+              style={{
+                display: "inline-block",
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+                maxWidth: "150px", // התאמה לרוחב התא או התוכן
+                direction: "rtl", // כיוון RTL לתמיכה בעברית
+              }}
+            >
+              {text}
+            </Text>
+          </Tooltip>
+        );
+      },
+      type: "textArea",
+      maxLength: 120,
+      rules: [
+        { required: false },
+        { max: 120, message: "מקסימום 120 תווים" },
+      ],
+    }
   ];
-
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-  };
 
   useEffect(() => {
     if (ingredientsState) {
       if (supplierState) {
         let newArr = [...ingredientsState?.map((e) => {
           let supplier = supplierState?.find((sup) => sup?._id === e?.supplierId);
+          // ספירת השימוש ברכיבים
+          const inProductsCount = productsState?.reduce((count, product) => {
+            return count + product.ingredients?.filter((ing) => ing.ingredientId === e._id).length;
+          }, 0) || 0;
+
+          const inMixesCount = mixesState?.reduce((count, mix) => {
+            return count + mix.ingredients?.filter((ing) => ing.ingredientId === e._id).length;
+          }, 0) || 0;
           return ({
             ...e,
-            supplierName: supplier?.name
+            supplierName: supplier?.name,
+            usedCount: inProductsCount + inMixesCount
           })
         })];
         setData(newArr);
@@ -225,40 +432,6 @@ function IngredientsPage() {
 
   return (
     <>
-      {/* <div style={{ padding: '20px' }} className="container scrollable-content">
-       <div className="ingredients-controls">
-         <Button type="primary" onClick={showModal}>
-    
-         </Button>
-         <Select
-           value={sortKey}
-           onChange={(value) => setSortKey(value)}
-           className="sort-select"
-         >
-           <Select.Option value="">מיין</Select.Option>
-           <Select.Option value="name">מיין לפי שם</Select.Option>
-           <Select.Option value="price">מיין לפי מחיר כולל</Select.Option>
-           <Select.Option value="type">מיין לפי סוג</Select.Option>
-           <Select.Option value="pricePerUnit">מיין לפי מחיר ליחידה</Select.Option>
-         </Select>
-       </div>
-
-       <IngredientList sortKey={sortKey} /> */}
-
-      <Modal
-        title="הוסף חומר גלם חדש"
-        open={isModalVisible}
-        onCancel={handleModalClose}
-        className='popup-modal'
-        footer={null}
-        destroyOnClose
-      >
-        <IngredientForm
-          addIngredient={addIngredient}
-          onClose={handleModalClose}
-        />
-      </Modal>
-      {/* </div > */}
       <Page
         data={data}
         mobileKeys={mobileKeys}
@@ -268,6 +441,17 @@ function IngredientsPage() {
         newTitle={"הוסף חומר גלם חדש"}
         searchKeys={searchKeys}
         setDataPrint={setDataPrint}
+        onAdd={addIngredient}
+        onEdit={updateIngredient}
+        onDelete={deleteIngredient}
+        Dtitle={"אישור מחיקה"}
+        iconADD={<FontAwesomeIcon icon={faDolly} />}
+        Dcontent={(
+          <>
+            <p>האם אתה בטוח שברצונך למחוק את הרכיב?</p>
+            <p>שים לב! הרכיב יימחק מכל המוצרים והתערובות בהם הוא נמצא.</p>
+          </>
+        )}
       />
     </>
   );

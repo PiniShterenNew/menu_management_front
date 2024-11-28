@@ -107,4 +107,6 @@ export const {
   setOverallAverageHourlyRate, // ייצוא הפונקציה החדשה לעדכון הממוצע הקבוע
 } = employeeHoursSlice.actions;
 
+export const selectAverageHourlyRate = (state) => state.employeeHours.overallAverageHourlyRate;
+
 export default employeeHoursSlice.reducer;
