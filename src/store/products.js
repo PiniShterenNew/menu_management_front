@@ -109,7 +109,7 @@ const productsSlice = createSlice({
   reducers: {
     setProductsState: (state, action) => {
       const { products, ingredientsState, mixesState, averageHourlyRate } = action.payload;
-      return processProductsData(products, ingredientsState, mixesState, averageHourlyRate);
+      return products;
     },
     addOrUpdateProductState: (state, action) => {
       const { newProduct, ingredientsState, mixesState, averageHourlyRate } = action.payload;

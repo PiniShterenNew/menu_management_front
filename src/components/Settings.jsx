@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setOverallAverageHourlyRate } from '../store/employeeHours';
 import { setMaterialCostRate, setLaborCostRate, setFixedExpensesRate, setProfitRate } from '../store/profitabilitySettingsSlice';
-import { Modal, InputNumber, Slider, Select, Input, Button, Tabs, Typography, Divider, Image } from 'antd';
+import { Modal, InputNumber, Slider, Select, Input, Button, Tabs, Typography, Divider, Image, message } from 'antd';
 import { updateProductsWithRate } from '../store/products';
 import './Settings.css';
 import Logo from "../assets/logo.png"
 import { useMediaQuery } from 'react-responsive';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faStoreAlt } from '@fortawesome/free-solid-svg-icons';
+import { updateSettingAPI } from '../services/settingsService';
 
 const { Text, Title } = Typography;
 
@@ -44,15 +45,25 @@ export default function Settings({ flag, setFlag }) {
   const [activeTab, setActiveTab] = useState(navArr[0].key);
   const [isNavigationOpen, setIsNavigationOpen] = useState(false);
 
-  const handleSave = () => {
-    dispatch(setOverallAverageHourlyRate(Number(newHourlyRate)));
-    dispatch(setMaterialCostRate(Number(materialCost)));
-    dispatch(setLaborCostRate(Number(laborCost)));
-    dispatch(setFixedExpensesRate(Number(fixedExpenses)));
-    dispatch(setProfitRate(Number(profit)));
-    setFlag();
-    dispatch(updateProductsWithRate());
-  };
+  const handleSave = async () => {
+    try {
+        // עדכון הערך ב-Redux
+        dispatch(setOverallAverageHourlyRate(Number(newHourlyRate)));
+        dispatch(setMaterialCostRate(Number(materialCost)));
+        dispatch(setLaborCostRate(Number(laborCost)));
+        dispatch(setFixedExpensesRate(Number(fixedExpenses)));
+        dispatch(setProfitRate(Number(profit)));
+        dispatch(updateProductsWithRate());
+        
+        // קריאה לשרת לעדכון hourlyRate
+        await updateSettingAPI({ key: 'hourlyRate', value: Number(newHourlyRate) });
+        message.success('הגדרות נשמרו בהצלחה');
+        setFlag(false); // סגור את המודאל
+    } catch (error) {
+        console.error('Error updating hourly rate:', error);
+        message.error('שגיאה בשמירת ההגדרות');
+    }
+};
 
 
 
@@ -92,7 +103,7 @@ export default function Settings({ flag, setFlag }) {
             min={0}
           />
         </div>
-        {[{
+        {/* {[{
           label: 'חומרי גלם',
           value: materialCost,
           setValue: setMaterialCost,
@@ -132,7 +143,7 @@ export default function Settings({ flag, setFlag }) {
               </div>
             </div>
           </div>
-        ))}
+        ))} */}
       </div>
     ),
   };

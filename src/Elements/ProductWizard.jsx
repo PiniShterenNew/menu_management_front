@@ -8,452 +8,393 @@ import {
   Select,
   Typography,
   Alert,
+  Modal,
+  Switch,
+  Flex,
+  Card,
+  Tag,
+  Divider,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import SizesManager from "./SizesManager.jsx";
 import VariationsManager from "./VariationsManager";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBox, faRuler, faShuffle } from "@fortawesome/free-solid-svg-icons";
+import { useProductContext } from "../context/subcontexts/ProductContext.jsx";
+import { useMediaQuery } from "react-responsive";
+import isEqual from "lodash/isEqual";
 
 const { Step } = Steps;
 const { Title, Text } = Typography;
 
-const ProductWizard = ({
-  mode = "add", // "add" or "edit"
-  tableKeys,
-  ingredientsArr,
-  fields,
-  initialValues = {},
-  onSubmit,
-  onClose,
-}) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [productData, setProductData] = useState({
-    name: initialValues.name || "",
-    category: initialValues.category || "",
-    sizes: initialValues.sizes || [],
-    variations: initialValues.variations || [],
-  });
+const ProductWizard = ({ }) => {
+  const {
+    isModalVisible,
+    setIsModalVisible,
+    modalMode,
+    setModalMode,
+    selectedItem,
+    setSelectedItem,
+    addProduct,
+    updateProduct,
+    deleteProduct,
 
-  const [formErrors, setFormErrors] = useState({});
-  const [showErrors, setShowErrors] = useState(false);
+    addSize,
+    updateSize,
+    deleteSize,
+  } = useProductContext();
 
-  const sizesManagerRef = useRef();
-  const variationsManagerRef = useRef();
+  const isMobile = useMediaQuery({ query: "(max-width: 1200px)" });
 
+  const categories = useSelector((state) => state.categories);
   const ingredientsState = useSelector((state) => state.ingredients);
-  const ingredientsList = ingredientsArr || ingredientsState;
+  const mixesState = useSelector((state) => state.mixes);
 
-  const validateStep = () => {
-    const errors = {};
+  const productsState = useSelector((state) => state.products);
 
-    // בדיקת שלב פרטי מוצר
-    if (currentStep === 0) {
-      if (!productData.name || productData.name.trim() === "") {
-        errors.name = "חובה להזין שם מוצר";
-      }
-      if (!productData.category) {
-        errors.category = "חובה לבחור קטגוריה";
+  // פונקציה למיזוג בין selectedItem לשינויים מהשרת
+  const mergeSelectedItem = useCallback(() => {
+    if (!selectedItem || !productsState) return;
+
+    // מציאת המוצר המעודכן ב-productsState
+    const updatedProduct = productsState.find(
+      (product) => product._id === selectedItem._id
+    );
+
+    if (updatedProduct) {
+      // שמירה על נתונים מקומיים עבור כל השדות פרט ל-sizes ו-variations
+
+      // עדכון selectedItem אם הנתונים השתנו
+      if (!isEqual(selectedItem, updatedProduct)) {
+        setSelectedItem(updatedProduct);
       }
     }
+  }, [selectedItem, productsState]);
 
-    // בדיקת שלב גדלים
-    if (currentStep === 1) {
-      if (!productData.sizes || productData.sizes.length === 0) {
-        errors.sizes = "חובה להוסיף לפחות גודל אחד";
-      } else {
-        productData.sizes.forEach((size, index) => {
-          if (!size.label || size.label.trim() === "") {
-            errors[`size_${index}_label`] = "חובה להזין שם לגודל";
-          }
-          if (size.price === undefined || size.price <= 0) {
-            errors[`size_${index}_price`] = "חובה להזין מחיר חיובי";
-          }
-          if (size.preparationTime === undefined || size.preparationTime <= 0) {
-            errors[`size_${index}_time`] = "חובה להזין זמן הכנה חיובי";
-          }
+  // עדכון selectedItem כאשר המידע ב-productsState משתנה
+  useEffect(() => {
+    mergeSelectedItem();
+  }, [productsState]);
 
-          // בדיקת רכיבים
-          if (!size.ingredients || size.ingredients.length === 0) {
-            errors[`size_${index}_ingredients`] = "חובה להוסיף לפחות רכיב אחד";
-          } else {
-            size.ingredients.forEach((ingredient, ingredientIndex) => {
-              const errorPrefix = `size_${index}_ingredient_${ingredientIndex}`;
-              if (!ingredient.ingredientId) {
-                errors[`${errorPrefix}_id`] = "חובה לבחור רכיב";
-              }
-              if (
-                ingredient.quantity === undefined ||
-                ingredient.quantity <= 0
-              ) {
-                errors[`${errorPrefix}_amount`] = "חובה להזין כמות חיובית";
-              }
+  const [formProduct] = Form.useForm();
+  const [formSize] = Form.useForm();
+  const [formVariation] = Form.useForm();
+
+  const title = (isModalVisible, modalMode, selectedItem) => {
+    if (isModalVisible === "product") {
+      switch (modalMode) {
+        case "add":
+          return "הוספת מוצר";
+        case "edit":
+          return "עדכון מוצר";
+        case "view":
+          return "צפייה במוצר";
+        default:
+          return "הוספת מוצר";
+      }
+    } else {
+      switch (isModalVisible) {
+        case "size":
+          return `ניהול גדלים - ${selectedItem?.name}`
+        case "variation":
+          return `ניהול וריאציות - ${selectedItem?.name}`
+      }
+    }
+  };
+
+  useEffect(() => {
+
+    if (selectedItem) {
+      formProduct.setFieldsValue(selectedItem);
+      formSize.setFieldsValue(selectedItem?.sizes || {});
+      formVariation.setFieldsValue(selectedItem?.variations || {});
+    } else {
+      formProduct.resetFields();
+      formSize.resetFields();
+      formVariation.resetFields();
+    }
+  }, [selectedItem]);
+
+  // {
+  //   "type": "product",
+  //   "data": {
+  //     "name": "Espresso",
+  //     "description": "Rich and bold espresso shot",
+  //     "category": "64a123...",
+  //     "image": "espresso.jpg",
+  //     "isFeatured": true,
+  //     "notes": "Best served hot"
+  //   }
+  // }
+
+  //   const productSchema = new mongoose.Schema({
+  //     name: { type: String, required: true },
+  //     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+  //     isFeatured: { type: Boolean, default: false },
+  //     isOnSale: { type: Boolean, default: false },
+  //     notes: { type: String, required: false }
+  // }, { timestamps: true });
+
+  const onSubmit = (arr) => {
+    switch (isModalVisible) {
+      case "product":
+        const productData = formProduct.getFieldsValue();
+
+        if (modalMode === "edit") {
+          // עריכת מוצר
+          updateProduct({ ...productData, _id: selectedItem?._id })
+            .then(() => {
+              setIsModalVisible(false);
+              setSelectedItem(null);
+            })
+            .catch((error) => {
+              console.error("שגיאה בעריכת מוצר:", error);
             });
-          }
-        });
-      }
-    }
-
-    // בדיקת שלב וריאציות
-    if (
-      currentStep === 2 &&
-      productData.variations &&
-      productData.variations.length > 0
-    ) {
-      productData.variations.forEach((variation, index) => {
-        if (!variation.label || variation.label.trim() === "") {
-          errors[`variation_${index}_label`] = "חובה להזין שם לוריאציה";
+        } else {
+          // הוספת מוצר חדש
+          addProduct(productData)
+            .then(() => {
+              setIsModalVisible(false);
+              setSelectedItem(null);
+            })
+            .catch((error) => {
+              console.error("שגיאה בהוספת מוצר:", error);
+            });
         }
+        break;
 
-        // בדיקת רכיבים בוריאציות
-        if (variation.ingredients && variation.ingredients.length > 0) {
-          variation.ingredients.forEach((ingredient, ingredientIndex) => {
-            const errorPrefix = `variation_${index}_ingredient_${ingredientIndex}`;
-            if (!ingredient.ingredientId) {
-              errors[`${errorPrefix}_id`] = "חובה לבחור רכיב";
+      case "size":
+        const sizesData = arr; // קבלת הנתונים מהטופס
+        const formattedSizes = sizesData?.sizes?.map((size) => ({
+          productId: selectedItem?._id, // מזהה המוצר אליו שייך הגודל
+          label: size.label,
+          price: size.price,
+          preparationTime: size.preparationTime,
+          ingredients: size.ingredients?.map((ingredient) => ({
+            ingredientId: ingredient.ingredientId?._id || ingredient.ingredientId,
+            quantity: ingredient.quantity,
+            unit: ingredient.unit,
+          })) || [],
+          mixes: size.mixes?.map((mix) => ({
+            mixId: mix.mixId,
+            quantity: mix.quantity,
+            unit: mix.unit,
+          })) || [],
+          _id: size._id, // מזהה הגודל (אם קיים)
+        })) || [];
+
+        // ניהול הוספה/עדכון של כל הגודל
+        Promise.all(
+          formattedSizes.map((size) => {
+            if (size._id) {
+              // אם יש מזהה, זהו עדכון
+              return updateSize(size._id, size);
+            } else {
+              // אם אין מזהה, זהו גודל חדש
+              return addSize(selectedItem?._id, size);
             }
-            if (ingredient.quantity === undefined || ingredient.quantity <= 0) {
-              errors[`${errorPrefix}_amount`] = "חובה להזין כמות חיובית";
-            }
+          })
+        )
+          .then(() => {
+            // setIsModalVisible(false);
+            // setSelectedItem(null);
+          })
+          .catch((error) => {
+            console.error("Error managing sizes:", error);
           });
-        }
-
-        // בדיקת התאמות גדלים
-        if (variation.sizeAdjustments) {
-          Object.entries(variation.sizeAdjustments).forEach(
-            ([sizeLabel, adjustment], adjustmentIndex) => {
-              if (adjustment.ingredients && adjustment.ingredients.length > 0) {
-                adjustment.ingredients.forEach(
-                  (ingredient, ingredientIndex) => {
-                    const errorPrefix = `variation_${index}_size_${adjustmentIndex}_ingredient_${ingredientIndex}`;
-                    if (!ingredient.ingredientId) {
-                      errors[`${errorPrefix}_id`] = "חובה לבחור רכיב";
-                    }
-                    if (
-                      ingredient.quantity === undefined ||
-                      ingredient.quantity <= 0
-                    ) {
-                      errors[`${errorPrefix}_amount`] =
-                        "חובה להזין כמות חיובית";
-                    }
-                  }
-                );
-              }
-            }
-          );
-        }
-      });
-    }
-
-    console.log("Validation Errors:", errors); // לדיבוג
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleNext = () => {
-    setShowErrors(true);
-    if (validateStep()) {
-      setCurrentStep(currentStep + 1);
-      setShowErrors(false);
+        break;
+      case "variation":
+        // ניתן להוסיף כאן טיפול בוריאציות אם רלוונטי
+        break;
     }
   };
 
-  const transformProductObject = (productData) => {
-    const sizes = productData?.sizes;
-
-    const transformedVariations = productData.variations.map((variation) => {
-      const sizeAdjustments = Object.entries(variation.sizeAdjustments).map(
-        ([sizeLabel, adjustment]) => {
-          const existingSize = sizes.find((size) => size.label === sizeLabel);
-          const existingIngredients = existingSize
-            ? existingSize.ingredients
-            : [];
-
-          const addIngredients = adjustment.ingredients.filter(
-            (ingredient) =>
-              !existingIngredients.some(
-                (existing) => existing.ingredientId === ingredient.ingredientId
-              )
-          );
-
-          const removeIngredients = existingIngredients.filter(
-            (existing) =>
-              !adjustment.ingredients.some(
-                (ingredient) =>
-                  ingredient.ingredientId === existing.ingredientId
-              )
-          );
-
-          const updateIngredients = adjustment.ingredients.filter(
-            (ingredient) =>
-              existingIngredients.some(
-                (existing) =>
-                  existing.ingredientId === ingredient.ingredientId &&
-                  existing.quantity !== ingredient.quantity
-              )
-          );
-
-          const mixAdjustments = {
-            add: [], // יש למלא לפי דרישה
-            remove: [], // יש למלא לפי דרישה
-            update: [], // יש למלא לפי דרישה
-          };
-
-          return {
-            size: sizeLabel,
-            priceAdjustment: adjustment.priceAdjustment || 0,
-            ingredientAdjustments: {
-              add: addIngredients.map((ingredient) => ({
-                ingredientId: ingredient.ingredientId,
-                quantity: ingredient.quantity,
-                unit: ingredient.unit,
-              })),
-              remove: removeIngredients.map((ingredient) => ({
-                ingredientId: ingredient.ingredientId,
-              })),
-              update: updateIngredients.map((ingredient) => ({
-                ingredientId: ingredient.ingredientId,
-                quantity: ingredient.quantity,
-              })),
-            },
-            mixAdjustments,
-          };
-        }
-      );
-
-      return {
-        label: variation.label,
-        sizeAdjustments,
-      };
-    });
-
-    return { ...productData, variations: transformedVariations };
-  };
-
-  const handleFinish = () => {
-    setShowErrors(true);
-    if (validateStep()) {
-      onSubmit(transformProductObject(productData));
-    }
-  };
-
-  const handlePrev = () => {
-    setCurrentStep(currentStep - 1);
-    setShowErrors(false);
-    setFormErrors({});
-  };
-
-  const getStepStatus = () => {
-    if (showErrors && Object.keys(formErrors).length > 0) {
-      return "error";
-    }
-    return "process";
-  };
-
-  const handleFieldChange = (field, value) => {
-    setProductData((prev) => ({
-      ...prev,
-      [field]: JSON.parse(JSON.stringify(value)), // יצירת העתק עמוק של המערך
-    }));
-    if (!showErrors) {
-      setFormErrors({});
-    }
-  };
-
-  const renderProductDetails = () => (
-    <Form layout="vertical" initialValues={productData}>
-      <Row gutter={16}>
-        <Col span={12}>
-          <Form.Item
-            label="שם המוצר"
-            required
-            validateStatus={showErrors && formErrors.name ? "error" : ""}
-            help={showErrors && formErrors.name}
+  const screensEdit = () => {
+    switch (isModalVisible) {
+      case "product":
+        return (
+          <Form
+            form={formProduct}
+            layout="vertical"
+            onFinish={onSubmit}
           >
-            <Input
-              value={productData.name}
-              onChange={(e) => handleFieldChange("name", e.target.value)}
-              placeholder="הכנס שם מוצר"
-            />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            label="קטגוריה"
-            required
-            validateStatus={showErrors && formErrors.category ? "error" : ""}
-            help={showErrors && formErrors.category}
-          >
-            <Select
-              value={productData.category}
-              onChange={(category) => handleFieldChange("category", category)}
-              placeholder="בחר קטגוריה"
+            <Form.Item
+              name="name"
+              label="שם מוצר"
+              rules={[{ required: true, message: "אנא הזן שם מוצר" }]}
             >
-              {tableKeys
-                ?.find((e) => e.key === "category")
-                ?.options.map((option) => (
-                  <Select.Option key={option.value} value={option.value}>
-                    {option.label}
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="category"
+              label="קטגוריה"
+              rules={[{ required: true, message: "אנא בחר קטגוריה" }]}
+            >
+              <Select
+                showSearch
+                placeholder="בחר קטגוריה"
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
+                  0
+                }
+              >
+                {categories.map((category) => (
+                  <Select.Option key={category._id} value={category._id}>
+                    {category?.name}
                   </Select.Option>
                 ))}
-            </Select>
-          </Form.Item>
-        </Col>
-        <Col span={24}>
-          <Form.Item label="תיאור">
-            <Input.TextArea
-              value={productData.description}
-              onChange={(e) => handleFieldChange("description", e.target.value)}
-              placeholder="הכנס תיאור מוצר"
-              rows={4}
-              maxLength={100}
-              showCount
-              style={{ resize: "none" }}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Form>
-  );
+              </Select>
+            </Form.Item>
+            <Form.Item name="isFeatured" label="פעיל">
+              <Switch
+                checkedChildren="פעיל"
+                unCheckedChildren="לא פעיל"
+              />
+            </Form.Item>
+            <Form.Item name="isOnSale" label="מוצר מכירה">
+              <Switch checkedChildren="פעיל" unCheckedChildren="לא פעיל" />
+            </Form.Item>
+            <Form.Item
+              name="notes"
+              label="הערות"
+              rules={[{ required: false, message: "אנא הזן הערות" }]}
+            >
+              <Input.TextArea rows={4} />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                שמור מוצר
+              </Button>
+            </Form.Item>
+          </Form>
+        );
+      case "size":
+        return (
+          <SizesManager
+            value={selectedItem?.sizes}
+            form={formSize}
+            setValue={setSelectedItem}
+            ingredients={ingredientsState}
+            sizeSummary={selectedItem?.sizeSummary}
+            priceExcludingVAT={selectedItem?.priceExcludingVAT}
+            mixes={mixesState}
+            onDelete={deleteSize}
+            onSubmit={onSubmit}
+            onChange={(sizes) => setSelectedItem({ ...selectedItem, sizes })}
+          />
+        );
+      case "variation":
+        return (
+          <VariationsManager
+            value={selectedItem?.variations}
+            form={formVariation}
+            setValue={setSelectedItem}
+            sizes={selectedItem?.sizes}
+            ingredients={ingredientsState}
+            onChange={(variations) =>
+              setSelectedItem({ ...selectedItem, variations })
+            }
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
-  const renderSizesAndIngredients = () => (
-    <SizesManager
-      ref={sizesManagerRef}
-      value={productData.sizes}
-      onChange={(sizes) => handleFieldChange("sizes", sizes)}
-      ingredientsArr={ingredientsList}
-      errors={showErrors ? formErrors : {}}
-    />
-  );
+  const screensView = () => {
+    switch (isModalVisible) {
+      case "product":
+        return (
+          <Card>
+            <Row
+              align={"middle"}
+              justify={"space-between"}
+              style={{ margin: "1em 0em" }}
+            >
+              <Text strong style={{ fontSize: "1.5em" }}>
+                {selectedItem?.name}
+              </Text>
+              <Row style={{ gap: "0.5em" }}>
+                <Tag className={selectedItem?.isFeatured ? "green" : "red"}>
+                  {selectedItem?.isFeatured ? "פעיל" : "לא פעיל"}
+                </Tag>
+                <Tag className={selectedItem?.isOnSale ? "blue" : "yellow"}>
+                  {selectedItem?.isOnSale ? "במבצע" : "לא במבצע"}
+                </Tag>
+              </Row>
+              <Tag>
+                {
+                  categories?.find((e) => e._id === selectedItem?.category)
+                    ?.name
+                }
+              </Tag>
+            </Row>
+            <div
+              style={{
+                marginBottom: "12px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Flex flex={1}>
+                <Text strong>{"הערות"}:</Text>
+              </Flex>
+              <Flex flex={1}>
+                <p style={{}}>{selectedItem?.notes}</p>
+              </Flex>
+            </div>
+            <Divider style={{ margin: "8px 0" }} />
+          </Card>
+        );
+      case "size":
+        return (
+          <SizesManager
+            value={selectedItem?.sizes}
+            sizeSummary={selectedItem?.sizeSummary}
+            priceExcludingVAT={selectedItem?.priceExcludingVAT}
+            mode={"view"}
+            ingredients={ingredientsState}
+            mixes={mixesState}
+            onChange={(sizes) => setSelectedItem({ ...selectedItem, sizes })}
+          />
+        );
+      case "variation":
+        return (
+          <VariationsManager
+            value={selectedItem?.variations}
+            mode={"view"}
+            ingredients={ingredientsState}
+            onChange={(variations) =>
+              setSelectedItem({ ...selectedItem, variations })
+            }
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
-  const renderVariations = () => (
-    <VariationsManager
-      ref={variationsManagerRef}
-      value={productData.variations}
-      onChange={(variations) => handleFieldChange("variations", variations)}
-      sizes={productData.sizes}
-      ingredientsList={ingredientsList}
-      errors={showErrors ? formErrors : {}}
-    />
-  );
-
-  const steps = [
-    {
-      title: "פרטי מוצר",
-      content: renderProductDetails(),
-    },
-    {
-      title: "גדלים ורכיבים",
-      content: renderSizesAndIngredients(),
-    },
-    {
-      title: "וריאציות",
-      content: renderVariations(),
-    },
-  ];
 
   return (
-    <div style={{ padding: "20px" }}>
-      <Steps
-        current={currentStep}
-        items={steps}
-        style={{ marginBottom: "24px" }}
-        status={getStepStatus()}
-      />
-      <div
-        style={{
-          border: "1px solid #f0f0f0",
-          borderRadius: "8px",
-          padding: "24px",
-          background: "#fff",
-          minHeight: "400px",
-        }}
-      >
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: "24px" }}
-        >
-          <Typography.Title level={4} style={{ margin: 0 }}>
-            {steps[currentStep].title}
-          </Typography.Title>
-          {currentStep === 1 && (
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => sizesManagerRef.current?.handleAddSize()}
-              size="middle"
-            />
-          )}
-          {currentStep === 2 && (
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => variationsManagerRef.current?.handleAddVariation()}
-              size="middle"
-            />
-          )}
-        </Row>
-
-        <div>
-          {showErrors && Object.keys(formErrors).length > 0 && (
-            <Alert
-              message="שגיאות נמצאו"
-              description={
-                <ul style={{ margin: 0, paddingInlineStart: "20px" }}>
-                  {Object.values(formErrors).map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              }
-              type="error"
-              showIcon
-              style={{ marginBottom: "16px" }}
-            />
-          )}
-
-          {currentStep === 0 && renderProductDetails()}
-          {currentStep === 1 && (
-            <>
-              {showErrors && formErrors.sizes && (
-                <Alert
-                  message={formErrors.sizes}
-                  type="error"
-                  showIcon
-                  style={{ marginBottom: "16px" }}
-                />
-              )}
-              {renderSizesAndIngredients()}
-            </>
-          )}
-          {currentStep === 2 && renderVariations()}
-        </div>
-      </div>
-
-      <div
-        style={{
-          marginTop: "24px",
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        {currentStep > 0 && <Button onClick={handlePrev}>הקודם</Button>}
-        <div style={{ marginLeft: "auto" }}>
-          {currentStep < steps.length - 1 && (
-            <Button type="primary" onClick={handleNext}>
-              הבא
-            </Button>
-          )}
-          {currentStep === steps.length - 1 && (
-            <Button type="primary" onClick={handleFinish}>
-              סיום
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
+    <Modal
+      style={{ top: isMobile ? "3em" : "" }}
+      title={title(isModalVisible, modalMode, selectedItem)}
+      open={isModalVisible}
+      onCancel={() => {
+        setIsModalVisible(false);
+        setSelectedItem();
+      }}
+      footer={null}
+      destroyOnClose
+      width={isMobile ? "100%" : 600}
+      styles={{ gap: "0.5em" }}
+    >
+      {modalMode === "view" ? screensView() : screensEdit()}
+    </Modal>
   );
 };
 

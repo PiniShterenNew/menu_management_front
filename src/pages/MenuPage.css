@@ -115,14 +115,29 @@
 .bubble-category-container {
   display: flex;
   flex-wrap: nowrap;
-  overflow: hidden;
-  /* הסתרת פס הגלילה */
+  overflow-x: auto;
+  /* מאפשר גלילה אופקית */
   padding: 10px 2em;
   gap: 15px;
   align-items: center;
   max-width: 100%;
   scroll-behavior: smooth;
   position: relative;
+  scrollbar-width: none;
+  /* מסתיר את פס הגלילה בפיירפוקס */
+  -ms-overflow-style: none;
+  /* מסתיר את פס הגלילה באינטרנט אקספלורר */
+}
+
+.bubble-category-container::-webkit-scrollbar {
+  display: none;
+  /* מסתיר את פס הגלילה בכרום וספארי */
+}
+
+.bubble-category-container::after {
+  content: '';
+  width: 2em; /* מוסיף ריווח נוסף בסוף הרשימה */
+  flex-shrink: 0;
 }
 
 .bubble-category-wrapper::before,
@@ -234,6 +249,7 @@
   .scroll-button.left {
     left: 0em;
   }
+
   .bubble-category-wrapper::before {
     left: 0em;
   }

@@ -46,6 +46,7 @@ export default function Page({
   iconADD,
   floatAction,
   type,
+  openModalProduct
 }) {
   const [tableKeysPrint, setTableKeysPrint] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -140,6 +141,9 @@ export default function Page({
   ];
 
   const openModal = (mode, item = null) => {
+    if (type === "P") {
+      return openModalProduct(mode, item)
+    }
     setModalMode(mode);
     setSelectedItem(item);
     setIsModalVisible(true);
@@ -162,7 +166,7 @@ export default function Page({
 
   useEffect(() => {
     setTableKeysPrint(tableKeys);
-  }, []);
+  }, [tableKeys]);
 
   return (
     <Flex
@@ -277,6 +281,7 @@ export default function Page({
         ]}
         openModal={openModal}
         mobileKeys={mobileKeys}
+        type={type}
         Dtitle={Dtitle}
         Dcontent={Dcontent}
         onDelete={onDelete}
@@ -287,8 +292,8 @@ export default function Page({
           modalMode === "add"
             ? "הוסף פריט חדש"
             : modalMode === "edit"
-            ? "ערוך פריט"
-            : "צפייה בפרטי פריט"
+              ? "ערוך פריט"
+              : "צפייה בפרטי פריט"
         }
         open={isModalVisible}
         onCancel={closeModal}
@@ -296,23 +301,7 @@ export default function Page({
         destroyOnClose
         width={isMobile ? "100%" : width ? width : 600}
       >
-        {type === "P" ? (
-          <ProductWizard
-            mode={modalMode}
-            tableKeys={tableKeys}
-            ingredientsArr={ingredientsArr}
-            fields={tableKeys.filter(
-              (key) => key.editable || modalMode === "view"
-            )}
-            onSubmit={(values) => {
-              if (modalMode === "add") onAdd(values);
-              if (modalMode === "edit") onEdit({ ...selectedItem, ...values });
-              closeModal();
-            }}
-            initialValues={selectedItem || {}}
-            onClose={closeModal}
-          />
-        ) : (
+        {type !== "P" && (
           <DynamicFormPage
             mode={modalMode}
             tableKeys={tableKeysPrint}

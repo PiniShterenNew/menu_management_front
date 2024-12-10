@@ -62,6 +62,7 @@
   0% {
     background-color: #e6f7ff;
   }
+
   100% {
     background-color: #fafafa;
   }
@@ -69,6 +70,25 @@
 
 .highlight-new {
   animation: highlightFade 3s ease-out;
+}
+
+.ant-tabs-nav-list {
+  transform: none !important;
+  /* מיקום RTL */
+  overflow-x: auto;
+  /* גלילה אופקית */
+  scrollbar-width: none;
+  /* הסתרת פס גלילה בפיירפוקס */
+}
+
+.ant-tabs-nav-list::-webkit-scrollbar {
+  display: none;
+  /* הסתרת פס גלילה בדפדפנים מבוססי WebKit */
+}
+
+.ant-tabs-nav-operations {
+  display: none !important;
+  /* העלמת התפריט */
 }
 
 @media (max-width: 767px) {

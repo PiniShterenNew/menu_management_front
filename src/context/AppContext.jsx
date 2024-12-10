@@ -25,6 +25,7 @@ import { fetchEmployeesHoursMonthAPI } from '../services/employeeHoursService';
 import { buildMonthDataThunk, setEmployeeHoursState } from '../store/employeeHours';
 import { EmployeeHoursProvider } from './subcontexts/EmployeeHoursContext';
 import moment from 'moment';
+import { SettingsProvider } from './subcontexts/SettingsContext';
 
 message.config({
   prefixCls: 'my-message',
@@ -88,7 +89,9 @@ export const AppProvider = ({ children, setLoading }) => {
               <CategoryProvider>
                 <EmployeeProvider>
                   <EmployeeHoursProvider>
-                    {children}
+                    <SettingsProvider>
+                      {children}
+                    </SettingsProvider>
                   </EmployeeHoursProvider>
                 </EmployeeProvider>
               </CategoryProvider>
