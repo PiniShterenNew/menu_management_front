@@ -7,6 +7,7 @@ import mixesSlice from "./mixes";
 import categories from "./categories";
 import employees from "./employees";
 import employeeHours from "./employeeHours";
+import profitabilitySettingsSlice from "./profitabilitySettingsSlice";
 
 const store = configureStore({
     reducer: {
@@ -17,7 +18,8 @@ const store = configureStore({
         mixes: mixesSlice,
         categories: categories,
         employees: employees,
-        employeeHours: employeeHours
+        employeeHours: employeeHours,
+        profitabilitySettingsSlice: profitabilitySettingsSlice
     }
 });
 

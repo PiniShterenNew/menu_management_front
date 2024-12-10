@@ -54,6 +54,30 @@ const SupplierForm = ({ addSupplier, initialValues, onClose }) => {
                 >
                     <Input />
                 </AntdForm.Item>
+
+                <AntdForm.Item
+                    label="שם איש קשר"
+                    name="contect_name"
+                    rules={[{ required: true, message: 'אנא הזן שם איש קשר' }]}
+                >
+                    <Input />
+                </AntdForm.Item>
+
+                <AntdForm.Item
+                    label="כתובת"
+                    name="address"
+                    rules={[{ required: true, message: 'אנא הזן כתובת' }]}
+                >
+                    <Input />
+                </AntdForm.Item>
+
+                <AntdForm.Item
+                    label="טלפון משני"
+                    name="second_phone"
+                    rules={[{ required: false, message: 'אנא הזן מספר טלפון משני' }]}
+                >
+                    <Input />
+                </AntdForm.Item>
                 {errorMessage && <Text type="danger" className="error-message">{errorMessage}</Text>}
                 <AntdForm.Item>
                     <Button type="primary" htmlType="submit" className="supplier-form-button">

@@ -1,56 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// פונקציה לחישוב עלות רכיבים במיקס, משקל רכיבים והעלות הכוללת של המיקס
-// פונקציה לחישוב עלות רכיבים במיקס, משקל רכיבים והעלות הכוללת של המיקס
-function calculateMixCost(mix, ingredientsState) {
-  let totalCost = 0;
-  let totalWeight = 0;
-
-  // עדכון כל רכיב במיקס עם העלות והמשקל המחושבים
-  const updatedIngredients = mix.ingredients.map(ingredient => {
-    const ingredientData = ingredientsState.find(item => item._id === ingredient.ingredientId?._id);
-
-    if (ingredientData) {
-      const costPerUnit = parseFloat(ingredientData.priceExcludingVAT) / ingredientData.quantity;
-      const cost = costPerUnit * ingredient.quantity;
-      totalCost += cost;
-
-      // חישוב משקל או נפח רכיב, בהתחשב אם מדובר ביחידות שיש להן משקל/נפח ליחידה
-      const weight = (ingredientData.unit === "יחידות" && ingredientData.type !== "מכלים ואביזרים")
-        ? ingredient.quantity * (ingredientData.weightOrVolumePerUnit || 0)
-        : ingredient.quantity;
-
-      totalWeight += weight;
-
-      return {
-        ...ingredient,
-        cost,
-        weight
-      };
-    }
-
-    return ingredient;
-  });
-
-  return {
-    ...mix,
-    ingredients: updatedIngredients,
-    totalCost,
-    totalWeight
-  };
-}
-
 const mixesSlice = createSlice({
   name: 'mixes',
   initialState: [],
   reducers: {
     setMixesState: (state, action) => {
       const { mixes, ingredientsState } = action.payload;
-      return mixes.map(mix => calculateMixCost(mix, ingredientsState));
+      return mixes;
     },
     addOrUpdateMixState: (state, action) => {
       const { newMix, ingredientsState } = action.payload;
-      const updatedMix = calculateMixCost(newMix, ingredientsState);
+      const updatedMix = newMix;
       const existingIndex = state.findIndex((mix) => mix._id === newMix._id);
 
       if (existingIndex !== -1) {
@@ -61,7 +21,7 @@ const mixesSlice = createSlice({
     },
     updateMixState: (state, action) => {
       const { updatedMix, ingredientsState } = action.payload;
-      const calculatedMix = calculateMixCost(updatedMix, ingredientsState);
+      const calculatedMix = updatedMix;
       const existingIndex = state.findIndex((mix) => mix._id === updatedMix._id);
 
       if (existingIndex !== -1) {

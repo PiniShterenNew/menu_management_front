@@ -1,0 +1,102 @@
+.container {
+  background-color: var(--card-bg-color);
+  border-radius: 1em;
+  padding: 1em;
+}
+
+.container .ant-list-item {
+  border: none !important;
+}
+
+.padding-card {
+  padding: 0 !important;
+}
+
+.ant-card-body {
+  padding: 0em 1.3em 1.3em 1.3em !important;
+}
+
+.ant-tag {
+  margin-inline-end: 0 !important;
+  height: fit-content;
+}
+
+.container .ant-card {
+  margin: 0 !important;
+}
+
+.container .rc-virtual-list-holder-inner {
+  gap: 0.5em;
+}
+
+.card-actions .ant-btn {
+  width: 20%;
+}
+
+.ant-modal-confirm-btns {
+  display: flex !important;
+}
+
+.container .ant-input-affix-wrapper,
+.container .ant-btn {
+  height: 3em !important;
+  max-height: 3em !important;
+  min-height: 3em !important;
+}
+
+.add-btn-mobile {
+  position: absolute;
+  top: -33px;
+  left: 0px;
+  width: 1.6em !important;
+  min-height: 0px;
+  height: 1.6em !important;
+  padding: 0px !important;
+  margin: 0px !important;
+  border-radius: 100% !important;
+  color: var(--card-bg-color) !important;
+  background-color: var(--secondary-color) !important;
+}
+
+@keyframes highlightFade {
+  0% {
+    background-color: #e6f7ff;
+  }
+
+  100% {
+    background-color: #fafafa;
+  }
+}
+
+.highlight-new {
+  animation: highlightFade 3s ease-out;
+}
+
+.ant-tabs-nav-list {
+  transform: none !important;
+  /* מיקום RTL */
+  overflow-x: auto;
+  /* גלילה אופקית */
+  scrollbar-width: none;
+  /* הסתרת פס גלילה בפיירפוקס */
+}
+
+.ant-tabs-nav-list::-webkit-scrollbar {
+  display: none;
+  /* הסתרת פס גלילה בדפדפנים מבוססי WebKit */
+}
+
+.ant-tabs-nav-operations {
+  display: none !important;
+  /* העלמת התפריט */
+}
+
+@media (max-width: 767px) {
+
+  .container .ant-input-affix-wrapper,
+  .container .ant-btn {
+    height: 2em !important;
+    max-height: 2em !important;
+    min-height: 2em !important;
+  }
+}
