@@ -25,6 +25,7 @@ import { fetchEmployeesHoursMonthAPI } from '../services/employeeHoursService';
 import { buildMonthDataThunk, setEmployeeHoursState } from '../store/employeeHours';
 import { EmployeeHoursProvider } from './subcontexts/EmployeeHoursContext';
 import moment from 'moment';
+import { SettingsProvider } from './subcontexts/SettingsContext';
 
 message.config({
   prefixCls: 'my-message',
@@ -33,6 +34,7 @@ message.config({
 export const AppProvider = ({ children, setLoading }) => {
   const dispatch = useDispatch();
   const selectedDate = useSelector((state) => state.employeeHours.selectedDate);
+  const averageHourlyRate = useSelector((state) => state.employeeHours.overallAverageHourlyRate);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,7 +60,7 @@ export const AppProvider = ({ children, setLoading }) => {
         dispatch((dispatch, getState) => {
           const ingredientsState = getState().ingredients; // מקבל את ingredientsState העדכני
           const mixesState = getState().mixes; // מקבל את ingredientsState העדכני
-          dispatch(setProductsState({ products: productsRes.data?.reverse(), ingredientsState, mixesState }));
+          dispatch(setProductsState({ products: productsRes.data?.reverse(), ingredientsState, mixesState, averageHourlyRate }));
         });
         dispatch(setCategories(categoriesRes.data));
         dispatch(addSuppliersState(suppliersRes?.data?.reverse()));
@@ -87,7 +89,9 @@ export const AppProvider = ({ children, setLoading }) => {
               <CategoryProvider>
                 <EmployeeProvider>
                   <EmployeeHoursProvider>
-                    {children}
+                    <SettingsProvider>
+                      {children}
+                    </SettingsProvider>
                   </EmployeeHoursProvider>
                 </EmployeeProvider>
               </CategoryProvider>

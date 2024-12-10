@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBox, faDatabase, faDolly, faFolder, faStore, faTruck, faUser } from '@fortawesome/free-solid-svg-icons';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import "./dashboard.css";
+import { Link } from 'react-router-dom';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -93,70 +94,82 @@ function DashboardPage() {
     <div className="dashboard-container" style={{ padding: isMobile ? '10px' : '20px' }}>
       <Row gutter={[5, 5]} wrap>
         <Col xs={12} sm={12} md={10} lg={8} xl={6}>
-          <Card className="dashboard-card">
-            <div className="icon-circle green">
-              <FontAwesomeIcon icon={faStore} />
-            </div>
-            <div className="stat-content">
-              <div className="stat-title">מוצרים</div>
-              <div className="stat-value">{productsState.length}</div>
-            </div>
-          </Card>
+          <Link to="/menu">
+            <Card className="dashboard-card">
+              <div className="icon-circle green">
+                <FontAwesomeIcon icon={faStore} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-title">מוצרים</div>
+                <div className="stat-value">{productsState.length}</div>
+              </div>
+            </Card>
+          </Link>
         </Col>
         <Col xs={12} sm={12} md={10} lg={8} xl={6}>
-          <Card className="dashboard-card">
-            <div className="icon-circle red">
-              <FontAwesomeIcon icon={faTruck} />
-            </div>
-            <div className="stat-content">
-              <div className="stat-title">ספקים</div>
-              <div className="stat-value">{supplierState.length}</div>
-            </div>
-          </Card>
+          <Link to="/suppliers">
+            <Card className="dashboard-card">
+              <div className="icon-circle red">
+                <FontAwesomeIcon icon={faTruck} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-title">ספקים</div>
+                <div className="stat-value">{supplierState.length}</div>
+              </div>
+            </Card>
+          </Link>
         </Col>
         <Col xs={12} sm={12} md={10} lg={8} xl={6}>
-          <Card className="dashboard-card">
-            <div className="icon-circle blue">
-              <FontAwesomeIcon icon={faDolly} />
-            </div>
-            <div className="stat-content">
-              <div className="stat-title">חומרי גלם</div>
-              <div className="stat-value">{ingredientsState.length}</div>
-            </div>
-          </Card>
+          <Link to="/ingredients">
+            <Card className="dashboard-card">
+              <div className="icon-circle blue">
+                <FontAwesomeIcon icon={faDolly} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-title">חומרי גלם</div>
+                <div className="stat-value">{ingredientsState.length}</div>
+              </div>
+            </Card>
+          </Link>
         </Col>
         <Col xs={12} sm={12} md={10} lg={8} xl={6}>
-          <Card className="dashboard-card">
-            <div className="icon-circle yellow">
-              <FontAwesomeIcon icon={faFolder} />
-            </div>
-            <div className="stat-content">
-              <div className="stat-title">קטגוריות</div>
-              <div className="stat-value">{categoriesState.length}</div>
-            </div>
-          </Card>
+          <Link to="/menu">
+            <Card className="dashboard-card">
+              <div className="icon-circle yellow">
+                <FontAwesomeIcon icon={faFolder} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-title">קטגוריות</div>
+                <div className="stat-value">{categoriesState.length}</div>
+              </div>
+            </Card>
+          </Link>
         </Col>
         <Col xs={12} sm={12} md={10} lg={8} xl={6}>
-          <Card className="dashboard-card">
-            <div className="icon-circle purple">
-              <FontAwesomeIcon icon={faBox} />
-            </div>
-            <div className="stat-content">
-              <div className="stat-title">תערובות</div>
-              <div className="stat-value">{mixesState.length}</div>
-            </div>
-          </Card>
+          <Link to="/mixes">
+            <Card className="dashboard-card">
+              <div className="icon-circle purple">
+                <FontAwesomeIcon icon={faBox} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-title">תערובות</div>
+                <div className="stat-value">{mixesState.length}</div>
+              </div>
+            </Card>
+          </Link>
         </Col>
         <Col xs={12} sm={12} md={10} lg={8} xl={6}>
-          <Card className="dashboard-card">
-            <div className="icon-circle aqua">
-              <FontAwesomeIcon icon={faBox} />
-            </div>
-            <div className="stat-content">
-              <div className="stat-title">עובדים</div>
-              <div className="stat-value">{employees?.length}</div>
-            </div>
-          </Card>
+          <Link to="/employees">
+            <Card className="dashboard-card">
+              <div className="icon-circle aqua">
+                <FontAwesomeIcon icon={faBox} />
+              </div>
+              <div className="stat-content">
+                <div className="stat-title">עובדים</div>
+                <div className="stat-value">{employees?.length}</div>
+              </div>
+            </Card>
+          </Link>
         </Col>
       </Row>
 

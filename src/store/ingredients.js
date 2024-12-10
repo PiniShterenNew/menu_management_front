@@ -7,15 +7,15 @@ function processIngredientData(ingredient) {
     // מחשבים את המחיר ללא מע"מ (בהנחה שמחיר המוזן כולל מע"מ של 17%)
     const priceExcludingVAT = ingredient.price / 1.17;
 
-    if (ingredient.unit === 'ק"ג') {
+    if (ingredient.unit === 'ק"ג' || ingredient.unit === 'weight') {
         unitQuantity = 0.1; // 100 גרם
-        unitDescription = '100 גרם';
+        unitDescription = 'גרם';
         unitPrice = (priceExcludingVAT / ingredient.quantity) * unitQuantity; // חישוב המחיר ל-100 גרם לפי הכמות המלאה
-    } else if (ingredient.unit === 'ליטר') {
+    } else if (ingredient.unit === 'ליטר' || ingredient.unit === 'volume') {
         unitQuantity = 0.1; // 100 מ"ל
-        unitDescription = '100 מ"ל';
+        unitDescription = 'מ"ל';
         unitPrice = (priceExcludingVAT / ingredient.quantity) * unitQuantity; // חישוב המחיר ל-100 מ"ל לפי הכמות המלאה
-    } else if (ingredient.unit === 'יחידות') {
+    } else if (ingredient.unit === 'יחידות' || ingredient.unit === 'units') {
         unitQuantity = 1; // יחידה בודדת
         unitDescription = 'יחידה';
         unitPrice = priceExcludingVAT / ingredient.quantity; // חישוב המחיר ליחידה בודדת

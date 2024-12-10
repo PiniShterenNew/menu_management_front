@@ -95,3 +95,162 @@
     width: 100% !important;
   }
 }
+
+
+
+.menu-page-container {
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.bubble-category-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  /* כדי להגביל את הטשטוש לרשימה בלבד */
+}
+
+.bubble-category-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  /* מאפשר גלילה אופקית */
+  padding: 10px 2em;
+  gap: 15px;
+  align-items: center;
+  max-width: 100%;
+  scroll-behavior: smooth;
+  position: relative;
+  scrollbar-width: none;
+  /* מסתיר את פס הגלילה בפיירפוקס */
+  -ms-overflow-style: none;
+  /* מסתיר את פס הגלילה באינטרנט אקספלורר */
+}
+
+.bubble-category-container::-webkit-scrollbar {
+  display: none;
+  /* מסתיר את פס הגלילה בכרום וספארי */
+}
+
+.bubble-category-container::after {
+  content: '';
+  width: 2em; /* מוסיף ריווח נוסף בסוף הרשימה */
+  flex-shrink: 0;
+}
+
+.bubble-category-wrapper::before,
+.bubble-category-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50px;
+  z-index: 1;
+  pointer-events: none;
+  /* מאפשר קליק דרך הטשטוש */
+}
+
+.bubble-category-wrapper::before {
+  left: 3.5em;
+  background: linear-gradient(to right, var(--bg-color), rgba(255, 255, 255, 0.129));
+}
+
+.bubble-category-wrapper::after {
+  right: 0;
+  background: linear-gradient(to left, var(--bg-color), rgba(255, 255, 255, 0.127));
+}
+
+.bubble-category-item {
+  background-color: var(--card-bg-color);
+  padding: 10px 15px;
+  border-radius: 2em;
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-family: var(--primary-font);
+  color: var(--text-color);
+}
+
+.bubble-category-item.selected {
+  /* transform: scale(1.1); */
+  font-weight: bold;
+  background-color: var(--secondary-color-light);
+}
+
+.bubble-category-item:hover {
+  /* color: var(--primary-color) !important; */
+  /* background-color: var(--primary-color-second) !important; */
+  /* transform: scale(1.05); */
+  font-weight: bold;
+}
+
+.bubble-add-category {
+  background-color: var(--secondary-color);
+  color: var(--card-bg-color);
+  font-weight: bold;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-family: var(--primary-font);
+  margin: 0px 10px;
+  flex-shrink: 0;
+  /* שמירת גודל */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.bubble-add-category:hover {
+  /* background-color: var(--primary-color-second); */
+  transform: scale(1.1);
+}
+
+.scroll-button {
+  background: transparent;
+  color: var(--primary-color);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 2em;
+  font-weight: bold;
+  position: absolute;
+  z-index: 10;
+}
+
+.scroll-button.left {
+  left: 1.8em;
+  text-align: left;
+}
+
+.scroll-button.right {
+  right: 0;
+  text-align: right;
+}
+
+.scroll-button:hover {
+  /* background-color: var(--primary-color); */
+  transform: scale(1.1);
+}
+
+@media (max-width: 767px) {
+  .scroll-button {
+    padding: 0em 0em !important;
+    width: 1.2em;
+  }
+
+  .scroll-button.left {
+    left: 0em;
+  }
+
+  .bubble-category-wrapper::before {
+    left: 0em;
+  }
+}

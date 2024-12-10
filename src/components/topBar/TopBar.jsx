@@ -16,14 +16,15 @@ export default function TopBar({ drawerVisible, setDrawerVisible, isMobile }) {
                 <button className="profile-button">
                     <FontAwesomeIcon icon={faUser} />
                 </button>
-                <button className="settings-button" onClick={() => setShowSettings(!showSettings)}>
+                {/* <button className="settings-button" onClick={() => setShowSettings(!showSettings)}>
                     <FontAwesomeIcon icon={faCog} />
-                </button>
+                </button> */}
                 {isMobile && (
                     <button className="menu-button" onClick={() => setDrawerVisible(!drawerVisible)}>
                         <FontAwesomeIcon icon={faBars} />
                     </button>
                 )}
+                {/* {<Settings flag={showSettings} setFlag={() => setShowSettings(false)} />} */}
             </div>
         </div>
     );

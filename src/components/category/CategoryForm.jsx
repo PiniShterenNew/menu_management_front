@@ -31,7 +31,7 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
         setCategoryName('');
         setEditingCategory(null);
         setErrorMessage('');
-        setIsCategoryModalVisible(false);
+        // setIsCategoryModalVisible(false);
     };
 
     const handleEdit = (category) => {
@@ -86,7 +86,6 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
             <div className="category-list-section">
                 <Title level={4} style={{ marginTop: '20px' }}>קטגוריות קיימות:</Title>
                 <List
-                    bordered
                     dataSource={categoriesState}
                     renderItem={(item) => (
                         <List.Item
@@ -103,7 +102,7 @@ const CategoryForm = ({ isCategoryModalVisible, setIsCategoryModalVisible }) => 
                                     okText="כן"
                                     cancelText="לא"
                                 >
-                                    <Button icon={<DeleteOutlined />} danger />
+                                    <Button icon={<DeleteOutlined />} type='text' danger />
                                 </Popconfirm>,
                             ]}
                         >
