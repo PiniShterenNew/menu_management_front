@@ -67,15 +67,29 @@ export default function DynamicFormPage({
                     פרטי הרכיב
                 </Typography.Title>
                 <Row align={"middle"} justify={"space-between"} style={{ margin: "1em 0em" }}>
-                    <Text strong style={{ fontSize: "1.5em" }}>{initialValues?.name}</Text>
+                    <Text strong style={{ fontSize: "1.8em" }}>{initialValues?.name}</Text>
                     {tableKeys?.find((e) => e.key === "type")?.render("", initialValues, "view")}
                 </Row>
-                {tableKeys?.filter((e) => e.key !== "type" && e?.key !== "name").map((field, i, arr) => (
+                {tableKeys?.filter((e) => e.key !== "type" && e?.key !== "name" && !e.column).map((field, i, arr) => (
                     <>
                         <div key={field.key} style={{ marginBottom: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <Flex flex={1}>
                                 <Text strong>{field.title}:</Text>
                             </Flex>
+                            <Flex flex={1}>
+                                <p style={{}}>
+                                    {(field?.render && field?.render("", initialValues, mode, "view")) || initialValues[field.key] || "—"}
+                                </p>
+                            </Flex>
+                        </div>
+                        {i < arr?.length - 1 && <Divider style={{ margin: "8px 0" }} />}
+                    </>
+                ))}
+                {tableKeys?.filter((e) => e.column).map((field, i, arr) => (
+                    <>
+                        {i === 0 && <Divider style={{ margin: "8px 0" }} />}
+                        <div key={field.key} style={{ marginBottom: "12px", display: "flex", justifyContent: "space-between", flexDirection: "column", }}>
+                            <Text strong style={{fontSize: "1.4em"}}>{field.title}:</Text>
                             <Flex flex={1}>
                                 <p style={{}}>
                                     {(field?.render && field?.render("", initialValues, mode, "view")) || initialValues[field.key] || "—"}

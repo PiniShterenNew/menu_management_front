@@ -1,12 +1,36 @@
-import { Button, Card, Col, Divider, Flex, List, Modal, Row, Table } from 'antd'
-import React from 'react'
+import { Button, Card, Col, Divider, Flex, List, Modal, Pagination, Row, Table, Tooltip } from 'antd'
+import React, { useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive';
 import VirtualList from 'rc-virtual-list';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import heIL from 'antd/lib/locale/he_IL';
 
 export default function ListPage({ data, type, tableKeys, mobileKeys, openModal, Dtitle, Dcontent, onDelete }) {
-    const isMobile = useMediaQuery({ query: '(max-width: 1200px)' });
+    const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
+
+    // State לפגינציה
+    const [totalItems, setTotalItems] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1); // הדף הנוכחי
+    const [pageSize, setPageSize] = useState(6); // מספר הפריטים בעמוד
+    const [paginatedData, setPaginatedData] = useState([]); // הנתונים המפוצלים לדפים
+
+    // פונקציה לפיצול הנתונים בהתאם לפגינציה
+    const paginateData = (page, size) => {
+        const start = (page - 1) * size;
+        const end = start + size;
+        return data.slice(start, end);
+    };
+
+    const handlePageChange = (page, pageSize) => {
+        setCurrentPage(page); // עדכון הדף הנוכחי
+        setPageSize(pageSize); // עדכון גודל העמוד
+    };
+    // עדכון הנתונים המפוצלים כשיש שינוי ב-pagination או בנתונים המקוריים
+    useEffect(() => {
+        setTotalItems(data.length); // עדכון סך כל הפריטים
+        setPaginatedData(paginateData(currentPage, pageSize));
+    }, [currentPage, pageSize, data]);
 
     const handleDelete = (item) => {
         Modal.confirm({
@@ -88,17 +112,50 @@ export default function ListPage({ data, type, tableKeys, mobileKeys, openModal,
             </>
         )
         : (
-            <Flex style={{ maxWidth: "100%", overflowY: "auto", overflowX: "auto" }}>
+            <Flex flex={1} style={{ display: "flex", flexDirection: "column", overflow: "hidden", width: "100%" }}>
                 {/* <div style={{height: "150vh", width: "70vw", background: "green"}} />
             <div style={{height: "150vh", width: "70vw", background: "orange"}} /> */}
-                <Table
-                    columns={tableKeys}
-                    dataSource={data}
-                    scroll={{ x: "max-content" }} // גלילה אופקית אוטומטית
-                    sticky // מאפשר דביקות כותרת הטבלה והעמודות שהוגדרו
-                    style={{ maxWidth: "100%" }}
-                    direction="rtl" // הגדרת כיווניות לטבלה
-                />
+                <Flex flex={1} style={{ maxWidth: "100%", maxHeight: "90%", overflowY: "auto", overflowX: "auto", }}>
+                    <Table
+                        style={{minWidth: "100%"}}
+                        columns={tableKeys.map((column) => ({
+                            ...column,
+                            title: (
+                                <Tooltip title={column.title}>
+                                    <span
+                                        style={{
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            display: "inline-block",
+                                            maxWidth: "150px", // רוחב מקסימלי מותאם
+                                        }}
+                                    >
+                                        {column.title}
+                                    </span>
+                                </Tooltip>
+                            ),
+                        }))}
+                        // sticky
+                        dataSource={paginatedData}
+                        pagination={false} // ביטול פגינציה מובנית של הטבלה
+                        // scroll={{ x: "100%" }} // גלילה אופקית אוטומטית
+                        direction="rtl" // הגדרת כיווניות לטבלה
+                    />
+                </Flex>
+                {/* פגינציה מחוץ לטבלה */}
+                <Flex align='center' justify='center' style={{ marginTop: "2vh" }}>
+                    <Pagination
+                        current={currentPage}
+                        total={totalItems}
+                        pageSize={pageSize}
+                        onChange={handlePageChange}
+                        style={{ direction: "ltr" }}
+                        showSizeChanger
+                        pageSizeOptions={["6", "10", "20", "50"]}
+                        locale={heIL}
+                    />
+                </Flex>
             </Flex>
         )
 }

@@ -12,7 +12,7 @@ const IngredientsManager = ({
   nameArr,
   nameArrType,
 }) => {
-  const isMobile = useMediaQuery({ query: "(max-width: 1200px)" });
+  const isMobile = useMediaQuery({ query: "(max-width: 500px)" });
 
   // הוספת מרכיב חדש
   const handleAddIngredient = () => {

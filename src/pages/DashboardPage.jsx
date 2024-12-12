@@ -21,7 +21,7 @@ function DashboardPage() {
   const ingredientsState = useSelector((state) => state.ingredients);
   const mixesState = useSelector((state) => state.mixes);
   const employees = useSelector((state) => state.employees);
-  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+  const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
 
   const productsByCategory = useMemo(() => {
     const categoryCounts = productsState.reduce((acc, product) => {
