@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Button, FloatButton, Row, Tag, Typography } from "antd";
+import { Button, Flex, FloatButton, Row, Tag, Typography } from "antd";
 import { useSelector } from "react-redux";
 import { useProductContext } from "../context/subcontexts/ProductContext";
 import Page from "../Elements/Page";
@@ -9,6 +9,7 @@ import { useMediaQuery } from "react-responsive";
 import { faFolder, faStore } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ProductWizard from "../Elements/ProductWizard";
+import CategoryScroll from "../Elements/CategoryScroll";
 
 const { Text } = Typography;
 
@@ -24,7 +25,7 @@ function MenuPage() {
     selectedItem,
     setSelectedItem,
   } = useProductContext();
-  const isMobile = useMediaQuery({ query: "(max-width: 1200px)" });
+  const isMobile = useMediaQuery({ query: "(max-width: 500px)" });
 
   const containerRef = useRef(null);
 
@@ -180,11 +181,13 @@ function MenuPage() {
 
   return (
     <div style={{
+      display: "flex",
+      flexDirection: "column",
       maxWidth: "100%", height: "100%", width: "100%", overflow: 'hidden',
-      ['- webkit - overflow - scrolling']: 'touch'
+      ['- webkit - overflow - scrolling']: 'touch',
     }}>
       {/* רכיב גלילה אופקית לקטגוריות */}
-      < div className="menu-page-container" >
+      {/* < div className="menu-page-container" >
         <div className="bubble-category-wrapper">
           <button className="scroll-button right" onClick={scrollRight}>
             &lt;
@@ -220,44 +223,53 @@ function MenuPage() {
             </div>
           )}
         </div>
-      </div >
-      {/* טבלת מוצרים */}
-      <Page
-        type={"P"}
-        data={data}
-        mobileKeys={mobileKeys}
-        dataPrint={dataPrint}
-        sortKeys={sortKeys}
-        tableKeys={tableKeys}
-        newTitle={"הוסף מוצר חדש"}
-        searchKeys={searchKeys}
-        setDataPrint={setDataPrint}
-        onAdd={addProduct}
-        onEdit={updateProduct}
-        onDelete={deleteProduct}
-        ingredientsArr={ingredientsState}
-        Dtitle={"אישור מחיקה"}
-        Dcontent={
-          <>
-            <p>האם אתה בטוח שברצונך למחוק את המוצר?</p>
-            <p>שים לב! מחיקת מוצר עשויה להשפיע על מכירות ותערובות קשורות.</p>
-          </>
-        }
-        iconADD={< FontAwesomeIcon icon={faStore} />}
-        floatAction={
-          [
-            <FloatButton
-              type="primary"
-              onClick={() => setIsCategoryModalVisible(true)}
-              icon={<FontAwesomeIcon icon={faFolder} />}
-            />,
-          ]}
-        openModalProduct={(mode, item) => {
-          setIsModalVisible("product");
-          setModalMode(mode);
-          if (item) setSelectedItem(item);
-        }}
+      </div > */}
+      <CategoryScroll
+        categories={categoriesState}
+        isMobile={isMobile}
+        selectedCategory={selectedCategory}
+        setIsCategoryModalVisible={setIsCategoryModalVisible}
+        setSelectedCategory={setSelectedCategory}
       />
+      {/* טבלת מוצרים */}
+      <Flex flex={1}>
+        <Page
+          type={"P"}
+          data={data}
+          mobileKeys={mobileKeys}
+          dataPrint={dataPrint}
+          sortKeys={sortKeys}
+          tableKeys={tableKeys}
+          newTitle={"הוסף מוצר חדש"}
+          searchKeys={searchKeys}
+          setDataPrint={setDataPrint}
+          onAdd={addProduct}
+          onEdit={updateProduct}
+          onDelete={deleteProduct}
+          ingredientsArr={ingredientsState}
+          Dtitle={"אישור מחיקה"}
+          Dcontent={
+            <>
+              <p>האם אתה בטוח שברצונך למחוק את המוצר?</p>
+              <p>שים לב! מחיקת מוצר עשויה להשפיע על מכירות ותערובות קשורות.</p>
+            </>
+          }
+          iconADD={< FontAwesomeIcon icon={faStore} />}
+          floatAction={
+            [
+              <FloatButton
+                type="primary"
+                onClick={() => setIsCategoryModalVisible(true)}
+                icon={<FontAwesomeIcon icon={faFolder} />}
+              />,
+            ]}
+          openModalProduct={(mode, item) => {
+            setIsModalVisible("product");
+            setModalMode(mode);
+            if (item) setSelectedItem(item);
+          }}
+        />
+      </Flex>
       < CategoryForm
         isCategoryModalVisible={isCategoryModalVisible}
         setIsCategoryModalVisible={setIsCategoryModalVisible}
