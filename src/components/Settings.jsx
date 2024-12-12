@@ -17,7 +17,7 @@ const { Text, Title } = Typography;
 export default function Settings({ flag, setFlag }) {
   const dispatch = useDispatch();
 
-  const isMobile = useMediaQuery({ query: '(max-width: 1200px)' });
+  const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
 
   const averageHourlyRate = useSelector((state) => state.employeeHours.overallAverageHourlyRate);
   const {

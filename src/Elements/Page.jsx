@@ -55,7 +55,7 @@ export default function Page({
   const [modalMode, setModalMode] = useState("add"); // "add", "edit", "view"
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const isMobile = useMediaQuery({ query: "(max-width: 1200px)" });
+  const isMobile = useMediaQuery({ query: "(max-width: 500px)" });
 
   const sortItems = sortKeys.map((key) => ({
     key: key?.key,
@@ -256,7 +256,7 @@ export default function Page({
           {
             title: "פעולות",
             key: "action",
-            width: 140,
+            minWidth: 130,
             render: (_, record) => {
               return (
                 <Row
