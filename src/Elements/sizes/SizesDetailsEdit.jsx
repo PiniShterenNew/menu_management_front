@@ -11,7 +11,7 @@ import MixesList from './MixesList'
 export default function SizesDetailsEdit({
     size,
     sizes,
-    index,
+    indexSize,
     handleCancelEdit,
     handleRemoveSize,
     newSizeId,
@@ -32,7 +32,7 @@ export default function SizesDetailsEdit({
 
             // אם הכל תקין, אפשר לשמור את הגודל
             setNewSizeId(null);
-            onChange(sizes?.map((e, i) => i === index ? { ...e, edit: false } : e));
+            onChange(sizes?.map((e, i) => i === indexSize ? { ...e, edit: false } : e));
         } catch (error) {
             // במידה ויש שגיאות
             const errorFields = error.errorFields;
@@ -49,7 +49,7 @@ export default function SizesDetailsEdit({
     return (
         <div
             className={size.idNew === newSizeId ? "highlight-new" : ""}
-            key={size.idNew || index}
+            key={size.idNew || indexSize}
             style={{
                 border: `1px ${size?.idNew ? "dashed" : "solid #e6e6e6"}`,
                 borderRadius: "8px",
@@ -90,14 +90,14 @@ export default function SizesDetailsEdit({
                     <Button
                         type="text"
                         icon={<CloseOutlined />}
-                        onClick={() => handleCancelEdit(index)} // עדכון כפתור לעריכה
+                        onClick={() => handleCancelEdit(indexSize)} // עדכון כפתור לעריכה
                     />
                     <Button
                         type="text"
                         danger
                         icon={<DeleteOutlined />}
                         title="מחק גודל"
-                        onClick={() => handleRemoveSize(index)}
+                        onClick={() => handleRemoveSize(indexSize)}
                     />
                 </Flex>
             </Row>
@@ -168,7 +168,7 @@ export default function SizesDetailsEdit({
                                 remove={remove}
                                 fields={fields}
                                 form={form}
-                                index={index}
+                                indexSize={indexSize}
                                 ingredients={ingredients}
                                 onChange={onChange}
                                 getUnitDisplay={getUnitDisplay}
@@ -191,7 +191,7 @@ export default function SizesDetailsEdit({
                                 remove={remove}
                                 fields={fields}
                                 form={form}
-                                index={index}
+                                indexSize={indexSize}
                                 mixes={mixes}
                                 onChange={onChange}
                                 getUnitDisplay={getUnitDisplay}

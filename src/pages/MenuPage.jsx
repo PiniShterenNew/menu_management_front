@@ -66,9 +66,6 @@ function MenuPage() {
         editable: true,
         type: "select",
         render: (_, record) => {
-          console.log(record?.category);
-          console.log(categoriesState);
-          console.log(categoriesState?.find((e) => e._id === record?.category)?.name);
 
           return (
             <Tag>

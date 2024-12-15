@@ -2,18 +2,27 @@ import React from "react";
 import { Row, Col, Button, Form, Select, InputNumber } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 
-const IngredientsList = ({ sizes, ingredients, add, remove, form, fields, index, onChange, getUnitDisplay }) => (
+const IngredientsList = ({
+    sizes,
+    ingredients,
+    add,
+    remove,
+    form,
+    fields,
+    indexSize,
+    onChange,
+    getUnitDisplay
+}) => (
     <>
         <Button type="dashed" style={{ marginBottom: "0.5vw" }} onClick={() => add()}>
             הוסף מרכיב
         </Button>
-        <div style={{ maxHeight: "12vw", overflowY: "auto", overflowX: "hidden" }}>
+        <div style={{ maxHeight: "12vw", overflowY: "auto", overflowX: "hidden", marginTop: "2vh", padding: "0 1.5vw" }}>
             {fields.map(({ key, name, fieldKey }) => (
                 <Row key={key} gutter={16}>
                     <Col span={10}>
                         <Form.Item
                             name={[name, "ingredientId"]}
-                            fieldKey={[fieldKey, "ingredientId"]}
                             rules={[{ required: true, message: "בחר רכיב" }]}
                         >
                             <Select
@@ -27,32 +36,30 @@ const IngredientsList = ({ sizes, ingredients, add, remove, form, fields, index,
                                     label: ing.name,
                                     unit: ing?.unit
                                 }))}
-                                onChange={(ingredientValue) => {
+                                onChange={(ingredientValue, e) => {
                                     // מציאת הרכיב שנבחר
                                     const selectedIngredient = ingredients.find((ing) => ing._id === ingredientValue);
 
                                     // יצירת עותק מעודכן של ה-sizes
                                     const updatedSizes = [...sizes];
-
                                     // עדכון הערכים הנוכחיים של הטופס
-                                    const currentValues = form.getFieldValue(["sizes", index]);
+                                    const currentValues = form.getFieldValue("ingredients");
 
                                     // עדכון השדה של המרכיב עם unit חדש
-                                    currentValues.ingredients[name] = {
-                                        ...currentValues.ingredients[name],
-                                        ingredientId: ingredientValue,
+                                    currentValues[name] = {
+                                        ...e,
                                         unit: selectedIngredient?.unit || "",
                                     };
 
                                     // שמירת ערך `edit` הנוכחי בגודל
-                                    updatedSizes[index] = {
-                                        ...currentValues,
-                                        edit: updatedSizes[index]?.edit || false, // שמירה על מצב עריכה
+                                    updatedSizes[indexSize] = {
+                                        ...updatedSizes[indexSize],
+                                        edit: updatedSizes[indexSize]?.edit || false, // שמירה על מצב עריכה
                                     };
 
                                     // עדכון ה-state והטופס
                                     onChange(updatedSizes); // עדכון ב-parent
-                                    form.setFieldsValue({ sizes: updatedSizes }); // עדכון הטופס
+                                    form.setFieldsValue({ ...updatedSizes[indexSize] }); // עדכון הטופס
                                 }}
                             />
                         </Form.Item>
@@ -60,30 +67,29 @@ const IngredientsList = ({ sizes, ingredients, add, remove, form, fields, index,
                     <Col span={10}>
                         <Form.Item
                             name={[name, "quantity"]}
-                            fieldKey={[fieldKey, "quantity"]}
                             rules={[{ required: true, message: "הזן כמות" }]}
                         >
                             <InputNumber
                                 onChange={(value) => {
                                     // עדכון הכמות ב-state
                                     const updatedSizes = [...sizes];
-                                    const currentValues = form.getFieldValue(["sizes", index]);
+                                    const currentValues = form.getFieldValue("ingredients");
 
                                     // עדכון הערך של השדה הנוכחי
-                                    currentValues.ingredients[name] = {
-                                        ...currentValues.ingredients[name],
+                                    currentValues[name] = {
+                                        ...currentValues[name],
                                         quantity: value,
                                     };
 
-                                    updatedSizes[index] = {
+                                    updatedSizes[indexSize] = {
                                         ...currentValues,
-                                        edit: updatedSizes[index]?.edit || false,
+                                        edit: updatedSizes[indexSize]?.edit || false,
                                     };
 
                                     onChange(updatedSizes);
-                                    form.setFieldsValue({ sizes: updatedSizes });
+                                    form.setFieldsValue({ ...updatedSizes[indexSize] });
                                 }}
-                                addonAfter={getUnitDisplay(form.getFieldValue(["sizes", index, "ingredients", name, "unit"]) || "")} />
+                                addonAfter={getUnitDisplay(form.getFieldValue(["ingredients", name, "unit"]) || "")} />
                         </Form.Item>
                     </Col>
                     <Col span={4}>

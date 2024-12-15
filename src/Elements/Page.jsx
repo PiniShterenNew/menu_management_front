@@ -258,6 +258,7 @@ export default function Page({
             title: "פעולות",
             key: "action",
             minWidth: 130,
+            maxWidth: 130,
             render: (_, record) => {
               return (
                 <Row

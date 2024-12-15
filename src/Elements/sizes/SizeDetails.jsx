@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle } from "react";
 import { Row, Col, Button, Divider, Form, Input, InputNumber, Typography, Select, Flex, Modal } from "antd";
 import IngredientsList from "./IngredientsList";
 import MixesList from "./MixesList";
@@ -10,7 +10,7 @@ import SizesDetailsView from "./SizesDetailsView";
 
 const SizeDetails = forwardRef(({
     size,
-    index,
+    indexSize,
     sizes,
     onChange,
     onDelete,
@@ -38,8 +38,8 @@ const SizeDetails = forwardRef(({
 
     const handleCancelEdit = () => {
         const updatedSizes = [...sizes];
-        updatedSizes[index] = {
-            ...updatedSizes[index],
+        updatedSizes[indexSize] = {
+            ...updatedSizes[indexSize],
             edit: false,
             ingredients: size.ingredients.filter((ingredient) => ingredient?._id), // שמור רק מרכיבים שמורים
             mixes: size.mixes.filter((mix) => mix?._id), // שמור רק מיקסים שמורים
@@ -90,7 +90,9 @@ const SizeDetails = forwardRef(({
             const updatedSizes = [...sizes];
             updatedSizes.splice(index, 1);
             onChange(updatedSizes); // עדכון ה-state החיצוני
-            form.setFieldsValue(transformValueToForm()); // עדכון הערכים בטופס
+            form.setFieldsValue({
+                ...size,
+            }); // עדכון הערכים בטופס
             setActiveTabKey(
                 Math.max(0, index - 1).toString() // טאב קודם
             );
@@ -111,6 +113,13 @@ const SizeDetails = forwardRef(({
         }
     };
 
+    useEffect(() => {
+        console.log(form.getFieldsValue());
+        console.log(size);
+
+
+    }, [form, size]);
+
     return (
         !size?._id || size?.edit ?
             <Form
@@ -128,7 +137,7 @@ const SizeDetails = forwardRef(({
                     handleRemoveSize={handleRemoveSize}
                     newSizeId={newSizeId}
                     size={size}
-                    index={index}
+                    indexSize={indexSize}
                     onChange={onChange}
                     form={form}
                     ingredients={ingredients}
@@ -144,7 +153,7 @@ const SizeDetails = forwardRef(({
             <SizesDetailsView
                 handleEditSize={handleEditSize}
                 handleRemoveSize={handleRemoveSize}
-                index={index}
+                index={indexSize}
                 size={size}
                 ingredients={ingredients}
                 mixes={mixes}

@@ -14,10 +14,9 @@ import SizeDetails from "./sizes/SizeDetails";
 const { TabPane } = Tabs;
 
 const SizesManager = forwardRef(
-  ({ value = [], onChange, ingredients, mixes, onSubmit, onDelete, sizeSummary, priceExcludingVAT }, ref) => {
+  ({ value = [], onChange, ingredients, activeTabKey, setActiveTabKey, mixes, onSubmit, onDelete, sizeSummary, priceExcludingVAT }, ref) => {
 
     const [newSizeId, setNewSizeId] = useState(null);
-    const [activeTabKey, setActiveTabKey] = useState("0"); // טאב פעיל
     const [activeSubTab, setActiveSubTab] = useState("1");
 
     const refs = useRef([]); // אחסון ה-refs של כל רכיב בן
@@ -75,7 +74,7 @@ const SizesManager = forwardRef(
               <SizeDetails
                 ref={(el) => (refs.current[index] = el)} // שמירת ה-ref
                 size={size}
-                index={index}
+                indexSize={index}
                 sizes={value}
                 onChange={onChange}
                 onDelete={onDelete}

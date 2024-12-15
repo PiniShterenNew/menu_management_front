@@ -14,6 +14,8 @@ import {
   Card,
   Tag,
   Divider,
+  Tabs,
+  Badge
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import SizesManager from "./SizesManager.jsx";
@@ -29,6 +31,7 @@ import SizesDetailsView from "./sizes/SizesDetailsView.jsx";
 
 const { Step } = Steps;
 const { Title, Text } = Typography;
+const { TabPane } = Tabs;
 
 const ProductWizard = ({ }) => {
   const {
@@ -54,6 +57,8 @@ const ProductWizard = ({ }) => {
   const mixesState = useSelector((state) => state.mixes);
 
   const productsState = useSelector((state) => state.products);
+
+  const [activeTabKey, setActiveTabKey] = useState("0");
 
   // פונקציה למיזוג בין selectedItem לשינויים מהשרת
   const mergeSelectedItem = useCallback(() => {
@@ -302,6 +307,8 @@ const ProductWizard = ({ }) => {
             priceExcludingVAT={selectedItem?.priceExcludingVAT}
             mixes={mixesState}
             onDelete={deleteSize}
+            activeTabKey={activeTabKey}
+            setActiveTabKey={setActiveTabKey}
             onSubmit={onSubmit}
             onChange={(sizes) => setSelectedItem({ ...selectedItem, sizes })}
           />
@@ -328,31 +335,31 @@ const ProductWizard = ({ }) => {
     switch (isModalVisible) {
       case "product":
         return (
-          <Card styles={{ body: {display: "flex", flexDirection: "column"} }}>
-            <Row
-              align={"middle"}
-              justify={"space-between"}
-              style={{ margin: "1em 0em" }}
+          <div styles={{ body: { display: "flex", flexDirection: "column" } }}>
+            <Flex
+              style={{ gap: "1em", flexDirection: "column", margin: "1em 0em" }}
             >
               <Text strong style={{ fontSize: "1.5em" }}>
                 {selectedItem?.name}
               </Text>
-              <Row style={{ gap: "0.5em" }}>
-                <Tag className={selectedItem?.isFeatured ? "green" : "red"}>
-                  {selectedItem?.isFeatured ? "פעיל" : "לא פעיל"}
-                </Tag>
-                <Tag className={selectedItem?.isOnSale ? "blue" : "yellow"}>
-                  {selectedItem?.isOnSale ? "במבצע" : "לא במבצע"}
-                </Tag>
-              </Row>
-              <Tag>
+              <Tag style={{ width: "fit-content" }}>
                 {
                   categories?.find((e) => e._id === selectedItem?.category)
                     ?.name
                 }
               </Tag>
-            </Row>
-            <div
+              <Flex style={{ gap: "0.5em", flexDirection: "column" }}>
+                <Badge
+                  status={selectedItem?.isFeatured ? "success" : "default"}
+                  text={selectedItem?.isFeatured ? "פעיל" : "לא פעיל"}
+                />
+                <Badge
+                  status={selectedItem?.isOnSale ? "processing" : "default"}
+                  text={selectedItem?.isOnSale ? "במבצע" : "לא במבצע"}
+                />
+              </Flex>
+            </Flex>
+            {selectedItem?.notes?.length > 0 && <div
               style={{
                 marginBottom: "12px",
                 display: "flex",
@@ -366,74 +373,84 @@ const ProductWizard = ({ }) => {
               <Flex flex={1}>
                 <p style={{}}>{selectedItem?.notes}</p>
               </Flex>
-            </div>
-            <Divider style={{ margin: "8px 0" }} />
-            <Flex flex={1} style={{flexDirection: "column", maxHeight: "50vh", overflowY: "auto"}}>
-              {selectedItem?.sizes?.map((size, index) => {
-                return (
-                  <SizesDetailsView
-                    handleEditSize={false}
-                    handleRemoveSize={false}
-                    index={index}
-                    size={size}
-                    ingredients={ingredientsState}
-                    mixes={mixesState}
-                    priceExcludingVAT={selectedItem?.priceExcludingVAT && selectedItem?.priceExcludingVAT[index].priceExcludingVAT}
-                    sizeSummary={selectedItem?.sizeSummary && selectedItem?.sizeSummary[index]}
-                  />
-                )
-              })}
+            </div>}
+            <Flex flex={1} >
+              <Tabs style={{ width: "100%" }} type="card">
+                {selectedItem?.sizes?.map((size, index) => {
+                  return (
+                    <TabPane tab={size.label} key={index}>
+                      <SizesDetailsView
+                        handleEditSize={false}
+                        handleRemoveSize={false}
+                        index={index}
+                        size={size}
+                        type={"P"}
+                        sizeInfo={(index) => {
+                          setIsModalVisible("size");
+                          setActiveTabKey(index?.toString());
+                        }}
+                        ingredients={ingredientsState}
+                        mixes={mixesState}
+                        priceExcludingVAT={selectedItem?.priceExcludingVAT && selectedItem?.priceExcludingVAT[index].priceExcludingVAT}
+                        sizeSummary={selectedItem?.sizeSummary && selectedItem?.sizeSummary[index]}
+                      />
+                    </TabPane>
+                  )
+                })}
+              </Tabs>
             </Flex>
-          </Card >
+          </div >
         );
       case "size":
-return (
-  <SizesManager
-    value={selectedItem?.sizes}
-    setValue={setSelectedItem}
-    ingredients={ingredientsState}
-    sizeSummary={selectedItem?.sizeSummary}
-    priceExcludingVAT={selectedItem?.priceExcludingVAT}
-    mixes={mixesState}
-    onDelete={deleteSize}
-    onSubmit={onSubmit}
-    onChange={(sizes) => setSelectedItem({ ...selectedItem, sizes })}
-  />
-);
+        return (
+          <SizesManager
+            value={selectedItem?.sizes}
+            setValue={setSelectedItem}
+            ingredients={ingredientsState}
+            sizeSummary={selectedItem?.sizeSummary}
+            priceExcludingVAT={selectedItem?.priceExcludingVAT}
+            mixes={mixesState}
+            onDelete={deleteSize}
+            activeTabKey={activeTabKey}
+            setActiveTabKey={setActiveTabKey}
+            onSubmit={onSubmit}
+            onChange={(sizes) => setSelectedItem({ ...selectedItem, sizes })}
+          />
+        );
       case "variation":
-return (
-  <VariationsManager
-    value={selectedItem?.variations}
-    mode={"view"}
-    ingredients={ingredientsState}
-    onChange={(variations) =>
-      setSelectedItem({ ...selectedItem, variations })
-    }
-  />
-);
+        return (
+          <VariationsManager
+            value={selectedItem?.variations}
+            mode={"view"}
+            ingredients={ingredientsState}
+            onChange={(variations) =>
+              setSelectedItem({ ...selectedItem, variations })
+            }
+          />
+        );
       default:
-return null;
+        return null;
     }
   };
 
 
-return (
-  <Modal
-    style={{ top: isMobile ? "3em" : "" }}
-    title={title(isModalVisible, modalMode, selectedItem)}
-    open={isModalVisible}
-    onCancel={() => {
-      setIsModalVisible(false);
-      setSelectedItem();
-    }}
-    footer={null}
-    destroyOnClose
-    width={isMobile ? "100%" : 600}
-    styles={{ gap: "0.5em" }}
-  >
-    {modalMode === "view" ? screensView() : screensEdit()}
-  </Modal>
-);
+  return (
+    <Modal
+      style={{ top: isMobile ? "3em" : "" }}
+      title={title(isModalVisible, modalMode, selectedItem)}
+      open={isModalVisible}
+      onCancel={() => {
+        setIsModalVisible(false);
+        setSelectedItem();
+      }}
+      footer={null}
+      destroyOnClose
+      width={isMobile ? "100%" : 600}
+      styles={{ gap: "0.5em" }}
+    >
+      {modalMode === "view" ? screensView() : screensEdit()}
+    </Modal>
+  );
 };
 
 export default ProductWizard;
