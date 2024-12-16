@@ -36,7 +36,7 @@ function MenuPage() {
 
   const productsState = useSelector((state) => state.products);
   const categoriesState = useSelector((state) => state.categories);
-  const ingredientsState = useSelector((state) => state.ingredients);
+  const ingredientsState = useSelector((state) => state.ingredients)?.filter((e) => e?.is_active);
 
   const searchKeys = ["name", "category"];
   const mobileKeys = ["name", "category", "detailes", "sizes", "productSummary", "actions"];

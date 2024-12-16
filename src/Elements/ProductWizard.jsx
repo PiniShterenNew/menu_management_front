@@ -50,7 +50,7 @@ const ProductWizard = ({ }) => {
   const isMobile = useMediaQuery({ query: "(max-width: 500px)" });
 
   const categories = useSelector((state) => state.categories);
-  const ingredientsState = useSelector((state) => state.ingredients);
+  const ingredientsState = useSelector((state) => state.ingredients)?.filter((e) => e?.is_active);
   const mixesState = useSelector((state) => state.mixes);
 
   const productsState = useSelector((state) => state.products);

@@ -217,7 +217,7 @@ function SuppliersPage() {
       dataPrint={dataPrint}
       sortKeys={sortKeys}
       tableKeys={tableKeys}
-      newTitle={"הוסף חומר גלם חדש"}
+      newTitle={"הוסף ספק חדש"}
       searchKeys={searchKeys}
       setDataPrint={setDataPrint}
       onAdd={addSupplier}
