@@ -14,7 +14,7 @@ function MixesPage() {
   const [dataPrint, setDataPrint] = useState([]);
 
   const mixesState = useSelector((state) => state.mixes);
-  const ingredientsState = useSelector((state) => state.ingredients);
+  const ingredientsState = useSelector((state) => state.ingredients)?.filter((e) => e.is_active);
   const productsState = useSelector((state) => state.products);
   const overallAverageHourlyRateState = useSelector((state) => state.employeeHours.overallAverageHourlyRate);
 
