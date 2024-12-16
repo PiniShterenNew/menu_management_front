@@ -30,6 +30,7 @@ const { Search } = Input;
 export default function Page({
   dataPrint,
   data,
+  groups,
   tableKeys,
   newTitle,
   setDataPrint,
@@ -304,6 +305,7 @@ export default function Page({
         {type !== "P" && (
           <DynamicFormPage
             mode={modalMode}
+            groups={groups}
             tableKeys={tableKeysPrint}
             ingredientsArr={ingredientsArr}
             fields={tableKeys.filter(
