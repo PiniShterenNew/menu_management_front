@@ -7,14 +7,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faTag } from "@fortawesome/free-solid-svg-icons";
 import SizesDetailsEdit from "./SizesDetailsEdit";
 import SizesDetailsView from "./SizesDetailsView";
+import { addOrUpdateProductState } from "../../store/products";
+import { useDispatch } from "react-redux";
 
 const SizeDetails = forwardRef(({
     size,
     indexSize,
+    getProductById,
     sizes,
     onChange,
     onDelete,
     newSizeId,
+    setSelectedUpdateSize,
     setNewSizeId,
     transformValueToForm,
     setActiveTabKey,
@@ -29,6 +33,7 @@ const SizeDetails = forwardRef(({
 
     const [form] = Form.useForm();
 
+    const dispatch = useDispatch();
 
     useImperativeHandle(ref, () => ({
         setFieldsValue: (values) => form.setFieldsValue(values), // מאפשר לאב לעדכן ערכים בטופס
@@ -54,6 +59,7 @@ const SizeDetails = forwardRef(({
             edit: true, // הוספת מאפיין העריכה
         };
         onChange(updatedSizes); // עדכון ה-state החיצוני
+        setSelectedUpdateSize(index);
     };
 
     const handleRemoveSize = (index) => {
@@ -77,8 +83,9 @@ const SizeDetails = forwardRef(({
 
                             // עדכון הטאב הפעיל
                             setActiveTabKey(
-                                Math.max(0, index - 1).toString() // טאב קודם
+                                Math.max(0, index - 1).toString() || '0'// טאב קודם
                             );
+                            getProductById(sizeToRemove?.productId).then((res) => { dispatch(addOrUpdateProductState({ newProduct: res })); })
                         })
                         .catch((error) => {
                             console.error("Error deleting size:", error);
@@ -94,7 +101,7 @@ const SizeDetails = forwardRef(({
                 ...size,
             }); // עדכון הערכים בטופס
             setActiveTabKey(
-                Math.max(0, index - 1).toString() // טאב קודם
+                Math.max(0, index - 1).toString() || '0' // טאב קודם
             );
             setNewSizeId(null);
         }
@@ -127,9 +134,9 @@ const SizeDetails = forwardRef(({
                 initialValues={{
                     ...size,
                 }}
-                onFinish={async (a, b) => {
-                    onSubmit(a);
-                }}
+            // onFinish={async (a, b) => {
+            //     onSubmit(a);
+            // }}
             // onValuesChange={handleValuesChange}
             >
                 <SizesDetailsEdit
@@ -147,6 +154,7 @@ const SizeDetails = forwardRef(({
                     activeSubTab={activeSubTab} // טאב פנימי פעיל
                     sizes={sizes}
                     getUnitDisplay={getUnitDisplay}
+                    onSubmit={onSubmit}
                 />
             </Form>
             :

@@ -6,6 +6,7 @@ import Page from "../Elements/Page";
 import { optionsUnits } from "../utils/TypeOptions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFlask } from "@fortawesome/free-solid-svg-icons";
+import { EyeOutlined } from "@ant-design/icons";
 
 function MixesPage() {
   const { addMix, updateMix, deleteMix } = useMixContext();
@@ -13,10 +14,95 @@ function MixesPage() {
   const [data, setData] = useState([]);
   const [dataPrint, setDataPrint] = useState([]);
 
+  const [filters, setFilters] = useState({});
+
   const mixesState = useSelector((state) => state.mixes);
   const ingredientsState = useSelector((state) => state.ingredients)?.filter((e) => e.is_active);
   const productsState = useSelector((state) => state.products);
-  const overallAverageHourlyRateState = useSelector((state) => state.employeeHours.overallAverageHourlyRate);
+  const overallAverageHourlyRateState = useSelector((state) => state.settings.settings?.hourlyRate?.value);
+
+  const IngredientsList = ({ ingredients }) => {
+    const MAX_VISIBLE_ITEMS = 2; // מספר המרכיבים שמוצגים לפני "ראה עוד"
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const visibleIngredients = ingredients.slice(0, MAX_VISIBLE_ITEMS);
+    const hiddenIngredients = ingredients.slice(MAX_VISIBLE_ITEMS);
+
+    const hiddenTooltipContent = (
+      <div style={{ maxWidth: "300px", whiteSpace: "normal" }}>
+        {hiddenIngredients.map((e, index) => (
+          <div key={index} style={{ marginBottom: "5px" }}>
+            {`${e?.name} (${e.quantity} ${e.unit}) - ₪${e?.costForQuantity}`}
+          </div>
+        ))}
+      </div>
+    );
+
+    return (
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", alignItems: "center" }}>
+        {/* רכיבים מוצגים */}
+        <span
+          style={{
+            color: "blue",
+            cursor: "pointer",
+            fontWeight: "bold",
+            marginLeft: "5px",
+          }}
+          onClick={() => setIsModalVisible(true)} // עבור מובייל
+        >
+          <EyeOutlined style={{ fontSize: "16px", color: "#000" }} />
+        </span>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "5px",
+            maxWidth: "400px",
+          }}
+        >
+          {visibleIngredients.map((e, index) => (
+            <span
+              key={index}
+              style={{
+                backgroundColor: "#f0f0f0",
+                borderRadius: "8px",
+                padding: "5px 10px",
+                fontSize: "0.7vw",
+              }}
+            >
+              {`${e?.name} (${e.quantity} ${e.unit}) - ₪${e?.costForQuantity}`}
+            </span>
+          ))}
+          {/* הצגת כפתור "ראה עוד" */}
+        </div>
+
+        {/* Modal למובייל */}
+        <Modal
+          title="רשימת מרכיבים"
+          open={isModalVisible}
+          onCancel={() => setIsModalVisible(false)}
+          footer={[
+            <Button key="close" onClick={() => setIsModalVisible(false)}>
+              סגור
+            </Button>,
+          ]}
+        >
+          {ingredients.map((e, index) => (
+            <div key={index} style={{
+              backgroundColor: "#f0f0f0",
+              borderRadius: "8px",
+              padding: "5px 10px",
+              width: "fit-content",
+              fontSize: "0.7vw",
+              marginBottom: ".5vw"
+            }}>
+              {`${e?.name} (${e.quantity} ${e.unit}) - ₪${e?.costForQuantity}`}
+            </div>
+          ))}
+        </Modal>
+      </div>
+    );
+  };
 
   const searchKeys = ["name", "ingredients"];
   const mobileKeys = ["name", "preparationTime", "totalCost", "totalWeight", "usedCount"];
@@ -149,7 +235,7 @@ function MixesPage() {
         // הצגה ברשימה או בטבלה
         let ingredients = [...(record?.ingredients || [])].sort((a, b) => b.quantity - a.quantity);
         ingredients = ingredients?.map((e) => ({
-          name: e?.ingredientId.name,
+          name: e?.ingredientData.name,
           quantity: (e?.rawQuantityForJuice || e.quantity) < 1 && e.unit !== "units" ? (e?.rawQuantityForJuice || e.quantity) * 100 : (e?.rawQuantityForJuice || e.quantity),
           unit: optionsUnits?.find((op) => op.value === e.unit)?.display(e?.rawQuantityForJuice || e.quantity),
           costForQuantity: e?.costForQuantity
@@ -177,16 +263,54 @@ function MixesPage() {
             ))}
           </ul>
         ) : (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
-            {ingredients?.map((e, index) => (
-              <div key={index}>
-                {`${e?.name} (${e.quantity} ${e.unit}) - ₪${e?.costForQuantity}, `}
-              </div>
-            ))}
-          </div>
+          <IngredientsList ingredients={ingredients} />
+          // <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
+          //   {ingredients?.map((e, index) => (
+          //     <div key={index}>
+          //       {`${e?.name} (${e.quantity} ${e.unit}) - ₪${e?.costForQuantity}, `}
+          //     </div>
+          //   ))}
+          // </div>
         );
       },
       rules: [{ required: true, message: "יש לבחור לפחות רכיב אחד" }],
+    },
+  ];
+
+  const filtersArr = [
+    {
+      name: "מרכיבים",
+      value: "ingredientId",
+      options: ingredientsState?.map((ingredient) => ({
+        label: ingredient.name,
+        value: ingredient._id,
+      })),
+    },
+    {
+      name: "סטטוס",
+      value: "isActive",
+      options: [
+        { label: "פעיל", value: true },
+        { label: "לא פעיל", value: false },
+      ],
+    },
+    {
+      name: "עלות",
+      value: "cost",
+      options: [
+        { label: "עד 50 ₪", value: "low" },
+        { label: "50-100 ₪", value: "medium" },
+        { label: "מעל 100 ₪", value: "high" },
+      ],
+    },
+    {
+      name: "זמן הכנה",
+      value: "preparationTime",
+      options: [
+        { label: "עד 5 דקות", value: "short" },
+        { label: "5-15 דקות", value: "medium" },
+        { label: "מעל 15 דקות", value: "long" },
+      ],
     },
   ];
 
@@ -197,8 +321,21 @@ function MixesPage() {
     }
   }, [mixesState, ingredientsState, overallAverageHourlyRateState]);
 
+  useEffect(() => {
+    const savedFilters = JSON.parse(localStorage.getItem("filtersMenu") || "{}");
+    setFilters(savedFilters);
+  }, []);
+
+  const saveFilters = (newFilters) => {
+    setFilters(newFilters);
+    localStorage.setItem("filtersMenu", JSON.stringify(newFilters));
+  };
+
   return (
     <Page
+      title={"מיקסים"}
+      titleView={"מיקס"}
+      type={"mix"}
       data={data}
       mobileKeys={mobileKeys}
       dataPrint={dataPrint}
@@ -211,6 +348,9 @@ function MixesPage() {
       onEdit={updateMix}
       onDelete={deleteMix}
       Dtitle={"אישור מחיקה"}
+      // filters={filters}
+      // saveFilters={saveFilters}
+      // filtersArr={filtersArr}
       ingredientsArr={ingredientsState}
       iconADD={<FontAwesomeIcon icon={faFlask} />}
       Dcontent={

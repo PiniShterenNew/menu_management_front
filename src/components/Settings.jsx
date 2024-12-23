@@ -1,240 +1,155 @@
-// Settings.js
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setOverallAverageHourlyRate } from '../store/employeeHours';
-import { setMaterialCostRate, setLaborCostRate, setFixedExpensesRate, setProfitRate } from '../store/profitabilitySettingsSlice';
-import { Modal, InputNumber, Slider, Select, Input, Button, Tabs, Typography, Divider, Image, message } from 'antd';
-import { updateProductsWithRate } from '../store/products';
-import './Settings.css';
-import Logo from "../assets/logo.png"
-import { useMediaQuery } from 'react-responsive';
+import React, { useState, useEffect } from 'react';
+import { Modal, Input, Button, List, Typography, Divider, Form, message } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faStoreAlt } from '@fortawesome/free-solid-svg-icons';
-import { updateSettingAPI } from '../services/settingsService';
+import { faTrash, faEdit, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { useSettingsContext } from '../context/subcontexts/SettingsContext'; // שימוש בקונטקסט
+import './Settings.css';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 export default function Settings({ flag, setFlag }) {
-  const dispatch = useDispatch();
+  const { settings, fetchSettings, addCategory, updateCategory, deleteCategory } = useSettingsContext();
 
-  const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
+  const [categories, setCategories] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [categoryForm] = Form.useForm();
+  const [isAdding, setIsAdding] = useState(false);
 
-  const averageHourlyRate = useSelector((state) => state.employeeHours.overallAverageHourlyRate);
-  const {
-    materialCostRate,
-    laborCostRate,
-    fixedExpensesRate,
-    profitRate,
-    materialCostRange,
-    laborCostRange,
-    fixedExpensesRange,
-    profitRange,
-  } = useSelector((state) => state.profitabilitySettingsSlice);
-
-  const navArr = [
-    { key: 'design', label: '🎨 עיצוב ממשק' },
-    { key: 'pricing', label: '💰 תמחור' },
-  ];
-
-  const [newHourlyRate, setNewHourlyRate] = useState(averageHourlyRate);
-  const [materialCost, setMaterialCost] = useState(materialCostRate);
-  const [laborCost, setLaborCost] = useState(laborCostRate);
-  const [fixedExpenses, setFixedExpenses] = useState(fixedExpensesRate);
-  const [profit, setProfit] = useState(profitRate);
-
-  const [activeTab, setActiveTab] = useState(navArr[0].key);
-  const [isNavigationOpen, setIsNavigationOpen] = useState(false);
-
-  const handleSave = async () => {
-    try {
-        // עדכון הערך ב-Redux
-        dispatch(setOverallAverageHourlyRate(Number(newHourlyRate)));
-        dispatch(setMaterialCostRate(Number(materialCost)));
-        dispatch(setLaborCostRate(Number(laborCost)));
-        dispatch(setFixedExpensesRate(Number(fixedExpenses)));
-        dispatch(setProfitRate(Number(profit)));
-        dispatch(updateProductsWithRate());
-        
-        // קריאה לשרת לעדכון hourlyRate
-        await updateSettingAPI({ key: 'hourlyRate', value: Number(newHourlyRate) });
-        message.success('הגדרות נשמרו בהצלחה');
-        setFlag(false); // סגור את המודאל
-    } catch (error) {
-        console.error('Error updating hourly rate:', error);
-        message.error('שגיאה בשמירת ההגדרות');
+  useEffect(() => {
+    if (flag) {
+      fetchSettings();
     }
-};
+  }, [flag]);
 
+  useEffect(() => {
+    if (settings) {
+      setCategories(settings?.materialCategories?.value || []);
+    }
+  }, [settings]);
 
+  const handleSaveCategory = async () => {
+    try {
+      const values = await categoryForm.validateFields(); // אימות הטופס
+      console.log('Saving Category:', values);
 
-  const tabs = {
-    design: (
-      <div className="setting-group">
-        <div className="setting-card">
-          <label>בחר צבע רקע:</label>
-          <Input
-            type="color"
-            onChange={(e) => (document.body.style.backgroundColor = e.target.value)}
-          />
-        </div>
+      if (editingIndex === null) {
+        await addCategory(values); // יצירת קטגוריה חדשה
+        message.success('קטגוריה נוספה בהצלחה');
+      } else {
+        const updatedCategory = { ...categories[editingIndex], ...values };
+        console.log('Updating Category:', updatedCategory);
+        await updateCategory(categories[editingIndex]._id, updatedCategory); // עדכון קטגוריה קיימת
+        message.success('קטגוריה עודכנה בהצלחה');
+      }
 
-        <div className="setting-card">
-          <label>בחר נושא:</label>
-          <Select
-            onChange={(value) => (document.body.className = value)}
-            style={{ width: '100%' }}
-            defaultValue=""
-          >
-            <Select.Option value="">ברירת מחדל</Select.Option>
-            <Select.Option value="dark-theme">כהה</Select.Option>
-            <Select.Option value="light-theme">בהיר</Select.Option>
-          </Select>
-        </div>
-      </div>
-    ),
-    pricing: (
-      <div className="setting-group">
-        <div className="setting-option">
-          <label>ממוצע לשעת עבודה:</label>
-          <InputNumber
-            value={newHourlyRate}
-            onChange={setNewHourlyRate}
-            style={{ width: '100%' }}
-            min={0}
-          />
-        </div>
-        {/* {[{
-          label: 'חומרי גלם',
-          value: materialCost,
-          setValue: setMaterialCost,
-          range: materialCostRange
-        },
-        {
-          label: 'עלות עבודה',
-          value: laborCost,
-          setValue: setLaborCost,
-          range: laborCostRange
-        },
-        {
-          label: 'השתתפות בהוצאות קבועות',
-          value: fixedExpenses,
-          setValue: setFixedExpenses,
-          range: fixedExpensesRange
-        },
-        {
-          label: 'רווח',
-          value: profit,
-          setValue: setProfit,
-          range: profitRange
-        }].map(({ label, value, setValue, range }) => (
-          <div className="setting-card" key={label}>
-            <label>{`אחוז ${label}:`}</label>
-            <div className="slider-container">
-              <Slider
-                className="slider-bar"
-                value={value}
-                onChange={setValue}
-                min={range.min}
-                max={range.max}
-                tooltip={{ formatter: (val) => `${val}%` }}
-              />
-              <div className="slider-info">
-                <span>{`${value}%`}</span>
-              </div>
-            </div>
-          </div>
-        ))} */}
-      </div>
-    ),
+      categoryForm.resetFields();
+      setEditingIndex(null);
+      setIsAdding(false);
+    } catch (error) {
+      console.error('Failed to save category:', error);
+      message.error('שגיאה בשמירת הקטגוריה. נסה שוב.');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    categoryForm.resetFields();
+    setEditingIndex(null);
+    setIsAdding(false);
+  };
+
+  const handleDeleteCategory = async (categoryId) => {
+    await deleteCategory(categoryId);
+    message.success('קטגוריה נמחקה בהצלחה');
   };
 
   return (
     <Modal
       open={flag}
-      title="הגדרות תמחור ועיצוב"
+      title="ניהול קטגוריות"
       centered
       width={800}
-      className='setting-container'
-      height={600}
       footer={null}
       onCancel={() => setFlag(false)}
     >
-      {isMobile ? (
-        !isNavigationOpen ? (
-          <div className='nav-mobile'>
-            {/* תפריט ניווט לנייד */}
-            <Image className='logo' src={Logo} alt='GainGuard' preview={false} />
-            {navArr.map((item) => (
-              <Button
-                key={item.key}
-                type="text"
-                onClick={() => {
-                  setActiveTab(item.key);
-                  setIsNavigationOpen(true);
-                }}
-                style={{ display: 'block', width: '100%', textAlign: 'right' }}
-              >
-                {item.label} &gt;
+      <div>
+        {isAdding || editingIndex !== null ? (
+          <Form form={categoryForm} layout="vertical" style={{ marginBottom: '1em' }}>
+            <Form.Item
+              name="name"
+              label="שם קטגוריה"
+              rules={[{ required: true, message: 'יש להזין שם קטגוריה' }]}
+              initialValue={editingIndex !== null ? categories[editingIndex]?.name : ''}
+            >
+              <Input placeholder="הזן שם קטגוריה" />
+            </Form.Item>
+            <Form.Item
+              name="description"
+              label="תיאור קטגוריה"
+              initialValue={editingIndex !== null ? categories[editingIndex]?.description : ''}
+            >
+              <Input.TextArea placeholder="הזן תיאור קטגוריה" rows={3} />
+            </Form.Item>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Button type="primary" onClick={handleSaveCategory}>
+                <FontAwesomeIcon icon={faCheck} style={{ marginRight: '5px' }} />
+                שמור
               </Button>
-            ))}
-          </div>
+              <Button type="default" onClick={handleCancelEdit}>
+                <FontAwesomeIcon icon={faTimes} style={{ marginRight: '5px' }} />
+                בטל
+              </Button>
+            </div>
+          </Form>
         ) : (
-          <div>
-            {/* תוכן מסך לפי כרטיסייה נבחרת */}
-            <Button
-              type="link"
-              onClick={() => setIsNavigationOpen(false)}
-              icon={<FontAwesomeIcon icon={faArrowLeft} />}
+          <Button
+            type="dashed"
+            onClick={() => {
+              setIsAdding(true);
+              categoryForm.resetFields();
+            }}
+            block
+          >
+            הוסף קטגוריה חדשה
+          </Button>
+        )}
+        <Divider />
+        <List
+          dataSource={categories}
+          renderItem={(category, index) => (
+            <List.Item
+              actions={[
+                <Button
+                  type="text"
+                  icon={<FontAwesomeIcon icon={faEdit} />}
+                  onClick={() => {
+                    setEditingIndex(index);
+                    categoryForm.setFieldsValue({
+                      name: category.name,
+                      description: category.description,
+                    });
+                  }}
+                />,
+                <Button
+                  type="text"
+                  icon={<FontAwesomeIcon icon={faTrash} />}
+                  onClick={() => handleDeleteCategory(category._id)}
+                />,
+              ]}
             >
-              חזור
-            </Button>
-            <div>
-              <Title level={3} strong>{navArr?.find((e) => e.key === activeTab)?.label}</Title>
-              {tabs[activeTab]}
-              <Button
-                type="primary"
-                block
-                style={{ marginTop: '20px' }}
-                onClick={handleSave}
-              >
-                שמור שינויים
-              </Button>
-            </div>
-          </div>
-        )
-      ) : (
-        <div className="settings-desktop">
-          {/* ניווט ליד התוכן במחשב */}
-          <div className="nav-desktop">
-            <div className='nav-top'>
-              <Image className='logo' src={Logo} alt='GainGuard' preview={false} />
-            </div>
-            <Divider />
-            {navArr.map((item) => (
-              <Button
-                key={item.key}
-                type="text"
-                onClick={() => setActiveTab(item.key)}
-                className={activeTab === item.key ? 'link-active' : 'link'}
-              >
-                {item.label}
-              </Button>
-            ))}
-          </div>
-          <div className="tab-content">
-            <Title level={3} strong>{navArr?.find((e) => e.key === activeTab)?.label}</Title>
-            {tabs[activeTab]}
-            <Button
-              type="primary"
-              block
-              style={{ marginTop: '20px' }}
-              onClick={handleSave}
-            >
-              שמור שינויים
-            </Button>
-          </div>
-        </div>
-      )}
+              {editingIndex !== index ? (
+                <List.Item.Meta
+                  title={category.name}
+                  description={category.description}
+                />
+              ) : null}
+            </List.Item>
+          )}
+          style={{
+            maxHeight: '300px', // גובה מקסימלי
+            overflowY: 'auto', // גלילה אנכית
+          }}
+        />
+      </div>
     </Modal>
   );
 }

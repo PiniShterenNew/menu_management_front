@@ -1,108 +1,260 @@
-import React from "react";
-import { Row, Col, Button, Form, Select, InputNumber } from "antd";
-import { CloseOutlined } from "@ant-design/icons";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Row, Col, Button, Form, Select, InputNumber, Typography, Flex, Card, List } from "antd";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash, faEdit, faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
+
+const { Text } = Typography;
 
 const MixesList = ({
-    sizes,
     mixes,
+    sizes,
     add,
     remove,
-    form,
-    fields,
     indexSize,
+    form,
     onChange,
-    getUnitDisplay
-}) => (
-    <>
-        <Button type="dashed" style={{ marginBottom: "0.5vw" }} onClick={() => add()}>
-            הוסף מיקס
-        </Button>
-        <div style={{ maxHeight: "12vw", overflowY: "auto", overflowX: "hidden", marginTop: "2vh", padding: "0 1.5vw" }}>
-            {fields.map(({ key, name, fieldKey }) => (
-                <Row key={key} gutter={16}>
+    getUnitDisplay,
+    setDisabledSave
+}) => {
+
+    const cardRef = useRef(null);
+
+    const [editingIndex, setEditingIndex] = useState(null);
+    const [isNew, setIsNew] = useState(false);
+    const [adding, setAdding] = useState(false);
+
+    const [selectedMix, setSelectedMix] = useState(null);
+    const [selectedQuantity, setSelectedQuantity] = useState(null);
+    const [selectedUnit, setSelectedUnit] = useState("");
+
+    const scrollToBottom = useCallback(() => {
+        setTimeout(() => {
+            if (cardRef.current) {
+                cardRef.current.scroll({
+                    top: cardRef.current.scrollHeight,
+                    behavior: 'smooth',
+                    duration: 2000
+                });
+            }
+        }, 1000)
+    }, [cardRef.current?.scrollHeight]);
+
+    const handleEdit = (index) => { setEditingIndex(index); setDisabledSave(true); };
+    const handleCancelEdit = () => {
+        setEditingIndex(null);
+        setDisabledSave(false);
+        setAdding(false);
+        setIsNew(false);
+        setSelectedUnit("");
+    };
+
+    const handleSave = () => {
+        form.validateFields().then(() => {
+            setEditingIndex(null);
+            setDisabledSave(false);
+            setAdding(false);
+            setIsNew(false);
+            setSelectedUnit("");
+        });
+    };
+
+    const updateSizesWithMixes = (updatedMixes) => {
+        const updatedSizes = [...sizes];
+        updatedSizes[indexSize] = {
+            ...updatedSizes[indexSize],
+            mixes: updatedMixes
+        };
+        onChange(updatedSizes);
+    };
+
+    const handleMixeSelect = (value, option) => {
+        setSelectedMix({
+            mixId: value,
+            unit: option?.unit || "weight",
+            name: option.label,
+        })
+    };
+
+    const handleQuantityChange = (value) => {
+        setSelectedQuantity(value);
+    };
+
+    const handleAddMixe = () => {
+        if (!selectedMix || !selectedQuantity) {
+            return;
+        }
+
+        const newMix = {
+            ...selectedMix,
+            quantity: selectedQuantity
+        }
+
+        const currentValues = form.getFieldValue("mixes") || [];
+        const updatedValues = [...currentValues, newMix];
+
+        // עדכון הטופס והמידע
+        form.setFieldsValue({ mixes: updatedValues });
+        updateSizesWithMixes(updatedValues);
+
+        setSelectedMix(null);
+        setSelectedQuantity(null);
+        setAdding(false);
+        setSelectedUnit("");
+        setEditingIndex(null);
+        setDisabledSave(false);
+        setIsNew(false);
+    };
+
+    const handleRemoveMixe = (index) => {
+        const currentValues = form.getFieldValue("mixes") || [];
+        const updatedValues = currentValues.filter((_, i) => i !== index);
+
+        form.setFieldsValue({ ...updatedValues });
+        updateSizesWithMixes(updatedValues);
+        remove(index);
+    };
+
+    const getMixeName = (item) => {
+        if (!item) return '';
+        if (item.name) return item.name;
+        if (item.mixId && mixes) {
+            const foundMixe = mixes.find(ing => ing._id === item.mixId);
+            return foundMixe?.name || '';
+        }
+        return '';
+    };
+
+    const getCurrentMixes = () => {
+        const formMixes = form.getFieldValue("mixes");
+        return Array.isArray(formMixes) ? formMixes : [];
+    };
+
+    useEffect(() => {
+        const mixes = getCurrentMixes();
+        if (mixes.length > 0) {
+            scrollToBottom();
+        }
+    }, [form.getFieldValue("mixes")?.length]);
+
+    return (
+        <>
+            {/* שורת הוספה */}
+            {adding ? (
+                <Row gutter={16} className="width-100" style={{ marginBottom: "1vw" }} justify={"space-between"}>
                     <Col span={10}>
-                        <Form.Item
-                            name={[name, "mixId"]}
-                            rules={[{ required: true, message: "בחר מיקס" }]}
-                        >
-                            <Select
-                                placeholder="בחר מיקס"
-                                showSearch
-                                filterOption={(input, option) =>
-                                    option?.label?.toLowerCase().includes(input.toLowerCase())
-                                }
-                                options={mixes}
-                                onChange={(mixValue, e) => {
-                                    // מציאת מיקס שנבחר
-                                    const selectedMix = mixes.find((ing) => ing._id === mixValue);
-
-                                    // יצירת עותק מעודכן של ה-sizes
-                                    const updatedSizes = [...sizes];
-
-                                    // עדכון הערכים הנוכחיים של הטופס
-                                    const currentValues = form.getFieldValue("mixes");
-
-                                    // עדכון השדה של המרכיב עם unit חדש
-                                    currentValues[name] = {
-                                        ...e,
-                                        unit: selectedMix?.unit || "weight",
-                                    };
-
-                                    // שמירת ערך `edit` הנוכחי בגודל
-                                    updatedSizes[indexSize] = {
-                                        ...updatedSizes[indexSize],
-                                        mixes: currentValues,
-                                        edit: updatedSizes[indexSize]?.edit || false, // שמירה על מצב עריכה
-                                    };
-
-                                    // עדכון ה-state והטופס
-                                    onChange(updatedSizes); // עדכון ב-parent
-                                    form.setFieldsValue({ ...updatedSizes[indexSize] }); // עדכון הטופס
-                                }}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={10}>
-                        <Form.Item
-                            name={[name, "quantity"]}
-                            rules={[{ required: true, message: "הזן כמות" }]}
-                        >
-                            <InputNumber
-                                onChange={(value) => {
-                                    // עדכון הכמות ב-state
-                                    const updatedSizes = [...sizes];
-                                    const currentValues = form.getFieldValue("mixes");
-
-                                    currentValues[name] = {
-                                        ...currentValues[name],
-                                        quantity: value,
-                                    };
-
-                                    updatedSizes[indexSize] = {
-                                        ...updatedSizes[indexSize],
-                                        mixes: currentValues,
-                                        edit: updatedSizes[indexSize]?.edit || false,
-                                    };
-
-                                    onChange(updatedSizes);
-                                    form.setFieldsValue({ ...updatedSizes[indexSize] });
-
-                                }}
-                                addonAfter={getUnitDisplay(form.getFieldValue(["mixes", name, "unit"]) || "")} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={4}>
-                        <Button
-                            type="text"
-                            danger
-                            icon={<CloseOutlined />}
-                            onClick={() => remove(name)}
+                        <Select
+                            placeholder="בחר רכיב"
+                            filterOption={(input, option) =>
+                                option?.label?.toLowerCase().includes(input.toLowerCase())
+                            }
+                            showSearch
+                            style={{ width: "100%" }}
+                            options={mixes?.map((ing) => ({
+                                value: ing._id,
+                                label: ing.name,
+                                unit: ing.unit
+                            }))}
+                            onChange={handleMixeSelect}
                         />
                     </Col>
+                    <Col span={10}>
+                        <InputNumber
+                            onChange={handleQuantityChange}
+                            addonAfter={getUnitDisplay(selectedUnit)}
+                            placeholder="כמות"
+                            style={{ width: "100%" }}
+                        />
+                    </Col>
+                    <Col >
+                        <Button type="text" icon={<FontAwesomeIcon icon={faCheck} />} onClick={handleAddMixe} />
+                        <Button type="text" icon={<FontAwesomeIcon icon={faTimes} />} onClick={handleCancelEdit} />
+                    </Col>
                 </Row>
-            ))}
-        </div>
-    </>
-);
+            ) : (
+                <Button
+                    type="dashed"
+                    onClick={() => {
+                        setAdding(true);
+                        setIsNew(true);
+                        setEditingIndex(getCurrentMixes().length);
+                        setDisabledSave(true);
+                    }}
+                    disabled={editingIndex !== null}
+                >
+                    הוסף מרכיב
+                </Button>
+            )}
+
+            {/* רשימה קיימת */}
+            <Card ref={cardRef} style={{ margin: "1vw 0", paddingTop: "1vw", maxHeight: "10vw", overflow: "auto" }}>
+                <List
+                    dataSource={sizes[indexSize]?.mixes}
+                    renderItem={(item, index) => (
+                        <List.Item key={index}>
+                            {editingIndex !== index ? (
+                                <Row style={{ width: "100%" }} align="middle" justify="space-between">
+                                    <Flex flex={1}>
+                                        <Text>{getMixeName(item)}</Text>
+                                    </Flex>
+                                    <Flex flex={1}>
+                                        <Text>{item?.quantity} {getUnitDisplay(item?.unit)}</Text>
+                                    </Flex>
+                                    <Row>
+                                        <Button type="text" onClick={() => handleEdit(index)}>
+                                            <FontAwesomeIcon icon={faEdit} />
+                                        </Button>
+                                        <Button type="text" onClick={() => handleRemoveMixe(index)}>
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </Button>
+                                    </Row>
+                                </Row>
+                            ) : !isNew && (
+                                <>
+                                    <Col span={10}>
+                                        <Form.Item
+                                            name={[index, "mixId"]}
+                                            rules={[{ required: true, message: "בחר רכיב" }]}
+                                            initialValue={item.mixId?._id || item.mixId}
+                                        >
+                                            <Select
+                                                placeholder="בחר רכיב"
+                                                showSearch
+                                                filterOption={(input, option) =>
+                                                    option?.label?.toLowerCase().includes(input.toLowerCase())
+                                                }
+                                                options={mixes?.map((ing) => ({
+                                                    value: ing._id,
+                                                    label: ing.name,
+                                                    unit: ing.unit
+                                                }))}
+                                                onChange={handleMixeSelect}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={10}>
+                                        <Form.Item
+                                            name={[index, "quantity"]}
+                                            rules={[{ required: true, message: "הזן כמות" }]}
+                                            initialValue={item.quantity}
+                                        >
+                                            <InputNumber
+                                                addonAfter={getUnitDisplay(item?.unit)}
+                                                onChange={handleQuantityChange}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={4}>
+                                        <Button type="text" icon={<FontAwesomeIcon icon={faCheck} />} onClick={handleSave} />
+                                        <Button type="text" icon={<FontAwesomeIcon icon={faTimes} />} onClick={handleCancelEdit} />
+                                    </Col>
+                                </>
+                            )}
+                        </List.Item>
+                    )}
+                />
+            </Card>
+        </>
+    );
+};
 
 export default MixesList;

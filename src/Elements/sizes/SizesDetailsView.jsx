@@ -1,11 +1,15 @@
-import React from 'react'
-import { Button, Card, Col, Divider, Flex, Progress, Row, Typography } from 'antd';
+import React, { useState } from 'react'
+import { Button, Card, Col, Divider, Flex, List, Progress, Row, Segmented, Typography } from 'antd';
 import { DeleteOutlined, InfoCircleOutlined, PlusOutlined, DollarOutlined, ClockCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { useSelector } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDolly, faFlask } from '@fortawesome/free-solid-svg-icons';
+
+const { Text } = Typography;
 
 export default function SizesDetailsView({ size, index, sizeInfo, type, handleEditSize, handleRemoveSize, ingredients, mixes, sizeSummary, priceExcludingVAT }) {
 
-    const averageHourlyRate = useSelector((state) => state.employeeHours.overallAverageHourlyRate);
+    const averageHourlyRate = useSelector((state) => state.settings.settings?.hourlyRate?.value);
 
     const costDetailes = (sizeSummary, priceExcludingVAT) => {
         const sizeSummaryData = sizeSummary;
@@ -62,6 +66,154 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
 
         )
     }
+
+    const MySegment = ({ type, size, ingredients, mixes }) => {
+        const [currentTab, setCurrentTab] = useState("ingredients");
+
+        const renderIngredients = () => {
+            const data = size?.ingredients?.map((ingredient) => {
+                const unitDisplay = (() => {
+                    switch (ingredient?.unit) {
+                        case "weight":
+                            return 'ק"ג';
+                        case "volume":
+                            return "ליטר";
+                        case "units":
+                            return "יחידות";
+                        default:
+                            return "";
+                    }
+                })();
+        
+                const ingredientName = ingredients?.find((e) => e?._id === ingredient?.ingredientId)?.name || "לא ידוע";
+        
+                return {
+                    name: ingredientName,
+                    quantity: ingredient?.quantity,
+                    unitDisplay,
+                    cost: ingredient?.costForQuantity,
+                };
+            });
+        
+            return (
+                <List
+                    dataSource={data}
+                    style={{ paddingLeft: "20px", margin: "0", maxHeight: "8vw", overflow: "auto" }}
+                    renderItem={(item, idx) => (
+                        <List.Item key={idx} style={{ marginBottom: "4px" }}>
+                            <Text>
+                                {item.name} - {item.quantity} {item.unitDisplay} - ₪{item.cost}
+                            </Text>
+                        </List.Item>
+                    )}
+                />
+            );
+        };
+
+        const renderMixes = () => {
+            const data = size?.mixes?.map((mix) => {
+                const unitDisplay = (() => {
+                    switch (mix.unit) {
+                        case "weight":
+                            return 'ק"ג';
+                        case "volume":
+                            return "ליטר";
+                        case "units":
+                            return "יחידות";
+                        default:
+                            return "";
+                    }
+                })();
+
+                const mixName = mixes?.find((e) => e?._id === mix?.mixId)?.name || "לא ידוע";
+
+                return {
+                    name: mixName,
+                    quantity: mix.quantity,
+                    unitDisplay,
+                    cost: mix?.costForQuantity,
+                };
+            });
+
+            return (
+                <List
+                    dataSource={data}
+                    style={{
+                        paddingLeft: "20px",
+                        margin: "0",
+                        maxHeight: "8vw",
+                        overflow: "auto",
+                    }}
+                    renderItem={(item, idx) => (
+                        <List.Item key={idx} style={{ marginBottom: "4px" }}>
+                            <Text>
+                                {item.name} - {item.quantity} {item.unitDisplay} - ₪{item.cost}
+                            </Text>
+                        </List.Item>
+                    )}
+                />
+            );
+        }
+
+        return (
+            <>
+                {type !== "P" && (
+                    <>
+                        <Divider style={{ margin: "5px 0" }} />
+                        {/* Segmented Tab */}
+                        <Row style={{ gap: "1.5vw", height: "10vw" }}>
+                            <Flex align='center' justify='center'>
+                                <Segmented
+                                    vertical
+                                    options={[
+                                        {
+                                            label: (
+                                                <div
+                                                    style={{
+                                                        padding: 4,
+                                                    }}
+                                                >
+                                                    <FontAwesomeIcon icon={faDolly} />
+                                                    <div>מרכיבים</div>
+                                                </div>
+                                            ), value: "ingredients"
+                                        },
+                                        {
+                                            label: (
+                                                <div
+                                                    style={{
+                                                        padding: 4,
+                                                    }}
+                                                >
+                                                    <FontAwesomeIcon icon={faFlask} />
+                                                    <div>מיקסים</div>
+                                                </div>
+                                            ), value: "mixes"
+                                        }
+                                    ]}
+                                    onChange={(value) => setCurrentTab(value)}
+                                    style={{ marginBottom: "12px", direction: "" }}
+                                />
+                            </Flex>
+                            {/* Content based on tab */}
+                            <Flex flex={1}>
+                                <Card style={{
+                                    width: "100%",
+                                    backgroundColor: "#f9f9f9", // צבע רקע בהיר להבלטת הכרטיס
+                                    border: "1px solid #d9d9d9", // מסגרת דקה
+                                    borderRadius: "8px", // פינות מעוגלות
+                                    marginTop: "10px",
+                                    paddingTop: "10px",
+                                }}>
+                                    {currentTab === "ingredients" ? renderIngredients() : renderMixes()}
+                                </Card>
+                            </Flex>
+                        </Row>
+                    </>
+                )}
+            </>
+        );
+    };
 
     return (
         <div
@@ -141,70 +293,12 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                     {costDetailes(sizeSummary, priceExcludingVAT)}
                 </Col>
             </Flex>
-            {type !== "P" && <>
-                <Divider style={{ margin: "12px 0" }} />
-                <Typography.Text
-                    strong
-                    style={{ display: "block", marginBottom: "8px" }}
-                >
-                    מרכיבים:
-                </Typography.Text>
-                <ul style={{ paddingLeft: "20px", margin: "0" }}>
-                    {size?.ingredients?.map((ingredient, idx) => {
-                        const unitDisplay = (() => {
-                            switch (ingredient.unit) {
-                                case "weight":
-                                    return 'ק"ג';
-                                case "volume":
-                                    return "ליטר";
-                                case "units":
-                                    return "יחידות";
-                                default:
-                                    return "";
-                            }
-                        })();
-                        return (
-                            <li key={idx} style={{ marginBottom: "4px" }}>
-                                <Typography.Text>
-                                    {ingredients?.find((e) => e?._id === ingredient?.ingredientId)?.name} -{" "}
-                                    {ingredient.quantity} {unitDisplay} - ₪{ingredient?.costForQuantity}
-                                </Typography.Text>
-                            </li>
-                        );
-                    })}
-                </ul>
-                <Divider style={{ margin: "12px 0" }} />
-                <Typography.Text
-                    strong
-                    style={{ display: "block", marginBottom: "8px" }}
-                >
-                    מיקסים:
-                </Typography.Text>
-                <ul style={{ paddingLeft: "20px", margin: "0" }}>
-                    {size?.mixes?.map((mix, idx) => {
-                        const unitDisplay = (() => {
-                            switch (mix.unit) {
-                                case "weight":
-                                    return 'ק"ג';
-                                case "volume":
-                                    return "ליטר";
-                                case "units":
-                                    return "יחידות";
-                                default:
-                                    return "";
-                            }
-                        })();
-                        return (
-                            <li key={idx} style={{ marginBottom: "4px" }}>
-                                <Typography.Text>
-                                    {mixes?.find((e) => e?._id === mix?.mixId)?.name} -{" "}
-                                    {mix.quantity} {unitDisplay} - ₪{mix?.costForQuantity}
-                                </Typography.Text>
-                            </li>
-                        );
-                    })}
-                </ul>
-            </>}
+            <MySegment
+                ingredients={ingredients}
+                mixes={mixes}
+                size={size}
+                type={type}
+            />
         </div>
     )
 }

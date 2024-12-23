@@ -5,7 +5,7 @@ import 'moment/locale/he';
 import WorkHoursList from '../components/workHours/WorkHoursList';
 import "./WorkHoursPage.css";
 import { useSelector, useDispatch } from 'react-redux';
-import { setOverallAverageHourlyRate, setSelectedDate } from '../store/employeeHours';
+import { setSelectedDate } from '../store/employeeHours';
 const { MonthPicker } = DatePicker;
 
 moment.locale('he');

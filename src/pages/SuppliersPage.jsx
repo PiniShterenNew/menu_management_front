@@ -21,8 +21,10 @@ function SuppliersPage() {
   const [data, setData] = useState([]);
   const [dataPrint, setDataPrint] = useState([]);
 
+  const [filters, setFilters] = useState({});
+
   const searchKeys = ["name"];
-  const mobileKeys = ["name", "phone", "email", "contect_name", "address", , "second_phone", "notes"]
+  const mobileKeys = ["name", "phone", "email", "contact_name", "address", , "second_phone", "notes"]
   const sortKeys = [
     {
       key: "name",
@@ -87,8 +89,8 @@ function SuppliersPage() {
       ],
     },
     {
-      key: "contect_name",
-      dataIndex: "contect_name",
+      key: "contact_name",
+      dataIndex: "contact_name",
       title: "איש קשר",
       editable: true,
       type: "text",
@@ -157,6 +159,26 @@ function SuppliersPage() {
     },
   ];
 
+  const filtersArr = [
+    {
+      name: "רשימת ספקים",
+      value: "name",
+      type: "select",
+      options: supplierState.map((supplier) => ({
+        label: supplier.name,
+        value: supplier.name,
+      })),
+    },
+    {
+      name: "סטטוס רכיבים",
+      value: "usedCount",
+      type: "slider",
+      min: 0,
+      max: Math.max(...data.map((d) => d.usedCount || 0)),
+    },
+  ];
+
+
   useEffect(() => {
     if (supplierState) {
       const newData = supplierState.map((supplier) => {
@@ -176,6 +198,15 @@ function SuppliersPage() {
     }
   }, [supplierState, ingredientsState]);
 
+  useEffect(() => {
+    const savedFilters = JSON.parse(localStorage.getItem("filtersSuppliers") || "{}");
+    setFilters(savedFilters);
+  }, []);
+
+  const saveFilters = (filters) => {
+    setFilters(filters);
+    localStorage.setItem("filtersSuppliers", JSON.stringify(filters));
+  };
 
   return (
     // <div style={{ padding: '20px' }} className="scrollable-content suppliers-page-container">
@@ -212,6 +243,8 @@ function SuppliersPage() {
     //   </Modal>
     // </div>
     <Page
+      title={"ספקים"}
+      titleView={"ספק"}
       data={data}
       mobileKeys={mobileKeys}
       dataPrint={dataPrint}
@@ -224,6 +257,9 @@ function SuppliersPage() {
       onEdit={updateSupplier}
       onDelete={deleteSupplier}
       Dtitle={"אישור מחיקה"}
+      filters={filters}
+      saveFilters={saveFilters}
+      filtersArr={filtersArr} // העברת הסינונים
       iconADD={<FontAwesomeIcon icon={faTruck} />}
       Dcontent={(
         <>

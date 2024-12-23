@@ -17,16 +17,12 @@ import {
   Tabs,
   Badge
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
 import SizesManager from "./SizesManager.jsx";
 import VariationsManager from "./VariationsManager";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBox, faRuler, faShuffle } from "@fortawesome/free-solid-svg-icons";
 import { useProductContext } from "../context/subcontexts/ProductContext.jsx";
 import { useMediaQuery } from "react-responsive";
-import isEqual from "lodash/isEqual";
 import SizesDetailsView from "./sizes/SizesDetailsView.jsx";
 
 const { Step } = Steps;
@@ -41,6 +37,10 @@ const ProductWizard = ({ }) => {
     setModalMode,
     selectedItem,
     setSelectedItem,
+    selectedUpdateSize,
+    setSelectedUpdateSize,
+
+    getProductById,
     addProduct,
     updateProduct,
     deleteProduct,
@@ -71,33 +71,33 @@ const ProductWizard = ({ }) => {
 
     if (updatedProduct) {
       // מיזוג הגדלים הקיימים ב-state
-      const mergedSizes = (selectedItem?.sizes || [])
-        .filter((localSize) => {
-          // שמור רק גדלים שהם:
-          // 1. במצב edit: true.
-          // 2. בעלי _id שמופיע ברשימה החדשה מהשרת.
-          return (
-            localSize.edit ||
-            (localSize._id && updatedProduct.sizes?.some((size) => size._id === localSize._id))
-          );
-        })
-        .map((localSize) => {
-          // חפש גודל מעודכן מהשרת לפי _id
-          const serverSize = updatedProduct.sizes?.find((size) => size._id === localSize._id);
+      // const mergedSizes = (selectedItem?.sizes || [])
+      //   .filter((localSize) => {
+      //     // שמור רק גדלים שהם:
+      //     // 1. במצב edit: true.
+      //     // 2. בעלי _id שמופיע ברשימה החדשה מהשרת.
+      //     return (
+      //       localSize.edit ||
+      //       (localSize._id && updatedProduct.sizes?.some((size) => size._id === localSize._id))
+      //     );
+      //   })
+      //   .map((localSize) => {
+      //     // חפש גודל מעודכן מהשרת לפי _id
+      //     const serverSize = updatedProduct.sizes?.find((size) => size._id === localSize._id);
 
-          // אם יש התאמה, החלף בגודל המעודכן מהשרת, אחרת שמור את המקומי
-          return serverSize ? serverSize : localSize;
-        });
+      //     // אם יש התאמה, החלף בגודל המעודכן מהשרת, אחרת שמור את המקומי
+      //     return serverSize ? serverSize : localSize;
+      //   });
 
-      // הוסף גדלים חדשים מהשרת שאין להם התאמה ב-state המקומי
-      const newServerSizes = (updatedProduct.sizes || []).filter(
-        (serverSize) => !(selectedItem?.sizes || []).some((localSize) => localSize._id === serverSize._id)
-      );
+      // // הוסף גדלים חדשים מהשרת שאין להם התאמה ב-state המקומי
+      // const newServerSizes = (updatedProduct.sizes || []).filter(
+      //   (serverSize) => !(selectedItem?.sizes || []).some((localSize) => localSize._id === serverSize._id)
+      // );
 
       // עדכון ה-state עם המידע המשולב
       setSelectedItem({
         ...updatedProduct,
-        sizes: [...mergedSizes, ...newServerSizes], // שמור את הגדלים המקומיים, המוחלפים, והחדשים
+        // sizes: [...mergedSizes, ...newServerSizes], // שמור את הגדלים המקומיים, המוחלפים, והחדשים
       });
     }
   }, [selectedItem, productsState]);
@@ -195,12 +195,12 @@ const ProductWizard = ({ }) => {
           label: sizesData.label,
           price: sizesData.price,
           preparationTime: sizesData.preparationTime,
-          ingredients: sizesData.ingredients?.map((ingredient) => ({
+          ingredients: sizesData.ingredients?.filter(e => e)?.map((ingredient) => ({
             ingredientId: ingredient.ingredientId?._id || ingredient.ingredientId,
             quantity: ingredient.quantity,
             unit: ingredient.unit,
           })) || [],
-          mixes: sizesData.mixes?.map((mix) => ({
+          mixes: sizesData.mixes?.filter(e => e)?.map((mix) => ({
             mixId: mix.mixId,
             quantity: mix.quantity,
             unit: mix.unit,
@@ -304,7 +304,9 @@ const ProductWizard = ({ }) => {
             setValue={setSelectedItem}
             ingredients={ingredientsState}
             sizeSummary={selectedItem?.sizeSummary}
+            setSelectedUpdateSize={setSelectedUpdateSize}
             priceExcludingVAT={selectedItem?.priceExcludingVAT}
+            getProductById={getProductById}
             mixes={mixesState}
             onDelete={deleteSize}
             activeTabKey={activeTabKey}
@@ -387,7 +389,7 @@ const ProductWizard = ({ }) => {
                         type={"P"}
                         sizeInfo={(index) => {
                           setIsModalVisible("size");
-                          setActiveTabKey(index?.toString());
+                          setActiveTabKey(index?.toString() || '0');
                         }}
                         ingredients={ingredientsState}
                         mixes={mixesState}
@@ -409,6 +411,8 @@ const ProductWizard = ({ }) => {
             ingredients={ingredientsState}
             sizeSummary={selectedItem?.sizeSummary}
             priceExcludingVAT={selectedItem?.priceExcludingVAT}
+            setSelectedUpdateSize={setSelectedUpdateSize}
+            getProductById={getProductById}
             mixes={mixesState}
             onDelete={deleteSize}
             activeTabKey={activeTabKey}
