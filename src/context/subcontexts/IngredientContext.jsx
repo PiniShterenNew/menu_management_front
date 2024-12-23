@@ -24,15 +24,28 @@ export const IngredientProvider = ({ children }) => {
 
   const updateIngredient = async (updatedIngredient) => {
     setLoading(true);
+
+    // רשימת מפתחות מוגנים שאסור לשלוח
+    const protectedFields = ['unitQuantity', 'unitDescription', 'unitPrice', 'processedPrice'];
+
+    // סינון המפתחות המותרים
+    const filteredIngredient = Object.keys(updatedIngredient)
+      .filter((key) => !protectedFields.includes(key)) // מסננים שדות מוגנים
+      .reduce((obj, key) => {
+        obj[key] = updatedIngredient[key];
+        return obj;
+      }, {});
+
     try {
-      await updateIngredientAPI(updatedIngredient);
+      await updateIngredientAPI(filteredIngredient); // שולחים את האובייקט המסונן
       message.success('החומר גלם עודכן בהצלחה');
-      setLoading(false);
     } catch (error) {
       message.error('שגיאה בעדכון חומר הגלם');
+    } finally {
       setLoading(false);
     }
   };
+
 
   const deleteIngredient = async (ingredientId) => {
     setLoading(true);

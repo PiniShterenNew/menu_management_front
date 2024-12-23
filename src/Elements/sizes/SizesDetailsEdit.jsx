@@ -4,14 +4,14 @@ import { DeleteOutlined, CloseOutlined, PlusOutlined, EditOutlined } from "@ant-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faTag } from "@fortawesome/free-solid-svg-icons";
 
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import IngredientsList from './IngredientsList'
 import MixesList from './MixesList'
 
 export default function SizesDetailsEdit({
     size,
     sizes,
-    index,
+    indexSize,
     handleCancelEdit,
     handleRemoveSize,
     newSizeId,
@@ -22,34 +22,41 @@ export default function SizesDetailsEdit({
     getUnitDisplay,
     activeSubTab,
     setActiveSubTab,
-    setNewSizeId
+    setNewSizeId,
+    onSubmit
 }) {
+
+    const [disabledSave, setDisabledSave] = useState(false);
 
     const handleSave = async () => {
         try {
-            // וידוא כל השדות בטופס
-            await form.validateFields();
+            const values = await form.validateFields();
 
             // אם הכל תקין, אפשר לשמור את הגודל
             setNewSizeId(null);
-            onChange(sizes?.map((e, i) => i === index ? { ...e, edit: false } : e));
-        } catch (error) {
-            // במידה ויש שגיאות
-            const errorFields = error.errorFields;
+            onChange(sizes?.map((e, i) => i === indexSize ? {
+                ...e,
+                ...values,  // מיזוג הערכים החדשים
+                edit: false
+            } : e));
 
-            // בדיקה לאיזה טאב שייך השדה הראשון עם השגיאה
+            // קריאה ל-onSubmit עם הערכים המעודכנים
+            onSubmit(values);
+        } catch (error) {
+            // טיפול בשגיאות וולידציה כמו קודם
+            const errorFields = error.errorFields;
             const firstError = errorFields[0]?.name;
             if (firstError?.includes("ingredients")) {
-                setActiveSubTab("1"); // מעבר לטאב מרכיבים
+                setActiveSubTab("1");
             } else if (firstError?.includes("mixes")) {
-                setActiveSubTab("2"); // מעבר לטאב מיקסים
+                setActiveSubTab("2");
             }
         }
     };
     return (
         <div
             className={size.idNew === newSizeId ? "highlight-new" : ""}
-            key={size.idNew || index}
+            key={size.idNew || indexSize}
             style={{
                 border: `1px ${size?.idNew ? "dashed" : "solid #e6e6e6"}`,
                 borderRadius: "8px",
@@ -90,14 +97,14 @@ export default function SizesDetailsEdit({
                     <Button
                         type="text"
                         icon={<CloseOutlined />}
-                        onClick={() => handleCancelEdit(index)} // עדכון כפתור לעריכה
+                        onClick={() => handleCancelEdit(indexSize)} // עדכון כפתור לעריכה
                     />
                     <Button
                         type="text"
                         danger
                         icon={<DeleteOutlined />}
                         title="מחק גודל"
-                        onClick={() => handleRemoveSize(index)}
+                        onClick={() => handleRemoveSize(indexSize)}
                     />
                 </Flex>
             </Row>
@@ -168,7 +175,8 @@ export default function SizesDetailsEdit({
                                 remove={remove}
                                 fields={fields}
                                 form={form}
-                                index={index}
+                                indexSize={indexSize}
+                                setDisabledSave={setDisabledSave}
                                 ingredients={ingredients}
                                 onChange={onChange}
                                 getUnitDisplay={getUnitDisplay}
@@ -191,7 +199,8 @@ export default function SizesDetailsEdit({
                                 remove={remove}
                                 fields={fields}
                                 form={form}
-                                index={index}
+                                indexSize={indexSize}
+                                setDisabledSave={setDisabledSave}
                                 mixes={mixes}
                                 onChange={onChange}
                                 getUnitDisplay={getUnitDisplay}
@@ -204,6 +213,7 @@ export default function SizesDetailsEdit({
             <Button
                 type="primary"
                 htmlType="submit"
+                disabled={disabledSave}
                 onClick={() => handleSave()}
             >
                 שמור

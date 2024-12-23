@@ -64,7 +64,6 @@ const employeeHoursSlice = createSlice({
   initialState: {
     data: [],
     selectedDate: moment().startOf('month').format('YYYY-MM'), // ברירת מחדל לחודש הנוכחי
-    overallAverageHourlyRate: 34.39, // ממוצע קבוע שנקבע כ-34.39 ש"ח
   },
   reducers: {
     setEmployeeHoursState: (state, action) => {
@@ -72,9 +71,6 @@ const employeeHoursSlice = createSlice({
     },
     setSelectedDate: (state, action) => {
       state.selectedDate = action.payload;
-    },
-    setOverallAverageHourlyRate: (state, action) => { // מאפשר שינוי ידני של הממוצע
-      state.overallAverageHourlyRate = action.payload;
     },
     addOrUpdateEmployeeHoursState: (state, action) => {
       const newHours = action.payload;
@@ -104,7 +100,6 @@ export const {
   updateEmployeeHoursState,
   deleteEmployeeHoursState,
   setSelectedDate,
-  setOverallAverageHourlyRate, // ייצוא הפונקציה החדשה לעדכון הממוצע הקבוע
 } = employeeHoursSlice.actions;
 
 export const selectAverageHourlyRate = (state) => state.employeeHours.overallAverageHourlyRate;

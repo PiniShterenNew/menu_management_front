@@ -16,9 +16,9 @@ export default function TopBar({ drawerVisible, setDrawerVisible, isMobile }) {
                 <Image className='logo-mobile' src={Logo} alt='GainGuard' preview={false} />
             </Link>
             <div>
-                <button className="profile-button">
+                {/* <button className="profile-button">
                     <FontAwesomeIcon icon={faUser} />
-                </button>
+                </button> */}
                 {/* <button className="settings-button" onClick={() => setShowSettings(!showSettings)}>
                     <FontAwesomeIcon icon={faCog} />
                 </button> */}
@@ -27,7 +27,7 @@ export default function TopBar({ drawerVisible, setDrawerVisible, isMobile }) {
                         <FontAwesomeIcon icon={faBars} />
                     </button>
                 )}
-                {/* {<Settings flag={showSettings} setFlag={() => setShowSettings(false)} />} */}
+                {<Settings flag={showSettings} setFlag={() => setShowSettings(false)} />}
             </div>
         </div>
     );

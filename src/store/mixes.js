@@ -16,7 +16,7 @@ const mixesSlice = createSlice({
       if (existingIndex !== -1) {
         state[existingIndex] = updatedMix;
       } else {
-        state.push(updatedMix);
+        state.unshift(updatedMix);
       }
     },
     updateMixState: (state, action) => {

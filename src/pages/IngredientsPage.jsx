@@ -6,7 +6,7 @@ import { useIngredientContext } from '../context/subcontexts/IngredientContext';
 import Page from '../Elements/Page';
 import { useSelector } from 'react-redux';
 import { optionsUnits, typesOptions } from '../utils/TypeOptions';
-import { faDolly } from '@fortawesome/free-solid-svg-icons';
+import { faDolly, faTruck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 const { Text } = Typography;
 
@@ -20,6 +20,8 @@ function IngredientsPage() {
   const { addIngredient, updateIngredient, deleteIngredient } = useIngredientContext();
   const [data, setData] = useState([]);
   const [dataPrint, setDataPrint] = useState([]);
+
+  const [filters, setFilters] = useState({});
 
   const [withVAT, setWithVAT] = useState(false);
 
@@ -73,8 +75,8 @@ function IngredientsPage() {
               return Promise.reject("מק\"ט חייב להיות מספר תקין");
             }
 
-            if (value.toString().length < 6) {
-              return Promise.reject("מק\"ט חייב להיות מינימום 6 ספרות");
+            if (value.toString().length === 0) {
+              return Promise.reject("מק\"ט חייב להיות מינימום תו אחד ");
             }
 
             const isDuplicate = data.some(
@@ -118,8 +120,8 @@ function IngredientsPage() {
       type: "select",
       required: true,
       width: 100,
-      render: (_, record) => {
-        return <p>{supplierState?.find((e) => e?._id === record?.supplierId)?.name}</p>
+      render: (_, record, mode) => {
+        return <Row align={"middle"} style={{ gap: 5 }}>{mode === "view" && <FontAwesomeIcon icon={faTruck} />} {supplierState?.find((e) => e?._id === record?.supplierId)?.name}</Row>
       },
       options: supplierState?.map((e) => ({ value: e._id, label: e?.name })),
       rules: [
@@ -310,7 +312,7 @@ function IngredientsPage() {
       divider: true,
       render: (_, record, mode, form) => {
         if (mode !== 'edit') {
-          return <p>₪{record?.price}</p>
+          return <p>₪{record?.price?.toFixed(2)}</p>
         }
       }
     },
@@ -441,6 +443,27 @@ function IngredientsPage() {
     }
   ];
 
+  const filtersArr = [
+    {
+      name: "סוג",
+      value: "type",
+      options: typesOptions.map((e) => ({ label: e.value, value: e.value })),
+    },
+    {
+      name: "ספק",
+      value: "supplierId",
+      options: supplierState.map((e) => ({ label: e.name, value: e._id })),
+    },
+    {
+      name: "סטטוס",
+      value: "is_active",
+      options: [
+        { label: "פעיל", value: true },
+        { label: "לא פעיל", value: false },
+      ],
+    },
+  ];
+
   useEffect(() => {
     if (ingredientsState) {
       if (supplierState) {
@@ -470,9 +493,22 @@ function IngredientsPage() {
     }
   }, [supplierState, ingredientsState]);
 
+  useEffect(() => {
+    const savedFilters = JSON.parse(localStorage.getItem("filtersIngredients") || "{}");
+    setFilters(savedFilters);
+  }, []);
+
+  const saveFilters = (filters) => {
+    setFilters(filters);
+    localStorage.setItem("filtersIngredients", JSON.stringify(filters));
+  };
+
   return (
     <>
       <Page
+        title={"חומרי גלם"}
+        titleView={"חומר גלם"}
+        type={"ingredient"}
         data={data}
         groups={true}
         mobileKeys={mobileKeys}
@@ -486,6 +522,9 @@ function IngredientsPage() {
         onEdit={updateIngredient}
         onDelete={deleteIngredient}
         Dtitle={"אישור מחיקה"}
+        filters={filters}
+        saveFilters={saveFilters}
+        filtersArr={filtersArr} // העברת הסינונים
         iconADD={<FontAwesomeIcon icon={faDolly} />}
         Dcontent={(
           <>
