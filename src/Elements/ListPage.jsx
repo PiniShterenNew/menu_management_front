@@ -118,6 +118,7 @@ export default function ListPage({ data, type, tableKeys, mobileKeys, openModal,
                 <Flex flex={1} style={{ maxWidth: "100%", maxHeight: "90%", overflowY: "auto", overflowX: "auto", }}>
                     <Table
                         style={{minWidth: "100%"}}
+                        // onRow={Column => ({ onClick: () => openModal("view", Column) })}
                         columns={tableKeys.map((column) => ({
                             ...column,
                             title: (

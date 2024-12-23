@@ -14,10 +14,9 @@ import SizeDetails from "./sizes/SizeDetails";
 const { TabPane } = Tabs;
 
 const SizesManager = forwardRef(
-  ({ value = [], onChange, ingredients, mixes, onSubmit, onDelete, sizeSummary, priceExcludingVAT }, ref) => {
+  ({ value = [], onChange, getProductById, setSelectedUpdateSize, ingredients, activeTabKey, setActiveTabKey, mixes, onSubmit, onDelete, sizeSummary, priceExcludingVAT }, ref) => {
 
     const [newSizeId, setNewSizeId] = useState(null);
-    const [activeTabKey, setActiveTabKey] = useState("0"); // טאב פעיל
     const [activeSubTab, setActiveSubTab] = useState("1");
 
     const refs = useRef([]); // אחסון ה-refs של כל רכיב בן
@@ -50,7 +49,7 @@ const SizesManager = forwardRef(
       onChange(updatedSizes); // עדכון ה-state החיצוני
       refs.current[+activeTabKey]?.setFieldsValue({ ...newSize });
       setNewSizeId(newSize.idNew);
-      setActiveTabKey((value.length).toString());
+      setActiveTabKey((value.length).toString() || '0');
       setActiveSubTab("1"); // מעבר לטאב "מרכיבים"
     };
 
@@ -62,7 +61,7 @@ const SizesManager = forwardRef(
         </Button>
         <Tabs
           activeKey={activeTabKey} // טאב פעיל
-          onChange={(key) => setActiveTabKey(key)} // שינוי טאב
+          onChange={(key) => setActiveTabKey(key || '0')} // שינוי טאב
           tabBarStyle={{
             direction: "rtl",
           }}
@@ -75,10 +74,12 @@ const SizesManager = forwardRef(
               <SizeDetails
                 ref={(el) => (refs.current[index] = el)} // שמירת ה-ref
                 size={size}
-                index={index}
+                indexSize={index}
+                setSelectedUpdateSize={setSelectedUpdateSize}
                 sizes={value}
                 onChange={onChange}
                 onDelete={onDelete}
+                getProductById={getProductById}
                 ingredients={ingredients}
                 transformValueToForm={transformValueToForm}
                 setActiveTabKey={setActiveTabKey}

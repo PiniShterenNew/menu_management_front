@@ -1,80 +1,114 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { message } from 'antd';
-import { addSettingAPI, updateSettingAPI, deleteSettingAPI, fetchAllSettingsAPI } from '../../services/settingsService';
+import {
+    fetchAllSettingsAPI,
+    updateSettingValueAPI,
+    addCategoryAPI,
+    updateCategoryAPI,
+    deleteCategoryAPI,
+} from '../../services/settingsService';
+import {
+    setSettings,
+    updateSettingValue,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    setLoading,
+} from '../../store/settings';
 
 const SettingsContext = createContext();
 
 export const useSettingsContext = () => useContext(SettingsContext);
 
 export const SettingsProvider = ({ children }) => {
-    const [loading, setLoading] = useState(false);
-    const [settings, setSettings] = useState([]);
+    const dispatch = useDispatch();
+    const { settings, loading } = useSelector((state) => state.settings);
 
     const fetchSettings = async () => {
-        setLoading(true);
+        dispatch(setLoading(true));
         try {
             const { data } = await fetchAllSettingsAPI();
-            setSettings(data);
-            message.success('ההגדרות נטענו בהצלחה');
+            dispatch(setSettings(data));
         } catch (error) {
             console.error('Error fetching settings:', error);
-            message.error('שגיאה בטעינת ההגדרות');
         } finally {
-            setLoading(false);
+            dispatch(setLoading(false));
         }
     };
 
-    const addSetting = async (setting) => {
-        setLoading(true);
+    const updateSetting = async (key, value) => {
+        dispatch(setLoading(true));
         try {
-            await addSettingAPI(setting);
-            message.success('ההגדרה נוספה בהצלחה');
-            await fetchSettings(); // טען מחדש את ההגדרות
-        } catch (error) {
-            console.error('Error adding setting:', error);
-            message.error('שגיאה בהוספת ההגדרה');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const updateSetting = async (updatedSetting) => {
-        setLoading(true);
-        try {
-            await updateSettingAPI(updatedSetting);
-            message.success('ההגדרה עודכנה בהצלחה');
-            await fetchSettings(); // טען מחדש את ההגדרות
+            await updateSettingValueAPI(key, value);
+            dispatch(updateSettingValue({ key, value }));
+            message.success('הערך עודכן בהצלחה');
         } catch (error) {
             console.error('Error updating setting:', error);
             message.error('שגיאה בעדכון ההגדרה');
         } finally {
-            setLoading(false);
+            dispatch(setLoading(false));
         }
     };
 
-    const deleteSetting = async (key) => {
-        setLoading(true);
+    const addCategory = async (category) => {
+        dispatch(setLoading(true));
         try {
-            await deleteSettingAPI(key);
-            message.success('ההגדרה נמחקה בהצלחה');
-            await fetchSettings(); // טען מחדש את ההגדרות
+            const { data } = await addCategoryAPI(category);
+            dispatch(addCategory(data));
+            message.success('הקטגוריה נוספה בהצלחה');
         } catch (error) {
-            console.error('Error deleting setting:', error);
-            message.error('שגיאה במחיקת ההגדרה');
+            console.error('Error adding category:', error);
+            message.error('שגיאה בהוספת הקטגוריה');
         } finally {
-            setLoading(false);
+            dispatch(setLoading(false));
         }
     };
+
+    const updateCategory = async (categoryId, updatedCategory) => {
+        dispatch(setLoading(true));
+        try {
+            await updateCategoryAPI(categoryId, updatedCategory);
+            dispatch(updateCategory(updatedCategory));
+            message.success('הקטגוריה עודכנה בהצלחה');
+        } catch (error) {
+            console.error('Error updating category:', error);
+            message.error('שגיאה בעדכון הקטגוריה');
+        } finally {
+            dispatch(setLoading(false));
+        }
+    };
+
+    const deleteCategory = async (categoryId) => {
+        dispatch(setLoading(true));
+        try {
+            await deleteCategoryAPI(categoryId);
+            dispatch(deleteCategory(categoryId));
+            message.success('הקטגוריה נמחקה בהצלחה');
+        } catch (error) {
+            console.error('Error deleting category:', error);
+            message.error('שגיאה במחיקת הקטגוריה');
+        } finally {
+            dispatch(setLoading(false));
+        }
+    };
+
+    useEffect(() => {
+        fetchSettings();
+    }, []);
 
     return (
-        <SettingsContext.Provider value={{
-            settings,
-            loading,
-            fetchSettings,
-            addSetting,
-            updateSetting,
-            deleteSetting,
-        }}>
+        <SettingsContext.Provider
+            value={{
+                settings,
+                loading,
+                fetchSettings,
+                updateSetting,
+                addCategory,
+                updateCategory,
+                deleteCategory,
+            }}
+        >
             {children}
         </SettingsContext.Provider>
     );

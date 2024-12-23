@@ -99,4 +99,16 @@
     max-height: 2em !important;
     min-height: 2em !important;
   }
+
+  .ant-steps {
+    flex-direction: row !important;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .ant-steps-item {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
 }

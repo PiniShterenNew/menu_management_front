@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle } from "react";
 import { Row, Col, Button, Divider, Form, Input, InputNumber, Typography, Select, Flex, Modal } from "antd";
 import IngredientsList from "./IngredientsList";
 import MixesList from "./MixesList";
@@ -7,14 +7,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faTag } from "@fortawesome/free-solid-svg-icons";
 import SizesDetailsEdit from "./SizesDetailsEdit";
 import SizesDetailsView from "./SizesDetailsView";
+import { addOrUpdateProductState } from "../../store/products";
+import { useDispatch } from "react-redux";
 
 const SizeDetails = forwardRef(({
     size,
-    index,
+    indexSize,
+    getProductById,
     sizes,
     onChange,
     onDelete,
     newSizeId,
+    setSelectedUpdateSize,
     setNewSizeId,
     transformValueToForm,
     setActiveTabKey,
@@ -29,6 +33,7 @@ const SizeDetails = forwardRef(({
 
     const [form] = Form.useForm();
 
+    const dispatch = useDispatch();
 
     useImperativeHandle(ref, () => ({
         setFieldsValue: (values) => form.setFieldsValue(values), // מאפשר לאב לעדכן ערכים בטופס
@@ -38,8 +43,8 @@ const SizeDetails = forwardRef(({
 
     const handleCancelEdit = () => {
         const updatedSizes = [...sizes];
-        updatedSizes[index] = {
-            ...updatedSizes[index],
+        updatedSizes[indexSize] = {
+            ...updatedSizes[indexSize],
             edit: false,
             ingredients: size.ingredients.filter((ingredient) => ingredient?._id), // שמור רק מרכיבים שמורים
             mixes: size.mixes.filter((mix) => mix?._id), // שמור רק מיקסים שמורים
@@ -54,6 +59,7 @@ const SizeDetails = forwardRef(({
             edit: true, // הוספת מאפיין העריכה
         };
         onChange(updatedSizes); // עדכון ה-state החיצוני
+        setSelectedUpdateSize(index);
     };
 
     const handleRemoveSize = (index) => {
@@ -77,8 +83,9 @@ const SizeDetails = forwardRef(({
 
                             // עדכון הטאב הפעיל
                             setActiveTabKey(
-                                Math.max(0, index - 1).toString() // טאב קודם
+                                Math.max(0, index - 1).toString() || '0'// טאב קודם
                             );
+                            getProductById(sizeToRemove?.productId).then((res) => { dispatch(addOrUpdateProductState({ newProduct: res })); })
                         })
                         .catch((error) => {
                             console.error("Error deleting size:", error);
@@ -90,9 +97,11 @@ const SizeDetails = forwardRef(({
             const updatedSizes = [...sizes];
             updatedSizes.splice(index, 1);
             onChange(updatedSizes); // עדכון ה-state החיצוני
-            form.setFieldsValue(transformValueToForm()); // עדכון הערכים בטופס
+            form.setFieldsValue({
+                ...size,
+            }); // עדכון הערכים בטופס
             setActiveTabKey(
-                Math.max(0, index - 1).toString() // טאב קודם
+                Math.max(0, index - 1).toString() || '0' // טאב קודם
             );
             setNewSizeId(null);
         }
@@ -111,6 +120,13 @@ const SizeDetails = forwardRef(({
         }
     };
 
+    useEffect(() => {
+        console.log(form.getFieldsValue());
+        console.log(size);
+
+
+    }, [form, size]);
+
     return (
         !size?._id || size?.edit ?
             <Form
@@ -118,9 +134,9 @@ const SizeDetails = forwardRef(({
                 initialValues={{
                     ...size,
                 }}
-                onFinish={async (a, b) => {
-                    onSubmit(a);
-                }}
+            // onFinish={async (a, b) => {
+            //     onSubmit(a);
+            // }}
             // onValuesChange={handleValuesChange}
             >
                 <SizesDetailsEdit
@@ -128,7 +144,7 @@ const SizeDetails = forwardRef(({
                     handleRemoveSize={handleRemoveSize}
                     newSizeId={newSizeId}
                     size={size}
-                    index={index}
+                    indexSize={indexSize}
                     onChange={onChange}
                     form={form}
                     ingredients={ingredients}
@@ -138,13 +154,14 @@ const SizeDetails = forwardRef(({
                     activeSubTab={activeSubTab} // טאב פנימי פעיל
                     sizes={sizes}
                     getUnitDisplay={getUnitDisplay}
+                    onSubmit={onSubmit}
                 />
             </Form>
             :
             <SizesDetailsView
                 handleEditSize={handleEditSize}
                 handleRemoveSize={handleRemoveSize}
-                index={index}
+                index={indexSize}
                 size={size}
                 ingredients={ingredients}
                 mixes={mixes}

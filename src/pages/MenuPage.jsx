@@ -34,6 +34,8 @@ function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
 
+  const [filters, setFilters] = useState({});
+
   const productsState = useSelector((state) => state.products);
   const categoriesState = useSelector((state) => state.categories);
   const ingredientsState = useSelector((state) => state.ingredients)?.filter((e) => e?.is_active);
@@ -66,9 +68,6 @@ function MenuPage() {
         editable: true,
         type: "select",
         render: (_, record) => {
-          console.log(record?.category);
-          console.log(categoriesState);
-          console.log(categoriesState?.find((e) => e._id === record?.category)?.name);
 
           return (
             <Tag>
@@ -84,6 +83,7 @@ function MenuPage() {
       },
       {
         key: "detailes",
+        dataIndex: "actions",
         width: 100,
         render: (_, record) => {
           return (
@@ -158,12 +158,41 @@ function MenuPage() {
       },
     ], [categoriesState]);
 
-  const scrollLeft = () => {
-    containerRef.current.scrollBy({ left: -200, behavior: "smooth" });
-  };
+  const filtersArr = [
+    {
+      name: "קטגוריה",
+      value: "category",
+      type: "select",
+      options: categoriesState?.map((cat) => ({ label: cat.name, value: cat._id })),
+      filterFunction: (item, selectedValues) => selectedValues.includes(item.category),
+    },
+    {
+      name: "סטטוס",
+      value: "isActive",
+      type: "radio",
+      options: [
+        { label: "פעיל", value: true },
+        { label: "לא פעיל", value: false },
+      ],
+      filterFunction: (item, selectedValues) => selectedValues.includes(item.isActive),
+    },
+    {
+      name: "אחוז רווח",
+      value: "profitMargin",
+      type: "range",
+      options: null,
+      filterFunction: (item, range) => item.profitMargin >= range[0] && item.profitMargin <= range[1],
+    },
+  ];
 
-  const scrollRight = () => {
-    containerRef.current.scrollBy({ left: 200, behavior: "smooth" });
+  useEffect(() => {
+    const savedFilters = JSON.parse(localStorage.getItem("filtersMenu") || "{}");
+    setFilters(savedFilters);
+  }, []);
+
+  const saveFilters = (newFilters) => {
+    setFilters(newFilters);
+    localStorage.setItem("filtersMenu", JSON.stringify(newFilters));
   };
 
   useEffect(() => {
@@ -234,6 +263,7 @@ function MenuPage() {
       {/* טבלת מוצרים */}
       <Flex flex={1}>
         <Page
+          title={"תפריט"}
           type={"P"}
           data={data}
           mobileKeys={mobileKeys}
@@ -248,6 +278,9 @@ function MenuPage() {
           onDelete={deleteProduct}
           ingredientsArr={ingredientsState}
           Dtitle={"אישור מחיקה"}
+          filters={filters}
+          saveFilters={saveFilters}
+          filtersArr={filtersArr}
           Dcontent={
             <>
               <p>האם אתה בטוח שברצונך למחוק את המוצר?</p>

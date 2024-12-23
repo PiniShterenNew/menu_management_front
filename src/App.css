@@ -32,13 +32,17 @@
   /* צבע לאייקונים ואינדיקטורים */
   --card-bg-color: #ffffff;
   /* צבע רקע לכרטיסים */
-  --primary-font: 'Rubik', sans-serif;
+  /* --primary-font: 'Rubik', sans-serif; */
   /* --primary-font: 'Assistant', sans-serif; */
   /* --primary-font: 'Alef', sans-serif; */
   /* --primary-font: 'Heebo', sans-serif; */
   /* --primary-font: 'opensanshebrew', sans-serif; */
-  /* --primary-font: 'Arimo', sans-serif; */
+  --primary-font: 'Arimo', sans-serif;
 
+}
+
+*{
+  box-sizing: border-box;
 }
 
 html,

@@ -8,6 +8,7 @@ import {
   deleteProductAPI,
   deleteSizeAPI,
   deleteVariationAPI,
+  fetchProduct,
   fetchSizesByProductAPI,
   fetchVariationByIdAPI,
   updateProductAPI,
@@ -24,6 +25,22 @@ export const ProductProvider = ({ children }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState("add"); // "add", "edit", "view"
   const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedUpdateSize, setSelectedUpdateSize] = useState(null);
+
+  const getProductById = (id) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const resulet = await fetchProduct(id);
+        if (!resulet?.data?.error) {
+          resolve(resulet?.data);
+        } else {
+          reject(false);
+        }
+      } catch (error) {
+        console.error("Error get product:", error);
+      }
+    });
+  }
 
   // פונקציות עבור מוצרים וקטגוריות - דומה למה שעשינו עבור חומרים וספקים
   const addProduct = (product) => {
@@ -226,6 +243,7 @@ export const ProductProvider = ({ children }) => {
   return (
     <ProductContext.Provider
       value={{
+        getProductById,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -245,6 +263,8 @@ export const ProductProvider = ({ children }) => {
         setModalMode,
         selectedItem,
         setSelectedItem,
+        selectedUpdateSize,
+        setSelectedUpdateSize
       }}
     >
       {children}

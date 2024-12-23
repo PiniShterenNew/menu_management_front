@@ -1,12 +1,19 @@
 import {
   Button,
   Checkbox,
+  Col,
+  Divider,
+  Drawer,
   Dropdown,
   Flex,
   FloatButton,
   Input,
   Modal,
+  Radio,
   Row,
+  Select,
+  Slider,
+  Tag,
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
@@ -23,11 +30,13 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMediaQuery } from "react-responsive";
 import DynamicFormPage from "./AddOrEditPage";
-import ProductWizard from "./ProductWizard";
+import { FilterOutlined } from "@ant-design/icons";
 
 const { Search } = Input;
 
 export default function Page({
+  title,
+  titleView,
   dataPrint,
   data,
   groups,
@@ -47,7 +56,10 @@ export default function Page({
   iconADD,
   floatAction,
   type,
-  openModalProduct
+  openModalProduct,
+  filters, // קבלת הפילטרים
+  saveFilters, // פונקציה לשמירת הפילטרים (למשל, ב-localStorage),
+  filtersArr
 }) {
   const [tableKeysPrint, setTableKeysPrint] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -55,6 +67,8 @@ export default function Page({
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState("add"); // "add", "edit", "view"
   const [selectedItem, setSelectedItem] = useState(null);
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [filtersTemp, setFiltersTemp] = useState(filters);
 
   const isMobile = useMediaQuery({ query: "(max-width: 500px)" });
 
@@ -165,6 +179,28 @@ export default function Page({
     });
   };
 
+  const applyFilters = () => {
+    let filteredData = [...data];
+
+    filtersArr.forEach((filter) => {
+      const selectedValues = filters[filter.value];
+      if (selectedValues && selectedValues.length > 0) {
+        filteredData = filteredData.filter((item) =>
+          filter.filterFunction(item, selectedValues)
+        );
+      }
+    });
+
+    setDataPrint(filteredData);
+  };
+
+  useEffect(() => {
+    if (filters) {
+      applyFilters();
+      setFiltersTemp(filters);
+    }
+  }, [filters]);
+
   useEffect(() => {
     setTableKeysPrint(tableKeys);
   }, [tableKeys]);
@@ -177,15 +213,13 @@ export default function Page({
       gap={"1em"}
       className="container"
     >
+      {isMobile && <Row justify={"center"}>
+        <Typography.Title level={3} style={{ margin: "0" }}>{iconADD} {title}</Typography.Title>
+      </Row>}
       <Row align={"middle"} style={{ flexFlow: "" }} justify={"space-between"}>
-        {/* add new button */}
-        {!isMobile && (
-          <Row style={{}}>
-            <Button onClick={() => openModal("add")} type="primary">
-              {newTitle}
-            </Button>
-          </Row>
-        )}
+        {!isMobile && <Row align={""}>
+          <Typography.Title level={3} style={{ margin: "0" }}>{iconADD} {title}</Typography.Title>
+        </Row>}
         {/* search */}
         <Row style={{}}>
           <Search
@@ -208,24 +242,31 @@ export default function Page({
         </Row>
         {/* sort and cells manage */}
         <Row style={{ gap: "0.5em" }}>
+          {/* בפיתו!!!!! */}
+          {/* {filtersArr && <Button onClick={() => setFilterVisible(true)}>
+            <FilterOutlined />
+            {!isMobile && "סינון"}({Object.values(filters).filter((v) => v?.length).length})
+          </Button>} */}
           {!isMobile && (
-            <Dropdown
-              menu={{ items }}
-              trigger={["click"]}
-              open={dropdownOpen}
-              onOpenChange={(open) => setDropdownOpen(open)} // מנהל מצב פתיחה/סגירה
-            >
-              <Button>
-                <FontAwesomeIcon icon={faTable} style={{ marginLeft: "8px" }} />
-                {isMobile ? (
-                  <>{`${tableKeysPrint.length} / ${tableKeys.length}`}</>
-                ) : (
-                  <>
-                    {`בחרת ${tableKeysPrint.length} מתוך ${tableKeys.length}`}
-                  </>
-                )}
-              </Button>
-            </Dropdown>
+            <>
+              <Dropdown
+                menu={{ items }}
+                trigger={["click"]}
+                open={dropdownOpen}
+                onOpenChange={(open) => setDropdownOpen(open)} // מנהל מצב פתיחה/סגירה
+              >
+                <Button>
+                  <FontAwesomeIcon icon={faTable} style={{ marginLeft: "8px" }} />
+                  {isMobile ? (
+                    <>{`${tableKeysPrint.length} / ${tableKeys.length}`}</>
+                  ) : (
+                    <>
+                      {`בחרת ${tableKeysPrint.length} מתוך ${tableKeys.length}`}
+                    </>
+                  )}
+                </Button>
+              </Dropdown>
+            </>
           )}
           <Dropdown menu={{ items: sortItems }} trigger={["click"]}>
             <Button type={isMobile ? "link" : "default"}>
@@ -233,6 +274,17 @@ export default function Page({
               מיון
             </Button>
           </Dropdown>
+          {/* add new button */}
+          {!isMobile && (
+            <>
+              <Divider type="vertical" style={{ height: "auto", }} />
+              <Row style={{}}>
+                <Button onClick={() => openModal("add")} type="primary">
+                  {newTitle}
+                </Button>
+              </Row>
+            </>
+          )}
         </Row>
       </Row>
       {/* float button for mobile */}
@@ -258,12 +310,14 @@ export default function Page({
             title: "פעולות",
             key: "action",
             minWidth: 130,
+            maxWidth: 130,
             render: (_, record) => {
               return (
                 <Row
                   className="card-actions"
                   align={"middle"}
                   justify={"center"}
+                  style={{ maxWidth: 130 }}
                 >
                   <Button type="text" onClick={() => handleDelete(record)}>
                     <FontAwesomeIcon icon={faTrash} />
@@ -287,14 +341,79 @@ export default function Page({
         Dcontent={Dcontent}
         onDelete={onDelete}
       />
+      {filterVisible &&
+        <Drawer
+          title={<Typography.Title level={4}>סינון נתונים</Typography.Title>}
+          placement="right"
+          onClose={() => setFilterVisible(false)}
+          open={filterVisible}
+          width={360}
+        >
+          {filtersArr.map((filter) => (
+            <Row key={filter.value} gutter={[16, 16]} style={{ marginBottom: "1em" }}>
+              <Col span={24}>
+                <Typography.Text strong>{filter.name}</Typography.Text>
+                {filter.type === "select" && (
+                  <Select
+                    mode="multiple"
+                    allowClear
+                    placeholder={`בחר ${filter.name}`}
+                    options={filter.options}
+                    value={filtersTemp[filter.value] || []}
+                    onChange={(selectedValues) =>
+                      setFiltersTemp((prev) => ({ ...prev, [filter.value]: selectedValues }))
+                    }
+                    style={{ width: "100%" }}
+                  />
+                )}
+                {filter.type === "radio" && (
+                  <Radio.Group
+                    options={filter.options}
+                    value={filtersTemp[filter.value]}
+                    onChange={(e) =>
+                      setFiltersTemp((prev) => ({ ...prev, [filter.value]: [e.target.value] }))
+                    }
+                    optionType="button"
+                    buttonStyle="solid"
+                  />
+                )}
+                {filter.type === "range" && (
+                  <Slider
+                    range
+                    defaultValue={[0, 100]}
+                    onChange={(range) =>
+                      setFiltersTemp((prev) => ({ ...prev, [filter.value]: range }))
+                    }
+                  />
+                )}
+              </Col>
+            </Row>
+          ))}
+
+          {/* כפתורי הפעולה */}
+          <Row justify="space-between">
+            <Button onClick={() => setFiltersTemp({})}>נקה הכל</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                setFilterVisible(false);
+                saveFilters(filtersTemp);
+                applyFilters();
+              }}
+            >
+              החל סינון
+            </Button>
+          </Row>
+        </Drawer>
+      }
       <Modal
         style={{ top: isMobile ? "3em" : "" }}
         title={
           modalMode === "add"
-            ? "הוסף פריט חדש"
+            ? `הוסף ${titleView} חדש`
             : modalMode === "edit"
-              ? "ערוך פריט"
-              : "צפייה בפרטי פריט"
+              ? `ערוך ${titleView}`
+              : `צפייה ב${titleView}`
         }
         open={isModalVisible}
         onCancel={closeModal}
@@ -306,6 +425,7 @@ export default function Page({
           <DynamicFormPage
             mode={modalMode}
             groups={groups}
+            type={type}
             tableKeys={tableKeysPrint}
             ingredientsArr={ingredientsArr}
             fields={tableKeys.filter(

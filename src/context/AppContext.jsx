@@ -34,7 +34,7 @@ message.config({
 export const AppProvider = ({ children, setLoading }) => {
   const dispatch = useDispatch();
   const selectedDate = useSelector((state) => state.employeeHours.selectedDate);
-  const averageHourlyRate = useSelector((state) => state.employeeHours.overallAverageHourlyRate);
+  const averageHourlyRate = useSelector((state) => state.settings.settings?.hourlyRate?.value);
 
   useEffect(() => {
     const fetchData = async () => {

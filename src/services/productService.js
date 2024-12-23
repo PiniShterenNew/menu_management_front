@@ -14,6 +14,8 @@ export const deleteProductAPI = (productId) => axios.delete(`${API_URL}/products
 
 export const fetchAllProducts = () => axios.get(`${API_URL}/products`);
 
+export const fetchProduct = (id) => axios.get(`${API_URL}/products/${id}`);
+
 
 // מביא את כל הגדלים למוצר מסוים
 export const fetchSizesByProductAPI = (productId) =>
