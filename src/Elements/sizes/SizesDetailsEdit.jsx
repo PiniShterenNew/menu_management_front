@@ -185,12 +185,12 @@ export default function SizesDetailsEdit({
                         )}
                     </Form.List>
                 </TabPane>
-                <TabPane tab={`מיקסים (${size?.mixes?.length || 0})`} key={2}>
+                <TabPane tab={`מתכונים (${size?.mixes?.length || 0})`} key={2}>
                     <Typography.Text
                         strong
                         style={{ display: "block", marginBottom: "8px" }}
                     >
-                        מיקסים:
+                        מתכונים:
                     </Typography.Text>
                     <Form.List name={["mixes"]}>
                         {(fields, { add, remove }) => (

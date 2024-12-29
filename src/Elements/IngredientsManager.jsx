@@ -65,26 +65,25 @@ const IngredientsManager = ({
   };
 
   const handleAddIngredient = () => {
-    const currentIngredients = getCurrentIngredients(); // מקבל את הערכים הנוכחיים מה-Form
-    const newIngredient = currentIngredients[editingIndex]; // לוקח את המרכיב החדש שמתווסף
+    const currentIngredients = getCurrentIngredients();
+    const newIngredient = currentIngredients[editingIndex];
 
-    // בדיקה אם הערך החדש תקין
     if (!newIngredient || !newIngredient.ingredientId || !newIngredient.quantity) {
       return;
     }
 
-    // הוספת שם הרכיב לפי הבחירה מ-ingredientsArr
     const selectedIngredient = ingredientsArr.find((ing) => ing._id === newIngredient.ingredientId);
     const updatedIngredient = {
       ...newIngredient,
-      name: selectedIngredient?.name || "---", // שומר את השם אם נמצא
-      unit: selectedIngredient?.unit || newIngredient.unit, // עדכון יחידת מידה
+      name: selectedIngredient?.name || "---",
+      unit: selectedIngredient?.unit || newIngredient.unit,
+      weightOrVolumePerUnit: newIngredient.weightOrVolumePerUnit || null, // שמירת השדה החדש
     };
 
-    const updatedValue = [...value, updatedIngredient]; // מעדכן את המערך הקיים עם המרכיב החדש
-    onChange(updatedValue); // מעדכן את ה-Prop
-    setEditingIndex(null); // מסיים את מצב העריכה
-    setIsNew(false); // מסיים את מצב המרכיב החדש
+    const updatedValue = [...value, updatedIngredient];
+    onChange(updatedValue);
+    setEditingIndex(null);
+    setIsNew(false);
   };
 
   const handleRemoveIngredient = (index) => {
@@ -108,8 +107,8 @@ const IngredientsManager = ({
     if (key === "ingredientId") {
       const selectedIngredient = ingredientsArr.find((ing) => ing._id === fieldValue);
       if (selectedIngredient) {
-        updatedValue[index].unit = selectedIngredient.unit; // עדכון יחידת מידה
-        updatedValue[index].name = selectedIngredient.name; // עדכון שם
+        updatedValue[index].unit = selectedIngredient.unit;
+        updatedValue[index].name = selectedIngredient.name;
       }
     }
 
@@ -146,38 +145,55 @@ const IngredientsManager = ({
       {/* כפתור הוספה */}
       {isNew ?
         (<Row gutter={16} style={{ marginBottom: "1vw" }}>
-          <Col span={10}>
-            <Form.Item
-              name={[editingIndex, "ingredientId"]}
-              rules={[{ required: true, message: "בחר רכיב" }]}
-            >
-              <Select
-                placeholder="בחר רכיב"
-                filterOption={(input, option) =>
-                  option?.label?.toLowerCase().includes(input.toLowerCase())
-                }
-                showSearch
-                options={ingredientsArr?.map((ing) => ({
-                  value: ing._id,
-                  label: ing.name,
-                  unit: ing.unit
-                }))}
-                onChange={handleIngredientSelect}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={10}>
-            <Form.Item
-              name={[editingIndex, "quantity"]}
-              rules={[{ required: true, message: "הזן כמות" }]}
-            >
-              <InputNumber
-                onChange={handleQuantityChange}
-                addonAfter={getUnitDisplay(selectedUnit)}
-                placeholder="כמות"
-              />
-            </Form.Item>
-          </Col>
+          <div className="flex flex-1 flex-wrap">
+            <Col span={10}>
+              <Form.Item
+                name={[editingIndex, "ingredientId"]}
+                rules={[{ required: true, message: "בחר רכיב" }]}
+              >
+                <Select
+                  placeholder="בחר רכיב"
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().includes(input.toLowerCase())
+                  }
+                  showSearch
+                  options={ingredientsArr?.map((ing) => ({
+                    value: ing._id,
+                    label: ing.name,
+                    unit: ing.unit
+                  }))}
+                  onChange={handleIngredientSelect}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={10}>
+              <Form.Item
+                name={[editingIndex, "quantity"]}
+                rules={[{ required: true, message: "הזן כמות" }]}
+              >
+                <InputNumber
+                  onChange={handleQuantityChange}
+                  addonAfter={getUnitDisplay(selectedUnit)}
+                  placeholder="כמות"
+                />
+              </Form.Item>
+            </Col>
+            {selectedUnit === "units" && (
+              <Col span={14}>
+                <Form.Item
+                  name={[editingIndex, "weightOrVolumePerUnit"]}
+                  rules={[{ required: true, message: "הזן נפח/משקל ליחידה" }]}
+                >
+                  <InputNumber
+                    placeholder="נפח/משקל ליחידה"
+                    min={0}
+                    onChange={(value) => handleFieldChange(editingIndex, "weightOrVolumePerUnit", value)}
+                    addonAfter={"קילו/ליטר"}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+          </div>
           <Col span={4}>
             <Button type="text" icon={<FontAwesomeIcon icon={faCheck} />} onClick={handleAddIngredient} />
             <Button type="text" icon={<FontAwesomeIcon icon={faTimes} />} onClick={handleCancelEdit} />
@@ -207,38 +223,56 @@ const IngredientsManager = ({
             return (
               <List.Item key={index} >
                 {isEditing && !isNew ? (
-                  <>
-                    <Col span={10}>
-                      <Form.Item
-                        name={[index, "ingredientId"]}
-                      >
-                        <Select
-                          placeholder="בחר רכיב"
-                          value={ingredient.ingredientId || null} // גישה ל-_id מתוך ingredientId
-                          onChange={(value) => handleFieldChange(index, "ingredientId", value)}
-                          options={ingredientsArr.map((ing) => ({
-                            value: ing._id, // ID של הרכיב
-                            label: ing.name, // שם של הרכיב
-                          }))}
-                          showSearch
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={10}>
-                      <Form.Item
-                        name={[index, "quantity"]}
-                      >
-                        <InputNumber
-                          placeholder={`כמות`}
-                          // value={ingredient.quantity || null}
-                          onChange={(value) => handleFieldChange(index, "quantity", value)}
-                          min={0}
-                          addonAfter={unitDisplay}
-                          style={{ width: "100%" }}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col >
+                  <Row gutter={16} style={{ marginBottom: "1vw" }}>
+                    <div className="flex flex-1 flex-wrap">
+                      <Col span={10}>
+                        <Form.Item
+                          name={[index, "ingredientId"]}
+                        >
+                          <Select
+                            placeholder="בחר רכיב"
+                            value={ingredient.ingredientId || null} // גישה ל-_id מתוך ingredientId
+                            onChange={(value) => handleFieldChange(index, "ingredientId", value)}
+                            options={ingredientsArr.map((ing) => ({
+                              value: ing._id, // ID של הרכיב
+                              label: ing.name, // שם של הרכיב
+                            }))}
+                            showSearch
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={10}>
+                        <Form.Item
+                          name={[index, "quantity"]}
+                        >
+                          <InputNumber
+                            placeholder={`כמות`}
+                            onChange={(value) => handleFieldChange(index, "quantity", value)}
+                            min={0}
+                            addonAfter={unitDisplay}
+                            style={{ width: "100%" }}
+                          />
+                        </Form.Item>
+                      </Col>
+                      {/* שדה נוסף לנפח/משקל לכל יחידה */}
+                      {ingredient.unit === "units" && (
+                        <Col span={14}>
+                          <Form.Item
+                            name={[index, "weightOrVolumePerUnit"]}
+                            rules={[{ required: true, message: "הזן נפח/משקל ליחידה" }]}
+                          >
+                            <InputNumber
+                              placeholder="נפח/משקל ליחידה (ליטר/גרם)"
+                              min={0}
+                              style={{ width: "100%" }}
+                              addonAfter={"קילו/ליטר"}
+                              onChange={(value) => handleFieldChange(index, "weightOrVolumePerUnit", value)}
+                            />
+                          </Form.Item>
+                        </Col>
+                      )}
+                    </div>
+                    <Col>
                       <Button
                         type="text"
                         icon={<FontAwesomeIcon icon={faCheck} />}
@@ -250,7 +284,7 @@ const IngredientsManager = ({
                         onClick={handleCancelEdit}
                       />
                     </Col>
-                  </>
+                  </Row>
                 ) : (
                   <Row style={{ width: "100%" }} align="middle" justify="space-between">
                     <Flex flex={1}>
@@ -259,6 +293,9 @@ const IngredientsManager = ({
                     <Flex flex={1}>
                       <Text>
                         {ingredient.quantity} {unitDisplay}
+                        {ingredient.unit === "units" && ingredient.weightOrVolumePerUnit
+                          ? ` (${ingredient.weightOrVolumePerUnit} ק"ג/ליטר)`
+                          : ""}
                       </Text>
                     </Flex>
                     <Row>

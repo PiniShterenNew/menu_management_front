@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { message } from 'antd';
 import {
     fetchAllSettingsAPI,
-    updateSettingValueAPI,
     addCategoryAPI,
     updateCategoryAPI,
     deleteCategoryAPI,
+    updateAllSettingsAPI,
 } from '../../services/settingsService';
 import {
     setSettings,
@@ -16,6 +16,8 @@ import {
     deleteCategory,
     setLoading,
 } from '../../store/settings';
+import { setProductsState } from '@/store/products';
+import { fetchAllProducts } from '@/services/productService';
 
 const SettingsContext = createContext();
 
@@ -37,21 +39,22 @@ export const SettingsProvider = ({ children }) => {
         }
     };
 
-    const updateSetting = async (key, value) => {
+    const updateSetting = async (values) => {
         dispatch(setLoading(true));
         try {
-            await updateSettingValueAPI(key, value);
-            dispatch(updateSettingValue({ key, value }));
-            message.success('הערך עודכן בהצלחה');
+
+            await updateAllSettingsAPI(values);
+            const [productsRes] = await Promise.all([fetchAllProducts()]);
+            dispatch(setProductsState({ products: productsRes.data?.reverse() }));
+            message.success('הגדרות נשמרו בהצלחה');
+            dispatch(setLoading(false));
         } catch (error) {
-            console.error('Error updating setting:', error);
-            message.error('שגיאה בעדכון ההגדרה');
-        } finally {
+            message.error('שגיאה בשמירת ההגדרות');
             dispatch(setLoading(false));
         }
     };
 
-    const addCategory = async (category) => {
+    const addCategoryContext = async (category) => {
         dispatch(setLoading(true));
         try {
             const { data } = await addCategoryAPI(category);
@@ -65,7 +68,7 @@ export const SettingsProvider = ({ children }) => {
         }
     };
 
-    const updateCategory = async (categoryId, updatedCategory) => {
+    const updateCategoryContext = async (categoryId, updatedCategory) => {
         dispatch(setLoading(true));
         try {
             await updateCategoryAPI(categoryId, updatedCategory);
@@ -79,7 +82,7 @@ export const SettingsProvider = ({ children }) => {
         }
     };
 
-    const deleteCategory = async (categoryId) => {
+    const deleteCategoryContext = async (categoryId) => {
         dispatch(setLoading(true));
         try {
             await deleteCategoryAPI(categoryId);
@@ -104,9 +107,9 @@ export const SettingsProvider = ({ children }) => {
                 loading,
                 fetchSettings,
                 updateSetting,
-                addCategory,
-                updateCategory,
-                deleteCategory,
+                addCategoryContext,
+                updateCategoryContext,
+                deleteCategoryContext,
             }}
         >
             {children}

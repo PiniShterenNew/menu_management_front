@@ -1,16 +1,24 @@
 // src/pages/IngredientsPage.jsx - דף חומרי הגלם עם שימוש ב-Ant Design מותאם לנייד
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Button, Checkbox, InputNumber, Modal, Form as AntdForm, Space, Tag, Col, Row, Tooltip, Typography, Badge, Switch, Flex, Form } from 'antd';
 import './IngredientsPage.css';
 import { useIngredientContext } from '../context/subcontexts/IngredientContext';
 import Page from '../Elements/Page';
 import { useSelector } from 'react-redux';
-import { optionsUnits, typesOptions } from '../utils/TypeOptions';
+import { optionsUnits } from '../utils/TypeOptions';
 import { faDolly, faTruck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ScrollArea } from '@radix-ui/react-scroll-area';
+import { useSettingsContext } from '@/context/subcontexts/SettingsContext';
 const { Text } = Typography;
 
 function IngredientsPage() {
+
+    const {
+      settings
+    } = useSettingsContext();
+
+  const typesOptions = useMemo(() => settings?.materialCategories?.value?.map((e) => ({ value: e?._id, label: e?.name, color: e?.color || "blue" })) || [], [settings?.materialCategories?.value]);
 
   const supplierState = useSelector((state) => state.suppliers);
   const ingredientsState = useSelector((state) => state.ingredients);
@@ -177,13 +185,14 @@ function IngredientsPage() {
       dataIndex: "type",
       title: "סוג",
       render: (_, record) => {
-        return <Tag color={typesOptions?.find((e) => e.value === record?.type)?.color}>{record?.type}</Tag>
+        const type = typesOptions.find((e) => e.value === record?.type);
+        return <Tag color={type?.color}>{type?.label}</Tag>
       },
       type: "select",
       required: true,
       editable: true,
       group: 2,
-      options: typesOptions.map((e) => ({ value: e.value, label: e.value, color: e?.color })),
+      options: typesOptions,
       divider: true,
       width: 100,
       rules: [
@@ -447,7 +456,7 @@ function IngredientsPage() {
     {
       name: "סוג",
       value: "type",
-      options: typesOptions.map((e) => ({ label: e.value, value: e.value })),
+      options: typesOptions,
     },
     {
       name: "ספק",
