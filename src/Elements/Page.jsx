@@ -263,7 +263,6 @@ export default function Page({
         </Row>
         {/* sort and cells manage */}
         <Row style={{ gap: "0.5em" }}>
-          {/* בפיתו!!!!! */}
           {filtersArr && <Button onClick={() => setFilterVisible(true)}>
             <FilterOutlined />
             {!isMobile && "סינון"}({Object.keys(filters).length})

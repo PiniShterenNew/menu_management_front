@@ -115,7 +115,7 @@ export default function ListPage({ data, type, tableKeys, mobileKeys, openModal,
             <Flex flex={1} style={{ display: "flex", flexDirection: "column", overflow: "hidden", width: "100%" }}>
                 {/* <div style={{height: "150vh", width: "70vw", background: "green"}} />
             <div style={{height: "150vh", width: "70vw", background: "orange"}} /> */}
-                <Flex flex={1} style={{ maxWidth: "100%", maxHeight: "90%", overflowY: "auto", overflowX: "auto", }}>
+                <Flex flex={1} style={{ maxWidth: "100%", maxHeight: type === "P" ? "63%" : "90%", overflowY: "auto", overflowX: "auto", }}>
                     <Table
                         style={{minWidth: "100%"}}
                         // onRow={Column => ({ onClick: () => openModal("view", Column) })}
