@@ -52,7 +52,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                         </Row>
                         <Divider style={{ margin: "5px 0" }} />
                         <Row justify={"space-between"}>
-                            <Typography.Text strong>עלות מיקסים:</Typography.Text>
+                            <Typography.Text strong>עלות מתכונים:</Typography.Text>
                             <Typography.Text>₪{sizeSummaryData?.mixCost}</Typography.Text>
                         </Row>
                         <Divider style={{ margin: "5px 0" }} />
@@ -186,7 +186,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                                                     }}
                                                 >
                                                     <FontAwesomeIcon icon={faFlask} />
-                                                    <div>מיקסים</div>
+                                                    <div>מתכונים</div>
                                                 </div>
                                             ), value: "mixes"
                                         }

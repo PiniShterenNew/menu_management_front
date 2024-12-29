@@ -278,9 +278,9 @@ function MenuPage() {
           onDelete={deleteProduct}
           ingredientsArr={ingredientsState}
           Dtitle={"אישור מחיקה"}
-          filters={filters}
-          saveFilters={saveFilters}
-          filtersArr={filtersArr}
+          // filters={filters}
+          // saveFilters={saveFilters}
+          // filtersArr={filtersArr}
           Dcontent={
             <>
               <p>האם אתה בטוח שברצונך למחוק את המוצר?</p>

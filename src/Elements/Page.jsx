@@ -31,6 +31,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMediaQuery } from "react-responsive";
 import DynamicFormPage from "./AddOrEditPage";
 import { FilterOutlined } from "@ant-design/icons";
+import FiltersDrawer from "./FiltersDrawer";
 
 const { Search } = Input;
 
@@ -182,12 +183,32 @@ export default function Page({
   const applyFilters = () => {
     let filteredData = [...data];
 
-    filtersArr.forEach((filter) => {
-      const selectedValues = filters[filter.value];
-      if (selectedValues && selectedValues.length > 0) {
-        filteredData = filteredData.filter((item) =>
-          filter.filterFunction(item, selectedValues)
-        );
+    // עיבוד המסננים
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        switch (key) {
+          case 'search':
+            filteredData = filteredData.filter(item =>
+              searchKeys.some(searchKey =>
+                item[searchKey]?.toString().toLowerCase().includes(value.toLowerCase())
+              )
+            );
+            break;
+
+          case 'is_active':
+            filteredData = filteredData.filter(item => item.is_active === value);
+            break;
+
+          case 'type':
+          case 'supplierId':
+            if (Array.isArray(value)) {
+              filteredData = filteredData.filter(item => value.includes(item[key]));
+            }
+            break;
+
+          default:
+            break;
+        }
       }
     });
 
@@ -243,10 +264,10 @@ export default function Page({
         {/* sort and cells manage */}
         <Row style={{ gap: "0.5em" }}>
           {/* בפיתו!!!!! */}
-          {/* {filtersArr && <Button onClick={() => setFilterVisible(true)}>
+          {filtersArr && <Button onClick={() => setFilterVisible(true)}>
             <FilterOutlined />
-            {!isMobile && "סינון"}({Object.values(filters).filter((v) => v?.length).length})
-          </Button>} */}
+            {!isMobile && "סינון"}({Object.keys(filters).length})
+          </Button>}
           {!isMobile && (
             <>
               <Dropdown
@@ -342,69 +363,80 @@ export default function Page({
         onDelete={onDelete}
       />
       {filterVisible &&
-        <Drawer
-          title={<Typography.Title level={4}>סינון נתונים</Typography.Title>}
-          placement="right"
-          onClose={() => setFilterVisible(false)}
-          open={filterVisible}
-          width={360}
-        >
-          {filtersArr.map((filter) => (
-            <Row key={filter.value} gutter={[16, 16]} style={{ marginBottom: "1em" }}>
-              <Col span={24}>
-                <Typography.Text strong>{filter.name}</Typography.Text>
-                {filter.type === "select" && (
-                  <Select
-                    mode="multiple"
-                    allowClear
-                    placeholder={`בחר ${filter.name}`}
-                    options={filter.options}
-                    value={filtersTemp[filter.value] || []}
-                    onChange={(selectedValues) =>
-                      setFiltersTemp((prev) => ({ ...prev, [filter.value]: selectedValues }))
-                    }
-                    style={{ width: "100%" }}
-                  />
-                )}
-                {filter.type === "radio" && (
-                  <Radio.Group
-                    options={filter.options}
-                    value={filtersTemp[filter.value]}
-                    onChange={(e) =>
-                      setFiltersTemp((prev) => ({ ...prev, [filter.value]: [e.target.value] }))
-                    }
-                    optionType="button"
-                    buttonStyle="solid"
-                  />
-                )}
-                {filter.type === "range" && (
-                  <Slider
-                    range
-                    defaultValue={[0, 100]}
-                    onChange={(range) =>
-                      setFiltersTemp((prev) => ({ ...prev, [filter.value]: range }))
-                    }
-                  />
-                )}
-              </Col>
-            </Row>
-          ))}
+        // <Drawer
+        //   title={<Typography.Title level={4}>סינון נתונים</Typography.Title>}
+        //   placement="right"
+        //   onClose={() => setFilterVisible(false)}
+        //   open={filterVisible}
+        //   width={360}
+        // >
+        //   {filtersArr.map((filter) => (
+        //     <Row key={filter.value} gutter={[16, 16]} style={{ marginBottom: "1em" }}>
+        //       <Col span={24}>
+        //         <Typography.Text strong>{filter.name}</Typography.Text>
+        //         {filter.type === "select" && (
+        //           <Select
+        //             mode="multiple"
+        //             allowClear
+        //             placeholder={`בחר ${filter.name}`}
+        //             options={filter.options}
+        //             value={filtersTemp[filter.value] || []}
+        //             onChange={(selectedValues) =>
+        //               setFiltersTemp((prev) => ({ ...prev, [filter.value]: selectedValues }))
+        //             }
+        //             style={{ width: "100%" }}
+        //           />
+        //         )}
+        //         {filter.type === "radio" && (
+        //           <Radio.Group
+        //             options={filter.options}
+        //             value={filtersTemp[filter.value]}
+        //             onChange={(e) =>
+        //               setFiltersTemp((prev) => ({ ...prev, [filter.value]: [e.target.value] }))
+        //             }
+        //             optionType="button"
+        //             buttonStyle="solid"
+        //           />
+        //         )}
+        //         {filter.type === "range" && (
+        //           <Slider
+        //             range
+        //             defaultValue={[0, 100]}
+        //             onChange={(range) =>
+        //               setFiltersTemp((prev) => ({ ...prev, [filter.value]: range }))
+        //             }
+        //           />
+        //         )}
+        //       </Col>
+        //     </Row>
+        //   ))}
 
-          {/* כפתורי הפעולה */}
-          <Row justify="space-between">
-            <Button onClick={() => setFiltersTemp({})}>נקה הכל</Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                setFilterVisible(false);
-                saveFilters(filtersTemp);
-                applyFilters();
-              }}
-            >
-              החל סינון
-            </Button>
-          </Row>
-        </Drawer>
+        //   {/* כפתורי הפעולה */}
+        //   <Row justify="space-between">
+        //     <Button onClick={() => setFiltersTemp({})}>נקה הכל</Button>
+        //     <Button
+        //       type="primary"
+        //       onClick={() => {
+        //         setFilterVisible(false);
+        //         saveFilters(filtersTemp);
+        //         applyFilters();
+        //       }}
+        //     >
+        //       החל סינון
+        //     </Button>
+        //   </Row>
+        // </Drawer>
+        <FiltersDrawer
+          open={filterVisible}
+          onClose={() => setFilterVisible(false)}
+          filtersArr={filtersArr}
+          filters={filtersTemp}
+          setFilters={(updatedFilters) => {
+            setFiltersTemp(updatedFilters);
+            saveFilters(updatedFilters); // שמירה ב-localStorage
+            applyFilters(); // יישום המסננים
+          }}
+        />
       }
       <Modal
         style={{ top: isMobile ? "3em" : "" }}

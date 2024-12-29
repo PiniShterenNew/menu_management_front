@@ -47,7 +47,7 @@ const SizeDetails = forwardRef(({
             ...updatedSizes[indexSize],
             edit: false,
             ingredients: size.ingredients.filter((ingredient) => ingredient?._id), // שמור רק מרכיבים שמורים
-            mixes: size.mixes.filter((mix) => mix?._id), // שמור רק מיקסים שמורים
+            mixes: size.mixes.filter((mix) => mix?._id), // שמור רק מתכונים שמורים
         };
         onChange(updatedSizes);
     };
