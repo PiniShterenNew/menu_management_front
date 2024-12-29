@@ -4,11 +4,12 @@ import { DeleteOutlined, InfoCircleOutlined, PlusOutlined, DollarOutlined, Clock
 import { useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDolly, faFlask } from '@fortawesome/free-solid-svg-icons';
+import { useMediaQuery } from 'react-responsive';
 
 const { Text } = Typography;
 
 export default function SizesDetailsView({ size, index, sizeInfo, type, handleEditSize, handleRemoveSize, ingredients, mixes, sizeSummary, priceExcludingVAT }) {
-
+    const isMobile = useMediaQuery({ query: "(max-width: 500px)" });
     const averageHourlyRate = useSelector((state) => state.settings.settings?.hourlyRate?.value);
 
     const costDetailes = (sizeSummary, priceExcludingVAT) => {
@@ -84,9 +85,9 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                             return "";
                     }
                 })();
-        
+
                 const ingredientName = ingredients?.find((e) => e?._id === ingredient?.ingredientId)?.name || "לא ידוע";
-        
+
                 return {
                     name: ingredientName,
                     quantity: ingredient?.quantity,
@@ -94,11 +95,11 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                     cost: ingredient?.costForQuantity,
                 };
             });
-        
+
             return (
                 <List
                     dataSource={data}
-                    style={{ paddingLeft: "20px", margin: "0", maxHeight: "8vw", overflow: "auto" }}
+                    style={{ paddingLeft: "20px", margin: "0", maxHeight: isMobile ? "25vh" : "22vh", overflow: "auto" }}
                     renderItem={(item, idx) => (
                         <List.Item key={idx} style={{ marginBottom: "4px" }}>
                             <Text>
@@ -141,7 +142,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                     style={{
                         paddingLeft: "20px",
                         margin: "0",
-                        maxHeight: "8vw",
+                        maxHeight: isMobile ? "25vh" : "22vh",
                         overflow: "auto",
                     }}
                     renderItem={(item, idx) => (
@@ -161,7 +162,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                     <>
                         <Divider style={{ margin: "5px 0" }} />
                         {/* Segmented Tab */}
-                        <Row style={{ gap: "1.5vw", height: "10vw" }}>
+                        <Row style={{ gap: "1.5vw", height: isMobile ? "30vh" : "12vw" }}>
                             <Flex align='center' justify='center'>
                                 <Segmented
                                     vertical

@@ -449,8 +449,10 @@ const ProductWizard = ({ }) => {
       }}
       footer={null}
       destroyOnClose
+      height={isMobile ? "85vh" : 600}
       width={isMobile ? "100%" : 600}
-      styles={{ gap: "0.5em" }}
+      styles={{body: {height: "85vh"} }}
+
     >
       {modalMode === "view" ? screensView() : screensEdit()}
     </Modal>
