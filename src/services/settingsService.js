@@ -6,10 +6,7 @@ const API_URL = import.meta.env.VITE_REACT_APP_API_URL;
 export const fetchAllSettingsAPI = () => axios.get(`${API_URL}/settings`);
 
 // עדכון ערך של הגדרה מסוימת
-export const updateSettingValueAPI = (key, value) => {
-    const encodedKey = encodeURIComponent(key);
-    return axios.put(`${API_URL}/settings/${encodedKey}`, { value });
-};
+export const updateAllSettingsAPI = (settings) => axios.put(`${API_URL}/settings`, { settings });
 
 // הוספת קטגוריה חדשה
 export const addCategoryAPI = (category) => axios.post(`${API_URL}/settings/categories`, category);

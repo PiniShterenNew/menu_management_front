@@ -151,19 +151,6 @@ function MixesPage() {
       ],
     },
     {
-      key: "totalCost",
-      dataIndex: "totalCost",
-      title: "עלות כוללת (₪)",
-      minWidth: 100,
-      render: (_, record) => {
-        if (record?.totalCost != null && record?.laborCost != null) {
-          return `₪${(Number(record.totalCost) + Number(record.laborCost)).toFixed(2)}`;
-        }
-        return "—";
-      },
-      editable: false,
-    },
-    {
       key: "unitCost",
       dataIndex: "unitCost",
       title: "עלות ל-100 גרם (₪)",
@@ -184,6 +171,19 @@ function MixesPage() {
       title: "עלות עבודה (₪)",
       minWidth: 100,
       render: (_, record) => `₪${record?.laborCost?.toFixed(2)} (₪${overallAverageHourlyRateState})` || "—",
+      editable: false,
+    },
+    {
+      key: "totalCost",
+      dataIndex: "totalCost",
+      title: "עלות כוללת (₪)",
+      minWidth: 100,
+      render: (_, record) => {
+        if (record?.totalCost != null && record?.laborCost != null) {
+          return `₪${(Number(record.totalCost) + Number(record.laborCost)).toFixed(2)}`;
+        }
+        return "—";
+      },
       editable: false,
     },
     {
@@ -229,6 +229,17 @@ function MixesPage() {
           title: "יחידה",
           readonly: true, // שדה לקריאה בלבד
 
+        },
+        {
+          key: "weightOrVolumePerUnit",
+          type: "number",
+          title: "נפח/משקל ליחידה (אם רלוונטי)",
+          placeholder: "הזן נפח ליחידה",
+          required: false,
+          visible: (values) => values.unit === "units", // הצגת השדה רק אם היחידה היא 'units'
+          rules: [
+            { type: "number", min: 0, message: "ערך חייב להיות חיובי" },
+          ],
         },
       ],
       render: (_, record, mode, notTable) => {
@@ -333,7 +344,7 @@ function MixesPage() {
 
   return (
     <Page
-      title={"מיקסים"}
+      title={"מתכונים"}
       titleView={"מיקס"}
       type={"mix"}
       data={data}
