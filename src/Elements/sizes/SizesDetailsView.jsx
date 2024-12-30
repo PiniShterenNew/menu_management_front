@@ -8,40 +8,48 @@ import { useMediaQuery } from 'react-responsive';
 
 const { Text } = Typography;
 
-export default function SizesDetailsView({ size, index, sizeInfo, type, handleEditSize, handleRemoveSize, ingredients, mixes, sizeSummary, priceExcludingVAT }) {
+export default function SizesDetailsView({ size, index, sizeInfo, type, handleEditSize, handleRemoveSize, ingredients, mixes }) {
     const isMobile = useMediaQuery({ query: "(max-width: 500px)" });
     const averageHourlyRate = useSelector((state) => state.settings.settings?.hourlyRate?.value);
 
-    const costDetailes = (sizeSummary, priceExcludingVAT) => {
-        const sizeSummaryData = sizeSummary;
-        if (!sizeSummaryData) return null;
-        const priceExcludingVATData = priceExcludingVAT;
-        // _id: size?._id,
-        // label: size.label,
-        // mixCost: mixCost?.toFixed(2),
-        // ingredientCost: ingredientCost?.toFixed(2),
-        // totalCost: totalCost.toFixed(2),
-        // laborCost: laborCost.toFixed(2),
-        // profitMargin: profitMargin.toFixed(2),
+    const costDetailes = (size) => {
+
+
         return (
             <Row>
                 <Flex flex={1} style={{ flexDirection: "column" }}>
-                    <Row justify={"space-between"}>
-                        <Typography.Text strong>מחיר ללא מע"מ:</Typography.Text>
-                        <Typography.Text style={{ marginRight: 8 }}>₪{priceExcludingVATData} (₪{(size?.price - priceExcludingVATData).toFixed(2)})</Typography.Text>
-                    </Row>
-                    <Divider style={{ margin: "5px 0" }} />
-                    <Row justify={"space-between"}>
-                        <Typography.Text strong>סך הכל עלות:</Typography.Text>
-                        <Typography.Text style={{ marginRight: 8 }}>₪{sizeSummaryData?.totalCost}</Typography.Text>
-                    </Row>
-                    <Divider style={{ margin: "5px 0" }} />
-                    <Row justify={"space-between"}>
-                        <Typography.Text strong>אחוז רווח:</Typography.Text>
-                        {/* <Typography.Text style={{ marginRight: 8 }}>{sizeSummaryData?.profitMargin}%</Typography.Text> */}
-                        <Progress percent={sizeSummaryData?.profitMargin} />
-                    </Row>
-                    {type !== "P" && <Card type='inner' title="עלויות" styles={{ header: { minHeight: "0", padding: "5px 20px" }, }} style={{ margin: "15px 0", }}>
+                    <div className='flex flex-row justify-evenly items-center'>
+                        <div className='flex flex-col items-center'>
+                            <p className='text-xl font-semibold'>₪{size?.priceIncludingVAT}</p>
+                            <p className='text-sm'>{"מחיר ללא מע\"מ:"}</p>
+                            <p className='text-base font-medium'> ₪{size?.priceExcludingVAT} (₪{(size?.priceIncludingVAT - size?.priceExcludingVAT).toFixed(2)})</p>
+                        </div>
+                        <div className='flex flex-col items-center'>
+                            <p className='text-base font-semibold text-green-400'>מחיר מומלץ לצרכן!!</p>
+                            <p className='text-xl font-semibold text-green-400'>₪{size?.suggestedPriceIncludingVAT}</p>
+                            <p className='text-sm'>{"מחיר ללא מע\"מ:"}</p>
+                            <p className='text-base font-medium'> ₪{size?.suggestedPriceExcludingVAT} (₪{(size?.suggestedPriceIncludingVAT - size?.suggestedPriceExcludingVAT).toFixed(2)})</p>
+                        </div>
+                    </div>
+                    <Divider className='my-5' />
+                    <div className='flex flex-col items-center'>
+                        <p className='text-xl font-semibold'>{"סך הכל פודקוסט:"}</p>
+                        <p className='text-base font-medium'> ₪{size?.totalCostWithoutLabor}</p>
+                    </div>
+                    <Divider className='my-5' />
+                    <div className='flex flex-row items-center justify-evenly'>
+                        <div className='flex flex-col items-center'>
+                            <p className='text-xl font-semibold'>{"רווח גולמי"} - ₪{size?.grossProfitInput}</p>
+                            <p className='text-sm'>{"(ממחיר לצרכן)"}</p>
+                            <Progress percent={size?.profitMarginInput} className='mt-3' type="circle" />
+                        </div>
+                        <div className='flex flex-col items-center'>
+                            <p className='text-xl font-semibold'>{"רווח גולמי"} - ₪{size?.grossProfitSuggested}</p>
+                            <p className='text-sm'>{"(ממחיר מומלץ לצרכן)"}</p>
+                            <Progress percent={size?.profitMarginSuggested} className='mt-3' type="circle" />
+                        </div>
+                    </div>
+                    {/* {type !== "P" && <Card type='inner' title="עלויות" styles={{ header: { minHeight: "0", padding: "5px 20px" }, }} style={{ margin: "15px 0", }}>
                         <Row justify={"space-between"} style={{ marginTop: "1vh" }}>
                             <Typography.Text strong>עלות עבודה:</Typography.Text>
                             <Typography.Text>₪{sizeSummaryData?.laborCost} (₪{averageHourlyRate})</Typography.Text>
@@ -61,7 +69,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                             <Typography.Text strong>עלות הוצאות קבועות:</Typography.Text>
                             <Typography.Text>₪{ }</Typography.Text>
                         </Row>
-                    </Card>}
+                    </Card>} */}
                 </Flex>
             </Row>
 
@@ -291,7 +299,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                             </Row>
                         </Row>
                     </Flex>
-                    {costDetailes(sizeSummary, priceExcludingVAT)}
+                    {costDetailes(size)}
                 </Col>
             </Flex>
             <MySegment

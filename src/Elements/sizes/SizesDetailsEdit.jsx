@@ -1,4 +1,4 @@
-import { Button, Col, Flex, Form, Input, InputNumber, Row, Tabs, Typography } from 'antd'
+import { Button, Col, Divider, Flex, Form, Input, InputNumber, Row, Tabs, Typography } from 'antd'
 import TabPane from 'antd/es/tabs/TabPane';
 import { DeleteOutlined, CloseOutlined, PlusOutlined, EditOutlined } from "@ant-design/icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -41,7 +41,7 @@ export default function SizesDetailsEdit({
             } : e));
 
             // קריאה ל-onSubmit עם הערכים המעודכנים
-            onSubmit(values);
+            onSubmit(values, indexSize);
         } catch (error) {
             // טיפול בשגיאות וולידציה כמו קודם
             const errorFields = error.errorFields;
@@ -55,23 +55,14 @@ export default function SizesDetailsEdit({
     };
     return (
         <div
-            className={size.idNew === newSizeId ? "highlight-new" : ""}
             key={size.idNew || indexSize}
-            style={{
-                border: `1px ${size?.idNew ? "dashed" : "solid #e6e6e6"}`,
-                borderRadius: "8px",
-                padding: "16px",
-                background: "#fafafa",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-            }}
         >
             {/* top detailes */}
-            <Row
-                justify="space-between"
-                align="middle"
+            <div
+                className='flex flex-row justify-between items-start'
                 style={{ marginBottom: "12px" }}
             >
-                <Flex flex={2}>
+                <div className='flex flex-col'>
                     <Form.Item name={["_id"]} hidden={true}>
                         <Input />
                     </Form.Item>
@@ -92,25 +83,7 @@ export default function SizesDetailsEdit({
                             maxLength={25}
                         />
                     </Form.Item>
-                </Flex>
-                <Flex flex={1} style={{ alignSelf: "flex-start" }} justify='end'>
-                    <Button
-                        type="text"
-                        icon={<CloseOutlined />}
-                        onClick={() => handleCancelEdit(indexSize)} // עדכון כפתור לעריכה
-                    />
-                    <Button
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined />}
-                        title="מחק גודל"
-                        onClick={() => handleRemoveSize(indexSize)}
-                    />
-                </Flex>
-            </Row>
-            {/* price and preparationTime */}
-            <Row gutter={[16, 16]}>
-                <Col span={12}>
+                    {/* price and preparationTime */}
                     <Form.Item
                         name={["price"]}
                         label="מחיר"
@@ -129,8 +102,6 @@ export default function SizesDetailsEdit({
                             addonAfter={"₪"}
                         />
                     </Form.Item>
-                </Col>
-                <Col span={12}>
                     <Form.Item
                         label="זמן הכנה (דקות)"
                         name={["preparationTime"]}
@@ -147,9 +118,23 @@ export default function SizesDetailsEdit({
                             />}
                         />
                     </Form.Item>
-                </Col>
-            </Row>
-
+                </div>
+                <div>
+                    {!size?.idNew && <Button
+                        type="text"
+                        icon={<CloseOutlined />}
+                        onClick={() => handleCancelEdit(indexSize)} // עדכון כפתור לעריכה
+                    />}
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined />}
+                        title="מחק גודל"
+                        onClick={() => handleRemoveSize(indexSize)}
+                    />
+                </div>
+            </div>
+            <Divider className='my-2' />
             <Tabs
                 activeKey={activeSubTab} // טאב פנימי פעיל
                 onChange={(key) => setActiveSubTab(key)} // שינוי טאב פנימי

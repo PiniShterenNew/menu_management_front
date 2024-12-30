@@ -58,6 +58,23 @@ const MixesList = ({
         });
     };
 
+    const handleUpdateMix = (index, field, value) => {
+        const currentValues = form.getFieldValue("mixes") || [];
+        const updatedValues = [...currentValues];
+
+        // עדכון השדה המתאים בפריט בעריכה
+        updatedValues[index] = {
+            ...updatedValues[index],
+            [field]: value,
+        };
+
+        // עדכון הטופס
+        form.setFieldsValue({ mixes: updatedValues });
+
+        // עדכון רשימת המידות
+        updateSizesWithMixes(updatedValues);
+    };
+
     const updateSizesWithMixes = (updatedMixes) => {
         const updatedSizes = [...sizes];
         updatedSizes[indexSize] = {
@@ -186,11 +203,14 @@ const MixesList = ({
             )}
 
             {/* רשימה קיימת */}
-            <Card ref={cardRef} style={{ margin: "1vw 0", paddingTop: "1vw", maxHeight: "10vw", overflow: "auto" }}>
+            <div
+                ref={cardRef}
+                style={{ margin: "1vw 0", height: "12vw", maxHeight: "12vw", overflowY: "auto", overflowX: "hidden" }}
+            >
                 <List
                     dataSource={sizes[indexSize]?.mixes}
                     renderItem={(item, index) => (
-                        <List.Item key={index}>
+                        <div key={index} className="mx-3 my-0 p-0">
                             {editingIndex !== index ? (
                                 <Row style={{ width: "100%" }} align="middle" justify="space-between">
                                     <Flex flex={1}>
@@ -209,7 +229,7 @@ const MixesList = ({
                                     </Row>
                                 </Row>
                             ) : !isNew && (
-                                <>
+                                <div className="flex flex-1 flex-row gap-2 justify-between" >
                                     <Col span={10}>
                                         <Form.Item
                                             name={[index, "mixId"]}
@@ -227,7 +247,7 @@ const MixesList = ({
                                                     label: ing.name,
                                                     unit: ing.unit
                                                 }))}
-                                                onChange={handleMixeSelect}
+                                                onChange={(value, option) => handleUpdateMix(index, "mixId", value)}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -239,7 +259,7 @@ const MixesList = ({
                                         >
                                             <InputNumber
                                                 addonAfter={getUnitDisplay(item?.unit)}
-                                                onChange={handleQuantityChange}
+                                                onChange={(value) => handleUpdateMix(index, "quantity", value)}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -247,12 +267,12 @@ const MixesList = ({
                                         <Button type="text" icon={<FontAwesomeIcon icon={faCheck} />} onClick={handleSave} />
                                         <Button type="text" icon={<FontAwesomeIcon icon={faTimes} />} onClick={handleCancelEdit} />
                                     </Col>
-                                </>
+                                </div>
                             )}
-                        </List.Item>
+                        </div>
                     )}
                 />
-            </Card>
+            </div>
         </>
     );
 };

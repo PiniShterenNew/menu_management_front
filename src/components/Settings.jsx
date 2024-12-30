@@ -42,6 +42,9 @@ import { hexToRGB, isColorDark, getAlphaColor } from '../utils/ColorUtils';
 // הגדרת סכמת הטופס
 const schema = z.object({
   hourlyRate: z.number().positive("עלות שעת עבודה חייבת להיות מספר חיובי").min(0),
+  markupMultiplier: z.number()
+    .min(0, "האחוז חייב להיות בין 0 ל-100")
+    .max(100, "האחוז חייב להיות בין 0 ל-100"),
   fixedExpensesRate: z.number()
     .min(0, "האחוז חייב להיות בין 0 ל-100")
     .max(100, "האחוז חייב להיות בין 0 ל-100"),
@@ -89,6 +92,7 @@ export default function Settings({ flag, setFlag }) {
     resolver: zodResolver(schema),
     defaultValues: {
       hourlyRate: settings?.hourlyRate?.value || 0,
+      markupMultiplier: settings?.markupMultiplier?.value || 0,
       fixedExpensesRate: settings?.fixedExpensesRate?.value || 0,
       profitRate: settings?.profitRate?.value || 0,
       vatRate: parseFloat(settings?.vatRate?.value) || 0,
@@ -118,6 +122,7 @@ export default function Settings({ flag, setFlag }) {
     if (settings) {
       form.reset({
         hourlyRate: parseFloat(settings?.hourlyRate?.value) || 0,
+        markupMultiplier: parseFloat(settings?.markupMultiplier?.value) || 0,
         fixedExpensesRate: parseFloat(settings?.fixedExpensesRate?.value) || 0,
         profitRate: parseFloat(settings?.profitRate?.value) || 0,
         vatRate: parseFloat(settings?.vatRate?.value) || 0,
@@ -211,6 +216,7 @@ export default function Settings({ flag, setFlag }) {
     try {
       const settingsToUpdate = {
         hourlyRate: { value: parseFloat(values.hourlyRate) },
+        markupMultiplier: { value: parseFloat(values.markupMultiplier) },
         fixedExpensesRate: { value: parseFloat(values.fixedExpensesRate) },
         profitRate: { value: parseFloat(values.profitRate) },
         vatRate: { value: parseFloat(values.vatRate) },
@@ -275,7 +281,27 @@ export default function Settings({ flag, setFlag }) {
                         </FormItem>
                       )}
                     />
-
+                    <FormField
+                      control={form.control}
+                      name="markupMultiplier"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>אחוז המכפיל עבור מחיר ממולץ לצרכן(%)</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              max="100"
+                              placeholder="הכנס אחוז הוצאות"
+                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="fixedExpensesRate"

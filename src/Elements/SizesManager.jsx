@@ -1,4 +1,4 @@
-import React, { forwardRef, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import {
   Button,
   Row,
@@ -14,7 +14,18 @@ import SizeDetails from "./sizes/SizeDetails";
 const { TabPane } = Tabs;
 
 const SizesManager = forwardRef(
-  ({ value = [], onChange, getProductById, setSelectedUpdateSize, ingredients, activeTabKey, setActiveTabKey, mixes, onSubmit, onDelete, sizeSummary, priceExcludingVAT }, ref) => {
+  ({
+    value = [],
+    onChange,
+    getProductById,
+    setSelectedUpdateSize,
+    ingredients,
+    activeTabKey,
+    setActiveTabKey,
+    mixes,
+    onSubmit,
+    onDelete,
+  }, ref) => {
 
     const [newSizeId, setNewSizeId] = useState(null);
     const [activeSubTab, setActiveSubTab] = useState("1");
@@ -45,6 +56,10 @@ const SizesManager = forwardRef(
         mixes: [],
         edit: true
       };
+      if (value?.length > 0) {
+        newSize.mixes = value[value.length - 1].mixes;
+        newSize.ingredients = value[value.length - 1].ingredients;
+      }
       const updatedSizes = [...value, newSize,];
       onChange(updatedSizes); // עדכון ה-state החיצוני
       refs.current[+activeTabKey]?.setFieldsValue({ ...newSize });
@@ -53,6 +68,11 @@ const SizesManager = forwardRef(
       setActiveSubTab("1"); // מעבר לטאב "מרכיבים"
     };
 
+    useEffect(() => {
+      return () => {
+        setActiveSubTab("1");
+      }
+    }, []);
 
     return (
       <Flex style={{ flexDirection: "column" }}>
@@ -89,8 +109,6 @@ const SizesManager = forwardRef(
                 onSubmit={onSubmit}
                 newSizeId={newSizeId}
                 setNewSizeId={setNewSizeId}
-                sizeSummary={sizeSummary && sizeSummary[index]}
-                priceExcludingVAT={priceExcludingVAT && priceExcludingVAT[index]?.priceExcludingVAT}
               />
             </TabPane>
           ))}

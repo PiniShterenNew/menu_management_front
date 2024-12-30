@@ -119,10 +119,19 @@ function MenuPage() {
       {
         key: "productSummary",
         dataIndex: "productSummary",
-        title: "אחוז רווח (ממוצע)",
+        title: "רווח (ממוצע לפי מחיר לצרכן)",
         width: 150,
         render: (_, record) => {
-          return `${record?.productSummary?.averageProfitMargin || 0}%`;
+          return `${record?.productSummary?.averageProfitMarginInput || 0}% ₪${record?.productSummary?.totalGrossProfitInput || 0}`;
+        },
+      },
+      {
+        key: "productSummary",
+        dataIndex: "productSummary",
+        title: "רווח (ממוצע לפי מחיר מומלץ)",
+        width: 150,
+        render: (_, record) => {
+          return `${record?.productSummary?.averageProfitMarginSuggested || 0}% ₪${record?.productSummary?.totalGrossProfitSuggested || 0}`;
         },
       },
       {

@@ -24,8 +24,6 @@ const SizeDetails = forwardRef(({
     setActiveTabKey,
     ingredients,
     mixes,
-    sizeSummary,
-    priceExcludingVAT,
     activeSubTab,
     setActiveSubTab,
     onSubmit
@@ -165,8 +163,6 @@ const SizeDetails = forwardRef(({
                 size={size}
                 ingredients={ingredients}
                 mixes={mixes}
-                priceExcludingVAT={priceExcludingVAT}
-                sizeSummary={sizeSummary}
             />
 
     );
