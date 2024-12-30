@@ -160,7 +160,7 @@ const ProductWizard = ({ }) => {
   //     notes: { type: String, required: false }
   // }, { timestamps: true });
 
-  const onSubmit = (arr) => {
+  const onSubmit = (arr, index) => {
     switch (isModalVisible) {
       case "product":
         const productData = formProduct.getFieldsValue();
@@ -189,7 +189,7 @@ const ProductWizard = ({ }) => {
         break;
 
       case "size":
-        const sizesData = arr; // קבלת הנתונים מהטופס
+        const sizesData = {...selectedItem?.sizes[index], ... arr}; // קבלת הנתונים מהטופס
         const formattedSizes = {
           productId: selectedItem?._id, // מזהה המוצר אליו שייך הגודל
           label: sizesData.label,
@@ -303,9 +303,7 @@ const ProductWizard = ({ }) => {
             value={selectedItem?.sizes}
             setValue={setSelectedItem}
             ingredients={ingredientsState}
-            sizeSummary={selectedItem?.sizeSummary}
             setSelectedUpdateSize={setSelectedUpdateSize}
-            priceExcludingVAT={selectedItem?.priceExcludingVAT}
             getProductById={getProductById}
             mixes={mixesState}
             onDelete={deleteSize}
@@ -409,8 +407,6 @@ const ProductWizard = ({ }) => {
             value={selectedItem?.sizes}
             setValue={setSelectedItem}
             ingredients={ingredientsState}
-            sizeSummary={selectedItem?.sizeSummary}
-            priceExcludingVAT={selectedItem?.priceExcludingVAT}
             setSelectedUpdateSize={setSelectedUpdateSize}
             getProductById={getProductById}
             mixes={mixesState}
@@ -440,7 +436,7 @@ const ProductWizard = ({ }) => {
 
   return (
     <Modal
-      style={{ top: isMobile ? "3em" : "" }}
+      style={{ top: isMobile ? "3em" : "3em" }}
       title={title(isModalVisible, modalMode, selectedItem)}
       open={isModalVisible}
       onCancel={() => {
@@ -449,9 +445,9 @@ const ProductWizard = ({ }) => {
       }}
       footer={null}
       destroyOnClose
-      height={isMobile ? "85vh" : 600}
-      width={isMobile ? "100%" : 600}
-      styles={{body: {height: "85vh"} }}
+      height={isMobile ? "86vh" : "80vh"}
+      width={isMobile ? "100%" : 700}
+      styles={{body: {height: "100%"} }}
 
     >
       {modalMode === "view" ? screensView() : screensEdit()}

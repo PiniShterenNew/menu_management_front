@@ -58,6 +58,23 @@ const IngredientsList = ({
         });
     };
 
+    const handleUpdateIngredient = (index, field, value) => {
+        const currentValues = form.getFieldValue("ingredients") || [];
+        const updatedValues = [...currentValues];
+    
+        // עדכון השדה המתאים בפריט בעריכה
+        updatedValues[index] = {
+            ...updatedValues[index],
+            [field]: value,
+        };
+    
+        // עדכון הטופס
+        form.setFieldsValue({ ingredients: updatedValues });
+    
+        // עדכון רשימת המידות
+        updateSizesWithIngredients(updatedValues);
+    };
+
     const updateSizesWithIngredients = (updatedIngredients) => {
         const updatedSizes = [...sizes];
         updatedSizes[indexSize] = {
@@ -194,14 +211,14 @@ const IngredientsList = ({
             )}
 
             {/* רשימה קיימת */}
-            <Card
+            <div
                 ref={cardRef}
-                style={{ margin: "1vw 0", paddingTop: "1vw", maxHeight: "10vw", overflow: "auto" }}
+                style={{ margin: "1vw 0", height: "12vw", maxHeight: "12vw", overflowY: "auto", overflowX: "hidden" }}
             >
                 <List
                     dataSource={sizes[indexSize]?.ingredients}
                     renderItem={(item, index) => (
-                        <List.Item key={index}>
+                        <div key={index} className="mx-3 my-0 p-0">
                             {editingIndex !== index ? (
                                 <Row style={{ width: "100%" }} align="middle" justify="space-between">
                                     <Flex flex={2}>
@@ -227,7 +244,7 @@ const IngredientsList = ({
                                 </Row>
                             ) : (
                                 !isNew && (
-                                    <Row style={{ width: "100%" }} gutter={16}>
+                                    <div className="flex flex-1 flex-row gap-2 justify-between" >
                                         <Col span={10}>
                                             <Form.Item
                                                 name={[index, "ingredientId"]}
@@ -245,7 +262,7 @@ const IngredientsList = ({
                                                         label: ing.name,
                                                         unit: ing.unit,
                                                     }))}
-                                                    onChange={handleIngredientSelect}
+                                                    onChange={(value, option) => handleUpdateIngredient(index, "ingredientId", value)}
                                                 />
                                             </Form.Item>
                                         </Col>
@@ -257,7 +274,7 @@ const IngredientsList = ({
                                             >
                                                 <InputNumber
                                                     addonAfter={getUnitDisplay(item?.unit)}
-                                                    onChange={handleQuantityChange}
+                                                    onChange={(value) => handleUpdateIngredient(index, "quantity", value)}
                                                 />
                                             </Form.Item>
                                         </Col>
@@ -273,13 +290,13 @@ const IngredientsList = ({
                                                 onClick={handleCancelEdit}
                                             />
                                         </Col>
-                                    </Row>
+                                    </div>
                                 )
                             )}
-                        </List.Item>
+                        </div>
                     )}
                 />
-            </Card>
+            </div>
         </>
     );
 };
