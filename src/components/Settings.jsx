@@ -157,7 +157,7 @@ const Settings = ({ flag, setFlag }) => {
                 { type: "number", min: 0, max: 100, message: "האחוז חייב להיות בין 0 ל-100" },
               ]}
             >
-              <Input type="number" step="0.01" min="0" max="100" placeholder="הכנס אחוז מכפיל" />
+              <Input type="number" step="0.1" min="0" max="100" placeholder="הכנס אחוז מכפיל" />
             </Form.Item>
 
             <Form.Item
