@@ -12,11 +12,12 @@ const IngredientsManager = ({
   fields,
   add,
   remove,
-  form
+  form,
+  editingIndex,          // חדש - מקבלים מבחוץ
+  setEditingIndex,       // חדש
+  isNew,                 // חדש
+  setIsNew
 }) => {
-
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [isNew, setIsNew] = useState(false);
 
   const [selectedIngredient, setSelectedIngredient] = useState(null);
   const [selectedQuantity, setSelectedQuantity] = useState(null);

@@ -8,6 +8,32 @@ import heIL from 'antd/lib/locale/he_IL';
 
 export default function ListPage({ data, type, tableKeys, mobileKeys, openModal, Dtitle, Dcontent, onDelete }) {
     const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
+    const isExtraSmallTablet = useMediaQuery({ query: "(max-width: 600px)" }); // טאבלט קטן מאוד
+    const isSmallTablet = useMediaQuery({ query: "(min-width: 601px) and (max-width: 768px)" }); // טאבלט קטן
+    const isMediumTablet = useMediaQuery({ query: "(min-width: 769px) and (max-width: 900px)" }); // טאבלט בינוני
+    const isLargeTablet = useMediaQuery({ query: "(min-width: 901px) and (max-width: 1024px)" }); // טאבלט רחב
+    const isSmallDesktop = useMediaQuery({ query: "(min-width: 1025px) and (max-width: 1280px)" }); // מחשב קטן
+    const isMediumDesktop = useMediaQuery({ query: "(min-width: 1281px) and (max-width: 1440px)" }); // מחשב בינוני
+    const isSmallLargeDesktop = useMediaQuery({ query: "(min-width: 1441px) and (max-width: 1600px)" }); // מחשב רחב קטן
+    const isMediumLargeDesktop = useMediaQuery({ query: "(min-width: 1601px) and (max-width: 1760px)" }); // מחשב רחב בינוני
+    const isLargeLargeDesktop = useMediaQuery({ query: "(min-width: 1761px) and (max-width: 1920px)" }); // מחשב רחב גדול
+    const isUltraWideDesktop = useMediaQuery({ query: "(min-width: 1921px)" }); // מסך אולטרה-רחב
+
+    // פונקציה שמחזירה גובה לפי סוג המסך
+    const getDynamicHeight = () => {
+        if (isExtraSmallTablet) return "35vh"; // טאבלט קטן מאוד
+        if (isSmallTablet) return "40vh"; // טאבלט קטן
+        if (isMediumTablet) return "45vh"; // טאבלט בינוני
+        if (isLargeTablet) return "50vh"; // טאבלט רחב
+        if (isSmallDesktop) return "52vh"; // מחשב קטן
+        if (isMediumDesktop) return "53vh"; // מחשב בינוני
+        if (isSmallLargeDesktop) return "54vh"; // מחשב רחב קטן
+        if (isMediumLargeDesktop) return "55vh"; // מחשב רחב בינוני
+        if (isLargeLargeDesktop) return "64vh"; // מחשב רחב גדול
+        if (isUltraWideDesktop) return "70vh"; // מסך אולטרה-רחב
+        return "100vh"; // ברירת מחדל
+    };
+
 
     // State לפגינציה
     const [totalItems, setTotalItems] = useState(0);
@@ -112,12 +138,15 @@ export default function ListPage({ data, type, tableKeys, mobileKeys, openModal,
             </>
         )
         : (
-            <Flex flex={1} style={{ display: "flex", flexDirection: "column", overflow: "hidden", width: "100%" }}>
-                {/* <div style={{height: "150vh", width: "70vw", background: "green"}} />
-            <div style={{height: "150vh", width: "70vw", background: "orange"}} /> */}
-                <Flex flex={1} style={{ maxWidth: "100%", maxHeight: type === "P" ? "63%" : "90%", overflowY: "auto", overflowX: "auto", }}>
+            <>
+                <div
+                    style={{
+                        flex: "1 1 auto", overflowY: "auto",
+                        maxHeight: getDynamicHeight(), // הגדרת גובה דינמי
+                    }}
+                >
                     <Table
-                        style={{minWidth: "100%"}}
+                        style={{ minWidth: "100%" }}
                         // onRow={Column => ({ onClick: () => openModal("view", Column) })}
                         columns={tableKeys.map((column) => ({
                             ...column,
@@ -143,9 +172,9 @@ export default function ListPage({ data, type, tableKeys, mobileKeys, openModal,
                         // scroll={{ x: "100%" }} // גלילה אופקית אוטומטית
                         direction="rtl" // הגדרת כיווניות לטבלה
                     />
-                </Flex>
+                </div>
                 {/* פגינציה מחוץ לטבלה */}
-                <Flex align='center' justify='center' style={{ marginTop: "2vh" }}>
+                <div style={{ flex: "0 0 auto", display: "flex", justifyContent: "center", alignItems: "center", padding: "1em" }}>
                     <Pagination
                         current={currentPage}
                         total={totalItems}
@@ -156,7 +185,7 @@ export default function ListPage({ data, type, tableKeys, mobileKeys, openModal,
                         pageSizeOptions={["6", "10", "20", "50"]}
                         locale={heIL}
                     />
-                </Flex>
-            </Flex>
+                </div>
+            </>
         )
 }

@@ -29,17 +29,20 @@ export default function DynamicFormPage({
     const averageHourlyRate = useSelector((state) => state.settings.settings?.hourlyRate?.value);
 
     const [current, setCurrent] = useState(0);
-    const [stepsStatus, setStepsStatus] = useState(["process", "wait"]); // סטטוס התחלתי
-    const [valueObject, setValueObjet] = useState({});
+    const [stepsStatus] = useState(["process", "wait"]); // סטטוס התחלתי
     const [stepData, setStepData] = useState(initialValues); // שמירת נתונים של כל שלב
-    const [selectedUnit, setSelectedUnit] = useState(initialValues.unit || null);
-    const [selectedSubUnit, setSelectedSubUnit] = useState(initialValues.subUnit || null);
+
+    const [editingIngredientIndex, setEditingIngredientIndex] = useState(null);
+    const [isNewIngredient, setIsNewIngredient] = useState(false);
 
     const onChange = (value) => {
         console.log('onChange:', value);
         setCurrent(value);
     };
-    const description = 'This is a description.';
+
+    const canSave = () => {
+        return editingIngredientIndex === null && !isNewIngredient;
+    };
 
     const handleFinish = async (values) => {
         let normalizedQuantity = values.quantity;
@@ -52,7 +55,6 @@ export default function DynamicFormPage({
 
         const normalizedValues = {
             ...initialValues,
-            ...valueObject,
             ...values,
             quantity: normalizedQuantity, // שמירה ביחידות סטנדרטיות
         };
@@ -73,8 +75,6 @@ export default function DynamicFormPage({
                 ...initialValues,
                 quantity: normalizedQuantity,
             });
-            setSelectedUnit(initialValues.unit);
-            setSelectedSubUnit(initialValues.subUnit || "kg");
         }
     }, [initialValues, form]);
 
@@ -142,7 +142,6 @@ export default function DynamicFormPage({
                                     showSearch
                                     onChange={(value) => {
                                         if (key === "unit") {
-                                            setSelectedUnit(value); // עדכון ה-state של unit
                                             setStepData((prev) => ({
                                                 ...prev,
                                                 unit: value, // עדכון יחידת המשקל ב-state
@@ -232,6 +231,10 @@ export default function DynamicFormPage({
                                         value={form.getFieldValue(key)}
                                         onChange={(newValue) => form.setFieldsValue({ [key]: newValue })}
                                         ingredientsArr={ingredientsArr}
+                                        editingIndex={editingIngredientIndex}
+                                        setEditingIndex={setEditingIngredientIndex}
+                                        isNew={isNewIngredient}
+                                        setIsNew={setIsNewIngredient}
                                     />
                                 )}
                             </AntdForm.List>
@@ -651,9 +654,21 @@ export default function DynamicFormPage({
                         setStepData((prev) => ({ ...prev, ...a }))
                     }}
                     onFinish={(values) => {
-                        const combinedData = { ...stepData, ...values }; // איחוד כל הנתונים
+                        let normalizedQuantity = values.quantity;
+
+                        // אותה לוגיקת המרה כמו ב-handleFinish
+                        if (values.subUnit === "g" || values.subUnit === "ml") {
+                            normalizedQuantity = values.quantity / 1000;
+                        }
+
+                        const combinedData = {
+                            ...stepData,
+                            ...values,
+                            quantity: normalizedQuantity
+                        };
+
                         setStepData(combinedData);
-                        onSubmit && onSubmit(combinedData); // שליחת כל הנתונים
+                        onSubmit && onSubmit(combinedData);
                     }}
                     initialValues={initialValues}
                 >
@@ -721,7 +736,7 @@ export default function DynamicFormPage({
                 {!groups && editComponents(fields, form)}
                 {mode !== "view" && (!groups || (groups && initialValues?._id)) && (
                     <AntdForm.Item>
-                        <Button type="primary" htmlType="submit" style={{ width: "100%", marginTop: "1vw" }}>
+                        <Button type="primary" htmlType="submit" disabled={!canSave()} style={{ width: "100%", marginTop: "1vw" }}>
                             {mode === "add" ? "הוסף" : "עדכן"}
                         </Button>
                     </AntdForm.Item>

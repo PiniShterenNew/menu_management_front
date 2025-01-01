@@ -1,83 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  CardFooter
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Plus, Save, X, Edit, Trash, Settings2, Tags } from 'lucide-react';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import { useSettingsContext } from '../context/subcontexts/SettingsContext';
+import { Modal, Button, Form, Input, Tabs, Alert } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { HexColorPicker } from 'react-colorful';
+import { useSettingsContext } from '@/context/subcontexts/SettingsContext';
+import ColorPicker from './ColorPicker';
 
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import ColorPicker from './ColorPicker.jsx';
-import { hexToRGB, isColorDark, getAlphaColor } from '../utils/ColorUtils';
-// הגדרת סכמת הטופס
-const schema = z.object({
-  hourlyRate: z.number().positive("עלות שעת עבודה חייבת להיות מספר חיובי").min(0),
-  markupMultiplier: z.number()
-    .min(0, "האחוז חייב להיות בין 0 ל-100")
-    .max(100, "האחוז חייב להיות בין 0 ל-100"),
-  fixedExpensesRate: z.number()
-    .min(0, "האחוז חייב להיות בין 0 ל-100")
-    .max(100, "האחוז חייב להיות בין 0 ל-100"),
-  profitRate: z.number()
-    .min(0, "האחוז חייב להיות בין 0 ל-100")
-    .max(100, "האחוז חייב להיות בין 0 ל-100"),
-  vatRate: z.number()
-    .min(0, "מע\"מ חייב להיות מספר חיובי")
-    .max(100, "מע\"מ חייב להיות מספר חיובי"),
-});
+const { TabPane } = Tabs;
 
-function ConfirmDeleteDialog({ open, onConfirm, onCancel, itemName }) {
-  return (
-    <Dialog open={open} onOpenChange={onCancel}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle>מחיקת קטגוריה</DialogTitle>
-        </DialogHeader>
-        <p>האם אתה בטוח שברצונך למחוק את הקטגוריה "{itemName}"?</p>
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={onCancel}>
-            ביטול
-          </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            מחיקה
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-export default function Settings({ flag, setFlag }) {
+const Settings = ({ flag, setFlag }) => {
   const {
     settings,
     loading,
@@ -88,29 +18,15 @@ export default function Settings({ flag, setFlag }) {
     deleteCategoryContext
   } = useSettingsContext();
 
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      hourlyRate: settings?.hourlyRate?.value || 0,
-      markupMultiplier: settings?.markupMultiplier?.value || 0,
-      fixedExpensesRate: settings?.fixedExpensesRate?.value || 0,
-      profitRate: settings?.profitRate?.value || 0,
-      vatRate: parseFloat(settings?.vatRate?.value) || 0,
-    },
-  });
+  const [form] = Form.useForm();
 
-  // מצבים לטיפול בקטגוריות
-  const [newCategory, setNewCategory] = useState({ name: '', description: '', color: '' });
-  const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
+  // מצבים לניהול קטגוריות
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalType, setModalType] = useState("add"); // "add" or "edit"
   const [editingCategory, setEditingCategory] = useState(null);
-  const [editedValues, setEditedValues] = useState(null);
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState(null);
-
   const [error, setError] = useState(null);
 
-  // טעינת הגדרות בפתיחת החלון
+  // אפקט לטעינת ההגדרות בפתיחת הדיאלוג
   useEffect(() => {
     if (flag) {
       fetchSettings();
@@ -120,7 +36,7 @@ export default function Settings({ flag, setFlag }) {
 
   useEffect(() => {
     if (settings) {
-      form.reset({
+      form.setFieldsValue({
         hourlyRate: parseFloat(settings?.hourlyRate?.value) || 0,
         markupMultiplier: parseFloat(settings?.markupMultiplier?.value) || 0,
         fixedExpensesRate: parseFloat(settings?.fixedExpensesRate?.value) || 0,
@@ -130,88 +46,24 @@ export default function Settings({ flag, setFlag }) {
     }
   }, [settings, form]);
 
-  // התחלת עריכת קטגוריה
-  const startEditing = (category) => {
+  // פתיחת חלון עריכה/הוספה
+  const openModal = (type, category = null) => {
+    setModalType(type);
     setEditingCategory(category);
-    setEditedValues({
-      name: category.name,
-      description: category.description
-    });
-    setError(null);
-  };
+    setIsModalVisible(true);
 
-  // ביטול עריכה
-  const cancelEditing = () => {
-    setEditingCategory(null);
-    setEditedValues(null);
-    setError(null);
-  };
-
-  // עדכון ערכים בזמן עריכה
-  const handleEditChange = (field, value) => {
-    setEditedValues(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  // שמירת קטגוריה מעודכנת
-  const handleUpdateCategory = async () => {
-    if (!editedValues?.name?.trim()) {
-      setError("שם הקטגוריה הוא שדה חובה");
-      return;
-    }
-
-    try {
-      await updateCategoryContext(editingCategory._id, {
-        ...editingCategory,
-        ...editedValues
+    if (type === "edit" && category) {
+      form.setFieldsValue({
+        name: category.name,
+        description: category.description,
+        color: category.color,
       });
-      cancelEditing();
-      await fetchSettings();
-    } catch (error) {
-      setError("שגיאה בעדכון הקטגוריה");
+    } else {
+      form.resetFields();
     }
   };
 
-  // הוספת קטגוריה חדשה
-  const handleAddCategory = async () => {
-    if (!newCategory.name?.trim()) {
-      setError("שם הקטגוריה הוא שדה חובה");
-      return;
-    }
-
-    try {
-      await addCategoryContext(newCategory);
-      setNewCategory({ name: '', description: '', color: '' });
-      setShowNewCategoryForm(false);
-      setError(null);
-      await fetchSettings();
-    } catch (error) {
-      setError("שגיאה בהוספת הקטגוריה");
-    }
-  };
-
-  const isColorUsed = (color) => {
-    return settings?.materialCategories?.value.some(category => category.color === color);
-  };
-
-  // מחיקת קטגוריה
-  const handleDeleteCategory = async () => {
-    try {
-      await deleteCategoryContext(categoryToDelete._id);
-      await fetchSettings();
-      setDeleteDialogOpen(false);
-    } catch (error) {
-      setError("שגיאה במחיקת הקטגוריה");
-    }
-  };
-
-  const openDeleteDialog = (category) => {
-    setCategoryToDelete(category);
-    setDeleteDialogOpen(true);
-  };
-
+  // שמירת הגדרות כלליות
   const handleSaveGeneralSettings = async (values) => {
     try {
       const settingsToUpdate = {
@@ -224,356 +76,217 @@ export default function Settings({ flag, setFlag }) {
 
       await updateSetting(settingsToUpdate);
     } catch (error) {
+      setError("שגיאה בשמירת ההגדרות");
     }
   };
 
+  // הוספה או עדכון קטגוריה
+  const handleAddOrEditCategory = async (values) => {
+    try {
+      if (modalType === "add") {
+        await addCategoryContext(values);
+      } else if (modalType === "edit") {
+        await updateCategoryContext(editingCategory._id, values);
+      }
+      setIsModalVisible(false);
+      fetchSettings();
+    } catch (error) {
+      setError("שגיאה בתהליך");
+    }
+  };
+
+  // מחיקת קטגוריה
+  const handleDeleteCategory = async (category) => {
+    try {
+      await deleteCategoryContext(category);
+      fetchSettings();
+    } catch (error) {
+      setError("שגיאה במחיקת הקטגוריה");
+    }
+  };
+
+  // בדיקה אם צבע כבר בשימוש
+  const isColorUsed = (color) => {
+    return settings?.materialCategories?.value.some(category => category.color === color);
+  };
+
+  const openDeleteDialog = (category) => {
+    Modal.confirm({
+      title: "מחיקת קטגוריה",
+      content: `האם אתה בטוח שברצונך למחוק את הקטגוריה "${category.name}"?`,
+      okText: "מחק",
+      cancelText: "ביטול",
+      onOk: () => handleDeleteCategory(category),
+    });
+  };
+
   return (
-    <Dialog open={flag} onOpenChange={setFlag} className="rtl">
-      <DialogContent className="max-w-4xl h-[90vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">הגדרות מערכת</DialogTitle>
-        </DialogHeader>
-        <Tabs defaultValue="general" className="h-full rtl">
-          <TabsList className="grid w-full grid-cols-2 rtl">
-            <TabsTrigger value="general" className="flex items-center gap-2 rtl">
-              <Settings2 className="w-4 h-4 rtl" />
-              הגדרות כלליות
-            </TabsTrigger>
-            <TabsTrigger value="categories" className="flex items-center gap-2">
-              <Tags className="w-4 h-4" />
-              קטגוריות
-            </TabsTrigger>
-          </TabsList>
-          <div className="px-1 rtl" style={{ height: 'calc(90vh - 140px)' }}>
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <TabsContent value="general" className="mt-4 rtl flex flex-col w-full">
-              {/* הגדרות תמחור */}
-              <CardHeader className="rtl">
-                <CardTitle>הגדרות תמחור</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 flex-1 rtl">
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(handleSaveGeneralSettings)}
-                    className="space-y-4"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="hourlyRate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>עלות שעת עבודה (₪)</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              placeholder="הכנס עלות שעת עבודה"
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="markupMultiplier"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>אחוז המכפיל עבור מחיר ממולץ לצרכן(%)</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              max="100"
-                              placeholder="הכנס אחוז הוצאות"
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="fixedExpensesRate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>אחוז השתתפות בהוצאות קבועות (%)</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              max="100"
-                              placeholder="הכנס אחוז הוצאות"
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+    <Modal
+      title="הגדרות מערכת"
+      visible={flag}
+      footer={null}
+      onCancel={() => setFlag(false)}
+      width={800}
+    >
+      <Tabs defaultActiveKey="general">
+        <TabPane tab="הגדרות כלליות" key="general">
+          <Form
+            layout="vertical"
+            initialValues={{
+              hourlyRate: settings?.hourlyRate?.value || 0,
+              markupMultiplier: settings?.markupMultiplier?.value || 0,
+              fixedExpensesRate: settings?.fixedExpensesRate?.value || 0,
+              profitRate: settings?.profitRate?.value || 0,
+              vatRate: settings?.vatRate?.value || 0,
+            }}
+            onFinish={handleSaveGeneralSettings}
+          >
+            <Form.Item
+              label="עלות שעת עבודה (₪)"
+              name="hourlyRate"
+              rules={[{ required: true, message: "שדה חובה" }]}
+            >
+              <Input type="number" step="0.1" min="0" placeholder="הכנס עלות שעת עבודה" />
+            </Form.Item>
 
-                    <FormField
-                      control={form.control}
-                      name="profitRate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>אחוז רווח רצוי (%)</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              max="100"
-                              placeholder="הכנס אחוז רווח"
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            <Form.Item
+              label="אחוז המכפיל עבור מחיר מומלץ לצרכן (%)"
+              name="markupMultiplier"
+              rules={[
+                { required: true, message: "שדה חובה" },
+                { type: "number", min: 0, max: 100, message: "האחוז חייב להיות בין 0 ל-100" },
+              ]}
+            >
+              <Input type="number" step="0.01" min="0" max="100" placeholder="הכנס אחוז מכפיל" />
+            </Form.Item>
 
-                    <FormField
-                      control={form.control}
-                      name="vatRate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel> מע"מ (%)</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="number"
-                              step="0.01"
-                              min="0.10"
-                              max="100"
-                              placeholder={"מע\"מ"}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            <Form.Item
+              label="אחוז השתתפות בהוצאות קבועות (%)"
+              name="fixedExpensesRate"
+              rules={[
+                { required: true, message: "שדה חובה" },
+                { type: "number", min: 0, max: 100, message: "האחוז חייב להיות בין 0 ל-100" },
+              ]}
+            >
+              <Input type="number" step="0.1" min="0" max="100" placeholder="הכנס אחוז הוצאות" />
+            </Form.Item>
 
-                    <div className="flex justify-center text-center">
-                      <Button
-                        type="submit"
-                        className="flex items-center gap-2"
-                        disabled={loading}
-                      >
-                        <Save className="w-4 h-4" />
-                        שמור הגדרות
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </TabsContent>
-            <TabsContent value="categories" className="mt-4 rtl flex flex-col w-full">
-              {/* ניהול קטגוריות */}
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>קטגוריות חומרי גלם</CardTitle>
-                {!showNewCategoryForm && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowNewCategoryForm(true)}
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    הוסף קטגוריה
-                  </Button>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* טופס קטגוריה חדשה */}
-                {showNewCategoryForm && (
-                  <Card className="border-2 border-zinc-200">
-                    <CardContent className="space-y-4 p-4">
-                      <div>
-                        <Label>שם הקטגוריה</Label>
-                        <Input
-                          value={newCategory.name}
-                          onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                          className="mt-1"
-                        />
-                      </div>
+            <Form.Item
+              label="אחוז רווח רצוי (%)"
+              name="profitRate"
+              rules={[
+                { required: true, message: "שדה חובה" },
+                { type: "number", min: 0, max: 100, message: "האחוז חייב להיות בין 0 ל-100" },
+              ]}
+            >
+              <Input type="number" step="0.1" min="0" max="100" placeholder="הכנס אחוז רווח" />
+            </Form.Item>
 
-                      <div>
-                        <Label>תיאור</Label>
-                        <Input
-                          value={newCategory.description}
-                          onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
-                          className="mt-1"
-                        />
-                      </div>
-                      <ColorPicker
-                        value={newCategory.color}
-                        onChange={(color) => {
-                          if (!isColorUsed(color)) {
-                            setNewCategory({ ...newCategory, color: color });
-                          } else {
-                            setError("צבע זה כבר בשימוש");
-                          }
-                        }}
-                      />
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          onClick={handleAddCategory}
-                          className="flex items-center gap-2"
-                          disabled={loading}
-                        >
-                          <Save className="w-4 h-4" />
-                          שמור
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setShowNewCategoryForm(false);
-                            setNewCategory({ name: '', description: '', color: '' });
-                          }}
-                          className="flex items-center gap-2"
-                          disabled={loading}
-                        >
-                          <X className="w-4 h-4" />
-                          ביטול
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+            <Form.Item
+              label={"מע\"מ (%)"}
+              name="vatRate"
+              rules={[
+                { required: true, message: "שדה חובה" },
+                { type: "number", min: 0, max: 100, message: "האחוז חייב להיות בין 0 ל-100" },
+              ]}
+            >
+              <Input type="number" step="0.01" min="0" max="100" placeholder={"הכנס מע\" מ"} />
+            </Form.Item>
 
-                {/* רשימת קטגוריות */}
-                <div className="space-y-2 max-h-[59vh] overflow-y-auto pr-2">
-                  {settings?.materialCategories?.value.map((category) => (
-                    <Card key={category._id} className="border border-zinc-200"
+            <div className="flex justify-center mt-4">
+              <Button type="primary" htmlType="submit" loading={loading}>
+                שמור הגדרות
+              </Button>
+            </div>
+          </Form>
+        </TabPane>
 
-                    >
-                      <CardContent className="p-4">
-                        {editingCategory?._id === category._id ? (
-                          <div className="space-y-4">
-                            <div>
-                              <Label>שם</Label>
-                              <Input
-                                value={editedValues?.name}
-                                onChange={(e) => handleEditChange('name', e.target.value)}
-                                className="mt-1"
-                              />
-                            </div>
-                            <div>
-                              <Label>תיאור</Label>
-                              <Input
-                                value={editedValues?.description}
-                                onChange={(e) => handleEditChange('description', e.target.value)}
-                                className="mt-1"
-                              />
-                            </div>
-                            <ColorPicker
-                              value={editedValues?.color || category?.color}
-                              onChange={(color) => {
-                                if (!isColorUsed(color)) {
-                                  handleEditChange('color', color);
-                                } else {
-                                  setError("צבע זה כבר בשימוש");
-                                }
-                              }}
-                            />
-                            <div className="flex gap-2 justify-end">
-                              <Button
-                                onClick={handleUpdateCategory}
-                                disabled={loading}
-                                className="flex items-center gap-2"
-                              >
-                                <Save className="w-4 h-4" />
-                                שמור
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={cancelEditing}
-                                disabled={loading}
-                                className="flex items-center gap-2"
-                              >
-                                <X className="w-4 h-4" />
-                                ביטול
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex justify-between items-center"
-                          >
-                            <div
-                            >
-                              <div
-                                className="font-medium flex flex-row items-center gap-2"
-                                style={{
-                                  // color: category?.color ? (isColorDark(category.color) ? 'white' : category.color) : 'inherit'
-                                }}
-                              >
-                                {category.name}
-                                <div className="w-4 h-4 rounded-full shadow-sm border border-zinc-200"
-                                  style={{
-                                    backgroundColor: category?.color,
-                                  }}
-                                />
-                              </div>
-                              <div className="text-sm text-zinc-500"
-                                style={{
-                                  // color: category?.color ? (isColorDark(category.color) ? 'white' : category.color) : 'inherit'
-                                }}
-                              >
-                                {category.description}
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => startEditing(category)}
-                                className="flex items-center gap-2"
-                              >
-                                <Edit className="w-4 h-4" />
-                                ערוך
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => openDeleteDialog(category._id)}
-                                className="flex items-center gap-2"
-                              >
-                                <Trash className="w-4 h-4" />
-                                מחק
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+        <TabPane tab="קטגוריות" key="categories">
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => openModal("add")}
+            className="mb-4"
+          >
+            הוסף קטגוריה
+          </Button>
+          {error && <Alert message={error} type="error" className="mb-4" />}
+          <div className="space-y-2 overflow-y-auto px-2"
+            style={{ maxHeight: '400px', paddingRight: '8px' }} >
+            {settings?.materialCategories?.value.map((category) => (
+              <div key={category._id} className="flex justify-between items-center border p-2 rounded">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: category.color }}
+                  />
+                  <div>
+                    <div>{category.name}</div>
+                    <div className="text-sm text-gray-500">{category.description}</div>
+                  </div>
                 </div>
-              </CardContent>
-            </TabsContent>
+                <div className="flex gap-2">
+                  <Button
+                    icon={<EditOutlined />}
+                    onClick={() => openModal("edit", category)}
+                  />
+                  <Button
+                    icon={<DeleteOutlined />}
+                    danger
+                    onClick={() => openDeleteDialog(category)}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
-        </Tabs>
-      </DialogContent>
-      {/* דיאלוג מחיקה */}
-      <ConfirmDeleteDialog
-        open={deleteDialogOpen}
-        onConfirm={handleDeleteCategory}
-        onCancel={() => setDeleteDialogOpen(false)}
-        itemName={categoryToDelete?.name}
-      />
-    </Dialog>
+        </TabPane>
+      </Tabs>
+
+      <Modal
+        title={modalType === "add" ? "הוסף קטגוריה" : "ערוך קטגוריה"}
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={null}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleAddOrEditCategory}
+        >
+          <Form.Item
+            label="שם הקטגוריה"
+            name="name"
+            rules={[{ required: true, message: "שדה חובה" }]}
+          >
+            <Input placeholder="הכנס שם קטגוריה" />
+          </Form.Item>
+          <Form.Item label="תיאור" name="description">
+            <Input placeholder="הכנס תיאור" />
+          </Form.Item>
+          <Form.Item label="צבע" name="color">
+            <ColorPicker
+              value={form.getFieldValue('color')}
+              onChange={(color) => {
+                if (!isColorUsed(color) || color === editingCategory?.color) {
+                  form.setFieldsValue({ color });
+                } else {
+                  setError("צבע זה כבר בשימוש");
+                }
+              }}
+            />
+          </Form.Item>
+          <div className="flex justify-end gap-2">
+            <Button onClick={() => setIsModalVisible(false)}>
+              ביטול
+            </Button>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              שמור
+            </Button>
+          </div>
+        </Form>
+      </Modal>
+    </Modal >
   );
-}
+};
+
+export default Settings;

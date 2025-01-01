@@ -39,6 +39,29 @@ const SizeDetails = forwardRef(({
         resetFields: () => form.resetFields(), // מאפשר לאב לאפס את הטופס
     }));
 
+    const handleDuplicateSize = (index) => {
+        const sizeToDuplicate = sizes[index];
+        const newSize = {
+            ...sizeToDuplicate,
+            idNew: Date.now(),
+            _id: undefined,
+            ingredients: sizeToDuplicate.ingredients.map(ingredient => ({
+                ...ingredient,
+                _id: undefined
+            })),
+            mixes: sizeToDuplicate.mixes.map(mix => ({
+                ...mix,
+                _id: undefined
+            }))
+        };
+        
+        const updatedSizes = [...sizes];
+        updatedSizes.splice(index + 1, 0, newSize);
+        onChange(updatedSizes);
+        setActiveTabKey((index + 1).toString());
+        setNewSizeId(newSize.idNew);
+    };
+
     const handleCancelEdit = () => {
         const updatedSizes = [...sizes];
         updatedSizes[indexSize] = {
@@ -162,6 +185,7 @@ const SizeDetails = forwardRef(({
                 index={indexSize}
                 size={size}
                 ingredients={ingredients}
+                handleDuplicateSize={handleDuplicateSize}
                 mixes={mixes}
             />
 

@@ -29,23 +29,12 @@ const SizesManager = forwardRef(
 
     const [newSizeId, setNewSizeId] = useState(null);
     const [activeSubTab, setActiveSubTab] = useState("1");
+    const [localSizes, setLocalSizes] = useState(value); // ניהול גדלים באופן מקומי
 
     const refs = useRef([]); // אחסון ה-refs של כל רכיב בן
 
-    /**
-     * התאמה ל-Form עם מבנה מתאים
-     * הפונקציה מקבלת את הערך החיצוני (value) ומחזירה אובייקט עם שדה value
-     * כך שה-Form יכול לקבל אותו ולהעביר אותו לטופס
-     * @param {Array} value הערך החיצוני שיש להתאים ל-Form
-     * @returns {Object} אובייקט עם שדה value
-     */
     const transformValueToForm = (value) => ({ value: value });
 
-    /**
-     * הוספת גודל חדש
-     * מוסיף גודל חדש לטופס ומעדכן את ה-state החיצוני
-     * ומעביר את הערכים לטופס
-     */
     const handleAddSize = () => {
       const newSize = {
         idNew: Date.now(),
@@ -73,6 +62,12 @@ const SizesManager = forwardRef(
         setActiveSubTab("1");
       }
     }, []);
+
+    useEffect(() => {
+      if (!localSizes) {
+        setLocalSizes(value); // עדכון ערכים רק אם לא במצב עריכה
+      }
+    }, [value]);
 
     return (
       <Flex style={{ flexDirection: "column" }}>
