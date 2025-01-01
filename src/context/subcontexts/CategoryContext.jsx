@@ -1,7 +1,7 @@
 // src/context/subcontexts/IngredientContext.js
 import React, { createContext, useContext, useState } from 'react';
 import { message } from 'antd';
-import { addCategoryAPI, deleteCategoryAPI, updateCategoryAPI } from '../../services/categoryService';
+import { addMenuCategoryAPI, deleteMenuCategoryAPI, updateMenuCategoryAPI } from '../../services/categoryService';
 
 const CategoryContext = createContext();
 
@@ -13,7 +13,7 @@ export const CategoryProvider = ({ children }) => {
     const addCategory = async (category) => {
         setLoading(true);
         try {
-            await addCategoryAPI(category);
+            await addMenuCategoryAPI(category);
             message.success('הקטגוריה נוספה בהצלחה');
             setLoading(false);
         } catch (error) {
@@ -26,7 +26,7 @@ export const CategoryProvider = ({ children }) => {
     const updateCategory = async (updatedCategory) => {
         setLoading(true);
         try {
-            await updateCategoryAPI(updatedCategory);
+            await updateMenuCategoryAPI(updatedCategory);
             message.success('הקטגוריה עודכנה בהצלחה');
             setLoading(false);
         } catch (error) {
@@ -39,7 +39,7 @@ export const CategoryProvider = ({ children }) => {
     const deleteCategory = async (categoryId) => {
         setLoading(true);
         try {
-            await deleteCategoryAPI(categoryId);
+            await deleteMenuCategoryAPI(categoryId);
             message.success('הקטגוריה נמחקה בהצלחה');
             setLoading(false);
         } catch (error) {

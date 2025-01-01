@@ -9,7 +9,7 @@ import { SocketProvider } from './SocketContext';
 import { fetchAllIngredients } from '../services/ingredientService';
 import { fetchAllSuppliers } from '../services/supplierService';
 import { fetchAllProducts } from '../services/productService';
-import { fetchAllCategories } from '../services/categoryService';
+import { fetchAllMenuCategories } from '../services/categoryService';
 import { fetchAllMixes } from '../services/mixService';
 import { useDispatch, useSelector } from 'react-redux';
 import { addIngerdientsState } from '../store/ingredients';
@@ -46,7 +46,7 @@ export const AppProvider = ({ children, setLoading }) => {
           fetchAllIngredients(),
           fetchAllSuppliers(),
           fetchAllProducts(),
-          fetchAllCategories(),
+          fetchAllMenuCategories(),
           fetchAllMixes(),
           fetchAllEmployees(),
           fetchEmployeesHoursMonthAPI(currentMonth, currentYear),

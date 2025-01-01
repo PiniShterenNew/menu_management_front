@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Button, Flex, FloatButton, Row, Tag, Typography } from "antd";
+import { Badge, Button, Flex, FloatButton, Row, Tag, Typography } from "antd";
 import { useSelector } from "react-redux";
 import { useProductContext } from "../context/subcontexts/ProductContext";
 import Page from "../Elements/Page";
@@ -51,6 +51,27 @@ function MenuPage() {
   const tableKeys = useMemo(
     () => [
       {
+        key: "detailes",
+        dataIndex: "actions",
+        width: 110,
+        render: (_, record) => {
+          return (
+            <Flex style={{ flexDirection: "column" }}>
+              <Badge
+                className="!text-xs"
+                status={record?.isFeatured ? "success" : "default"}
+                text={record?.isFeatured ? "פעיל" : "לא פעיל"}
+              />
+              <Badge
+                className="!text-xs"
+                status={record?.isOnSale ? "processing" : "default"}
+                text={record?.isOnSale ? "במבצע" : "לא במבצע"}
+              />
+            </Flex>
+          )
+        }
+      },
+      {
         key: "name",
         dataIndex: "name",
         title: "שם המוצר",
@@ -60,19 +81,28 @@ function MenuPage() {
           { required: true, message: "חייב להיות שם מוצר" },
           { min: 2, message: "שם חייב להיות לפחות 2 תווים" },
         ],
+        render: (_, record) => (
+          <p className="text-base font-semibold	">{record?.name}</p>
+        ),
       },
       {
         key: "category",
         dataIndex: "category",
         title: "קטגוריה",
         editable: true,
-        type: "select",
+        type: "custom",
         render: (_, record) => {
-
+          let category = categoriesState.find((cat) => cat._id === record?.category);
           return (
-            <Tag>
-              {categoriesState?.find((e) => e._id === record?.category)?.name}
-            </Tag>
+            <div
+            className="flex items-center w-fit gap-1 bg-white py-1 px-2 rounded-lg border border-zinc-200"
+            >
+              <div
+                className="w-2.5 h-2.5 rounded-full shadow-sm border border-zinc-200"
+                style={{ backgroundColor: category?.color }}
+              />
+              {category?.name}
+            </div>
           );
         },
         options: categoriesState.map((cat) => ({
@@ -80,23 +110,6 @@ function MenuPage() {
           label: cat.name,
         })),
         rules: [{ required: true, message: "יש לבחור קטגוריה" }],
-      },
-      {
-        key: "detailes",
-        dataIndex: "actions",
-        width: 100,
-        render: (_, record) => {
-          return (
-            <Row style={{ gap: "0.5em" }} align={"middle"} justify={"center"}>
-              <Tag className={record?.isFeatured ? "green" : "red"}>
-                {record?.isFeatured ? "פעיל" : "לא פעיל"}
-              </Tag>
-              <Tag className={record?.isOnSale ? "blue" : "yellow"}>
-                {record?.isOnSale ? "במבצע" : "לא במבצע"}
-              </Tag>
-            </Row>
-          )
-        }
       },
       {
         key: "sizes",

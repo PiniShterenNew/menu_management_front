@@ -63,6 +63,10 @@ const CategoryScroll = ({
               type={selectedCategory === category._id ? "primary" : "default"}
               onClick={() => handleCategorySelect(category._id)}
             >
+              <div
+                className="w-3 h-3 rounded-full shadow-sm border border-zinc-200"
+                style={{ backgroundColor: category?.color }}
+              />
               {category.name}
             </Button>
           ))}
