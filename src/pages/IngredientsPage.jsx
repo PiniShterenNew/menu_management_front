@@ -14,9 +14,9 @@ const { Text } = Typography;
 
 function IngredientsPage() {
 
-    const {
-      settings
-    } = useSettingsContext();
+  const {
+    settings
+  } = useSettingsContext();
 
   const typesOptions = useMemo(() => settings?.materialCategories?.value?.map((e) => ({ value: e?._id, label: e?.name, color: e?.color || "blue" })) || [], [settings?.materialCategories?.value]);
 
@@ -245,44 +245,49 @@ function IngredientsPage() {
         if (mode == 'edit') {
           return (
             <AntdForm.Item
-              key={'quantity'}
-              name={'quantity'}
-              label={'כמות'}
-              rules={[
-                {
-                  required: true,
-                  message: "אנא הזן כמות",
-                },
-                {
-                  validator: (_, value) => {
-                    let t = form.getFieldValue('subUnit');
-                    if (value === null || value === undefined) {
-                      return Promise.reject("כמות נדרשת");
-                    }
-                    if (value < 0) {
-                      return Promise.reject("הכמות לא יכולה להיות שלילית");
-                    }
-                    if (form.getFieldValue('subUnit') === "g" || form.getFieldValue('subUnit') === "ml") {
-                      if (value < 0.001 || value > 999) {
-                        return Promise.reject("עבור גרם או מ\"ל הכמות חייבת להיות בין 0.001 ל-999");
-                      }
-                    }
-                    if (form.getFieldValue('subUnit') === "kg" || form.getFieldValue('subUnit') === "liter") {
-                      if (value < 1 || value > 1000000) {
-                        return Promise.reject("עבור ק\"ג או ליטר הכמות חייבת להיות מ-1 ומעלה, ובתוך הטווח המותר");
-                      }
-                    }
-                    return Promise.resolve();
-                  },
-                },
-              ]}
+              shouldUpdate={(prevValues, currentValues) => prevValues.subUnit !== currentValues.subUnit}
             >
-              <InputNumber
-                // min={0.1}
-                // max={record.selectedUnit !== "kg" && record.selectedUnit !== "liter" ? 999 : 1000000}
-                // step={record.selectedUnit === "kg" || record.selectedUnit === "liter" ? 0.1 : 1}
-                style={{ width: "100%" }}
-              />
+              {({ getFieldValue }) => (
+                <AntdForm.Item
+                  key={'quantity'}
+                  name={'quantity'}
+                  label={'כמות'}
+                  rules={[
+                    {
+                      required: true,
+                      message: "אנא הזן כמות",
+                    },
+                    {
+                      validator: (_, value) => {
+                        if (value === null || value === undefined) {
+                          return Promise.reject("כמות נדרשת");
+                        }
+                        if (value < 0) {
+                          return Promise.reject("הכמות לא יכולה להיות שלילית");
+                        }
+                        if (getFieldValue('subUnit') === "g" || getFieldValue('subUnit') === "ml") {
+                          if (value < 0.001 || value > 999) {
+                            return Promise.reject("עבור גרם או מ\"ל הכמות חייבת להיות בין 0.001 ל-999");
+                          }
+                        }
+                        if (getFieldValue('subUnit') === "kg" || getFieldValue('subUnit') === "liter") {
+                          if (value < 1 || value > 1000000) {
+                            return Promise.reject("עבור ק\"ג או ליטר הכמות חייבת להיות מ-1 ומעלה, ובתוך הטווח המותר");
+                          }
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                >
+                  <InputNumber
+                    // min={0.1}
+                    // max={record.selectedUnit !== "kg" && record.selectedUnit !== "liter" ? 999 : 1000000}
+                    // step={record.selectedUnit === "kg" || record.selectedUnit === "liter" ? 0.1 : 1}
+                    style={{ width: "100%" }}
+                  />
+                </AntdForm.Item>
+              )}
             </AntdForm.Item>
           );
         }

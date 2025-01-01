@@ -24,6 +24,7 @@ import { useSelector } from "react-redux";
 import { useProductContext } from "../context/subcontexts/ProductContext.jsx";
 import { useMediaQuery } from "react-responsive";
 import SizesDetailsView from "./sizes/SizesDetailsView.jsx";
+import { set } from "react-hook-form";
 
 const { Step } = Steps;
 const { Title, Text } = Typography;
@@ -59,7 +60,7 @@ const ProductWizard = ({ }) => {
   const productsState = useSelector((state) => state.products);
 
   const [activeTabKey, setActiveTabKey] = useState("0");
-
+  const [saveFlag, setSaveFlag] = useState(false);
   // פונקציה למיזוג בין selectedItem לשינויים מהשרת
   const mergeSelectedItem = useCallback(() => {
     if (!selectedItem || !productsState) return;
@@ -69,7 +70,7 @@ const ProductWizard = ({ }) => {
       (product) => product._id === selectedItem._id
     );
 
-    if (updatedProduct) {
+    if (updatedProduct && saveFlag) {
       // מיזוג הגדלים הקיימים ב-state
       // const mergedSizes = (selectedItem?.sizes || [])
       //   .filter((localSize) => {
@@ -124,9 +125,21 @@ const ProductWizard = ({ }) => {
     } else {
       switch (isModalVisible) {
         case "size":
-          return `ניהול גדלים - ${selectedItem?.name}`
+          return <>
+            {`ניהול גדלים - ${selectedItem?.name}`}
+            <CategoryDisplay
+              categoriesState={categories}
+              categoryId={selectedItem?.category}
+            />
+          </>
         case "variation":
-          return `ניהול וריאציות - ${selectedItem?.name}`
+          return <>
+            {`ניהול וריאציות - ${selectedItem?.name}`}
+            <CategoryDisplay
+              categoriesState={categories}
+              categoryId={selectedItem?.category}
+            />
+          </>
       }
     }
   };
@@ -171,6 +184,7 @@ const ProductWizard = ({ }) => {
             .then(() => {
               setIsModalVisible(false);
               setSelectedItem(null);
+              setSaveFlag(true);
             })
             .catch((error) => {
               console.error("שגיאה בעריכת מוצר:", error);
@@ -189,7 +203,7 @@ const ProductWizard = ({ }) => {
         break;
 
       case "size":
-        const sizesData = {...selectedItem?.sizes[index], ... arr}; // קבלת הנתונים מהטופס
+        const sizesData = { ...selectedItem?.sizes[index], ...arr }; // קבלת הנתונים מהטופס
         const formattedSizes = {
           productId: selectedItem?._id, // מזהה המוצר אליו שייך הגודל
           label: sizesData.label,
@@ -208,23 +222,19 @@ const ProductWizard = ({ }) => {
           _id: sizesData._id, // מזהה הגודל (אם קיים)
         } || {};
         // ניהול הוספה/עדכון של כל הגודל
-        new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
           if (formattedSizes._id) {
-            // אם יש מזהה, זהו עדכון
-            return updateSize(formattedSizes._id, formattedSizes);
+            updateSize(formattedSizes._id, formattedSizes).then(resolve).catch(reject);
           } else {
-            // אם אין מזהה, זהו גודל חדש
-            return addSize(selectedItem?._id, formattedSizes);
+            addSize(selectedItem?._id, formattedSizes).then(resolve).catch(reject);
           }
         })
           .then(() => {
-            // setIsModalVisible(false);
-            // setSelectedItem(null);
+            setSaveFlag(true);
           })
           .catch((error) => {
             console.error("Error managing sizes:", error);
           });
-        break;
       case "variation":
         // ניתן להוסיף כאן טיפול בוריאציות אם רלוונטי
         break;
@@ -331,6 +341,22 @@ const ProductWizard = ({ }) => {
     }
   };
 
+
+  const CategoryDisplay = ({ categoryId, categoriesState }) => {
+    let category = categoriesState.find((cat) => cat._id === categoryId);
+    return (
+      <div
+        className="flex items-center w-fit gap-1 bg-white py-1 px-2 rounded-lg border border-zinc-200"
+      >
+        <div
+          className="w-2.5 h-2.5 rounded-full shadow-sm border border-zinc-200"
+          style={{ backgroundColor: category?.color }}
+        />
+        {category?.name}
+      </div>
+    );
+  }
+
   const screensView = () => {
     switch (isModalVisible) {
       case "product":
@@ -342,12 +368,10 @@ const ProductWizard = ({ }) => {
               <Text strong style={{ fontSize: "1.5em" }}>
                 {selectedItem?.name}
               </Text>
-              <Tag style={{ width: "fit-content" }}>
-                {
-                  categories?.find((e) => e._id === selectedItem?.category)
-                    ?.name
-                }
-              </Tag>
+              <CategoryDisplay
+                categoriesState={categories}
+                categoryId={selectedItem?.category}
+              />
               <Flex style={{ gap: "0.5em", flexDirection: "column" }}>
                 <Badge
                   status={selectedItem?.isFeatured ? "success" : "default"}
@@ -447,7 +471,7 @@ const ProductWizard = ({ }) => {
       destroyOnClose
       height={isMobile ? "86vh" : "80vh"}
       width={isMobile ? "100%" : 700}
-      styles={{body: {height: "100%"} }}
+      styles={{ body: { height: "100%" } }}
 
     >
       {modalMode === "view" ? screensView() : screensEdit()}

@@ -230,83 +230,85 @@ export default function Page({
     <Flex
       flex={1}
       vertical
-      style={{ maxWidth: "100%" }}
+      style={{ maxWidth: "100%", width: "100%", height: "100%" }}
       gap={"1em"}
       className="container"
     >
-      {isMobile && <Row justify={"center"}>
-        <Typography.Title level={3} style={{ margin: "0" }}>{iconADD} {title}</Typography.Title>
-      </Row>}
-      <Row align={"middle"} style={{ flexFlow: "" }} justify={"space-between"}>
-        {!isMobile && <Row align={""}>
+      <div style={{ flex: "0 0 auto",  }}>
+        {isMobile && <Row justify={"center"}>
           <Typography.Title level={3} style={{ margin: "0" }}>{iconADD} {title}</Typography.Title>
         </Row>}
-        {/* search */}
-        <Row style={{}}>
-          <Search
-            placeholder="חיפוש ..."
-            allowClear
-            onChange={({ target }) => {
-              setDataPrint(
-                data?.filter((e) =>
-                  searchKeys.some((key) =>
-                    e[key]
-                      ?.toString()
-                      ?.toLowerCase()
-                      ?.includes(target.value.toLowerCase())
+        <Row align={"middle"} style={{ flexFlow: "" }} justify={"space-between"}>
+          {!isMobile && <Row align={""}>
+            <Typography.Title level={3} style={{ margin: "0" }}>{iconADD} {title}</Typography.Title>
+          </Row>}
+          {/* search */}
+          <Row style={{}}>
+            <Search
+              placeholder="חיפוש ..."
+              allowClear
+              onChange={({ target }) => {
+                setDataPrint(
+                  data?.filter((e) =>
+                    searchKeys.some((key) =>
+                      e[key]
+                        ?.toString()
+                        ?.toLowerCase()
+                        ?.includes(target.value.toLowerCase())
+                    )
                   )
-                )
-              );
-            }}
-            style={{ width: 200 }}
-          />
+                );
+              }}
+              style={{ width: 200 }}
+            />
+          </Row>
+          {/* sort and cells manage */}
+          <Row style={{ gap: "0.5em" }}>
+            {filtersArr && <Button onClick={() => setFilterVisible(true)}>
+              <FilterOutlined />
+              {!isMobile && "סינון"}({Object.keys(filters).length})
+            </Button>}
+            {!isMobile && (
+              <>
+                <Dropdown
+                  menu={{ items }}
+                  trigger={["click"]}
+                  open={dropdownOpen}
+                  onOpenChange={(open) => setDropdownOpen(open)} // מנהל מצב פתיחה/סגירה
+                >
+                  <Button>
+                    <FontAwesomeIcon icon={faTable} style={{ marginLeft: "8px" }} />
+                    {isMobile ? (
+                      <>{`${tableKeysPrint.length} / ${tableKeys.length}`}</>
+                    ) : (
+                      <>
+                        {`בחרת ${tableKeysPrint.length} מתוך ${tableKeys.length}`}
+                      </>
+                    )}
+                  </Button>
+                </Dropdown>
+              </>
+            )}
+            <Dropdown menu={{ items: sortItems }} trigger={["click"]}>
+              <Button type={isMobile ? "link" : "default"}>
+                <FontAwesomeIcon icon={faSort} style={{ marginLeft: "8px" }} />
+                מיון
+              </Button>
+            </Dropdown>
+            {/* add new button */}
+            {!isMobile && (
+              <>
+                <Divider type="vertical" style={{ height: "auto", }} />
+                <Row style={{}}>
+                  <Button onClick={() => openModal("add")} type="primary">
+                    {newTitle}
+                  </Button>
+                </Row>
+              </>
+            )}
+          </Row>
         </Row>
-        {/* sort and cells manage */}
-        <Row style={{ gap: "0.5em" }}>
-          {filtersArr && <Button onClick={() => setFilterVisible(true)}>
-            <FilterOutlined />
-            {!isMobile && "סינון"}({Object.keys(filters).length})
-          </Button>}
-          {!isMobile && (
-            <>
-              <Dropdown
-                menu={{ items }}
-                trigger={["click"]}
-                open={dropdownOpen}
-                onOpenChange={(open) => setDropdownOpen(open)} // מנהל מצב פתיחה/סגירה
-              >
-                <Button>
-                  <FontAwesomeIcon icon={faTable} style={{ marginLeft: "8px" }} />
-                  {isMobile ? (
-                    <>{`${tableKeysPrint.length} / ${tableKeys.length}`}</>
-                  ) : (
-                    <>
-                      {`בחרת ${tableKeysPrint.length} מתוך ${tableKeys.length}`}
-                    </>
-                  )}
-                </Button>
-              </Dropdown>
-            </>
-          )}
-          <Dropdown menu={{ items: sortItems }} trigger={["click"]}>
-            <Button type={isMobile ? "link" : "default"}>
-              <FontAwesomeIcon icon={faSort} style={{ marginLeft: "8px" }} />
-              מיון
-            </Button>
-          </Dropdown>
-          {/* add new button */}
-          {!isMobile && (
-            <>
-              <Divider type="vertical" style={{ height: "auto", }} />
-              <Row style={{}}>
-                <Button onClick={() => openModal("add")} type="primary">
-                  {newTitle}
-                </Button>
-              </Row>
-            </>
-          )}
-        </Row>
-      </Row>
+      </div>
       {/* float button for mobile */}
       <FloatButton.Group
         trigger="click"
@@ -329,26 +331,21 @@ export default function Page({
           {
             title: "פעולות",
             key: "action",
-            minWidth: 130,
-            maxWidth: 130,
+            width: 110,
+            minWidth: 110,
             render: (_, record) => {
               return (
-                <Row
-                  className="card-actions"
-                  align={"middle"}
-                  justify={"center"}
-                  style={{ maxWidth: 130 }}
-                >
-                  <Button type="text" onClick={() => handleDelete(record)}>
+                <div className="w-fit">
+                  <Button type="text" className="m-0 !px-1" onClick={() => handleDelete(record)}>
                     <FontAwesomeIcon icon={faTrash} />
                   </Button>
-                  <Button type="text" onClick={() => openModal("edit", record)}>
+                  <Button type="text" className="m-0 !px-1" onClick={() => openModal("edit", record)}>
                     <FontAwesomeIcon icon={faEdit} />
                   </Button>
-                  <Button type="text" onClick={() => openModal("view", record)}>
+                  <Button type="text" className="m-0 !px-1" onClick={() => openModal("view", record)}>
                     <FontAwesomeIcon icon={faEye} />
                   </Button>
-                </Row>
+                </div>
               );
             },
           },
@@ -362,69 +359,6 @@ export default function Page({
         onDelete={onDelete}
       />
       {filterVisible &&
-        // <Drawer
-        //   title={<Typography.Title level={4}>סינון נתונים</Typography.Title>}
-        //   placement="right"
-        //   onClose={() => setFilterVisible(false)}
-        //   open={filterVisible}
-        //   width={360}
-        // >
-        //   {filtersArr.map((filter) => (
-        //     <Row key={filter.value} gutter={[16, 16]} style={{ marginBottom: "1em" }}>
-        //       <Col span={24}>
-        //         <Typography.Text strong>{filter.name}</Typography.Text>
-        //         {filter.type === "select" && (
-        //           <Select
-        //             mode="multiple"
-        //             allowClear
-        //             placeholder={`בחר ${filter.name}`}
-        //             options={filter.options}
-        //             value={filtersTemp[filter.value] || []}
-        //             onChange={(selectedValues) =>
-        //               setFiltersTemp((prev) => ({ ...prev, [filter.value]: selectedValues }))
-        //             }
-        //             style={{ width: "100%" }}
-        //           />
-        //         )}
-        //         {filter.type === "radio" && (
-        //           <Radio.Group
-        //             options={filter.options}
-        //             value={filtersTemp[filter.value]}
-        //             onChange={(e) =>
-        //               setFiltersTemp((prev) => ({ ...prev, [filter.value]: [e.target.value] }))
-        //             }
-        //             optionType="button"
-        //             buttonStyle="solid"
-        //           />
-        //         )}
-        //         {filter.type === "range" && (
-        //           <Slider
-        //             range
-        //             defaultValue={[0, 100]}
-        //             onChange={(range) =>
-        //               setFiltersTemp((prev) => ({ ...prev, [filter.value]: range }))
-        //             }
-        //           />
-        //         )}
-        //       </Col>
-        //     </Row>
-        //   ))}
-
-        //   {/* כפתורי הפעולה */}
-        //   <Row justify="space-between">
-        //     <Button onClick={() => setFiltersTemp({})}>נקה הכל</Button>
-        //     <Button
-        //       type="primary"
-        //       onClick={() => {
-        //         setFilterVisible(false);
-        //         saveFilters(filtersTemp);
-        //         applyFilters();
-        //       }}
-        //     >
-        //       החל סינון
-        //     </Button>
-        //   </Row>
-        // </Drawer>
         <FiltersDrawer
           open={filterVisible}
           onClose={() => setFilterVisible(false)}

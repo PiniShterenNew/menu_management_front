@@ -67,7 +67,7 @@ export default function SizesDetailsEdit({
                         <Input />
                     </Form.Item>
                     <Form.Item
-                        name={["label"]}
+                        name={"label"}
                         label="שם הגודל"
                         rules={[
                             { required: true, message: "חייב למלא שם גודל" },
@@ -85,7 +85,7 @@ export default function SizesDetailsEdit({
                     </Form.Item>
                     {/* price and preparationTime */}
                     <Form.Item
-                        name={["price"]}
+                        name={"price"}
                         label="מחיר"
                         rules={[
                             { required: true, message: "יש למלא מחיר" },
@@ -104,7 +104,7 @@ export default function SizesDetailsEdit({
                     </Form.Item>
                     <Form.Item
                         label="זמן הכנה (דקות)"
-                        name={["preparationTime"]}
+                        name={"preparationTime"}
                         rules={[
                             { required: true, message: "חייב לציין זמן הכנה" },
                         ]}
