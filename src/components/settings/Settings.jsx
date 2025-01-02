@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Input, Tabs, Alert } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Modal, Button, Form, Input, Tabs, Alert, Tooltip, InputNumber } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { HexColorPicker } from 'react-colorful';
 import { useSettingsContext } from '@/context/subcontexts/SettingsContext';
-import ColorPicker from './ColorPicker';
+import ColorPicker from '../ColorPicker';
+import SettingsForm from './SettingsForm';
 
 const { TabPane } = Tabs;
 
@@ -20,6 +21,7 @@ const Settings = ({ flag, setFlag }) => {
 
   const [form] = Form.useForm();
 
+
   // מצבים לניהול קטגוריות
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalType, setModalType] = useState("add"); // "add" or "edit"
@@ -33,18 +35,6 @@ const Settings = ({ flag, setFlag }) => {
       setError(null);
     }
   }, [flag]);
-
-  useEffect(() => {
-    if (settings) {
-      form.setFieldsValue({
-        hourlyRate: parseFloat(settings?.hourlyRate?.value) || 0,
-        markupMultiplier: parseFloat(settings?.markupMultiplier?.value) || 0,
-        fixedExpensesRate: parseFloat(settings?.fixedExpensesRate?.value) || 0,
-        profitRate: parseFloat(settings?.profitRate?.value) || 0,
-        vatRate: parseFloat(settings?.vatRate?.value) || 0,
-      });
-    }
-  }, [settings, form]);
 
   // פתיחת חלון עריכה/הוספה
   const openModal = (type, category = null) => {
@@ -67,14 +57,15 @@ const Settings = ({ flag, setFlag }) => {
   const handleSaveGeneralSettings = async (values) => {
     try {
       const settingsToUpdate = {
-        hourlyRate: { value: parseFloat(values.hourlyRate) },
-        markupMultiplier: { value: parseFloat(values.markupMultiplier) },
-        fixedExpensesRate: { value: parseFloat(values.fixedExpensesRate) },
-        profitRate: { value: parseFloat(values.profitRate) },
-        vatRate: { value: parseFloat(values.vatRate) },
+        foodCost: { value: values.foodCost.toString() },
+        laborCost: { value: values.laborCost.toString() },
+        fixedCosts: { value: values.fixedCosts.toString() },
+        profitRate: { value: values.profitRate.toString() },
+        vatRate: { value: values.vatRate.toString() }
       };
 
       await updateSetting(settingsToUpdate);
+      await fetchSettings();
     } catch (error) {
       setError("שגיאה בשמירת ההגדרות");
     }
@@ -110,6 +101,12 @@ const Settings = ({ flag, setFlag }) => {
     return settings?.materialCategories?.value.some(category => category.color === color);
   };
 
+  const tooltipInfo = (info) => (
+    <Tooltip title={info} className='mr-2'>
+      <InfoCircleOutlined style={{ marginLeft: 8, color: 'gray' }} />
+    </Tooltip>
+  );
+
   const openDeleteDialog = (category) => {
     Modal.confirm({
       title: "מחיקת קטגוריה",
@@ -127,78 +124,16 @@ const Settings = ({ flag, setFlag }) => {
       footer={null}
       onCancel={() => setFlag(false)}
       width={800}
+      style={{ top: 30 }}
     >
       <Tabs defaultActiveKey="general">
         <TabPane tab="הגדרות כלליות" key="general">
-          <Form
-            layout="vertical"
-            initialValues={{
-              hourlyRate: settings?.hourlyRate?.value || 0,
-              markupMultiplier: settings?.markupMultiplier?.value || 0,
-              fixedExpensesRate: settings?.fixedExpensesRate?.value || 0,
-              profitRate: settings?.profitRate?.value || 0,
-              vatRate: settings?.vatRate?.value || 0,
-            }}
-            onFinish={handleSaveGeneralSettings}
-          >
-            <Form.Item
-              label="עלות שעת עבודה (₪)"
-              name="hourlyRate"
-              rules={[{ required: true, message: "שדה חובה" }]}
-            >
-              <Input type="number" step="0.1" min="0" placeholder="הכנס עלות שעת עבודה" />
-            </Form.Item>
+          <SettingsForm
+            loading={loading}
+            settings={settings}
+            handleSaveGeneralSettings={handleSaveGeneralSettings}
+          />
 
-            <Form.Item
-              label="אחוז המכפיל עבור מחיר מומלץ לצרכן (%)"
-              name="markupMultiplier"
-              rules={[
-                { required: true, message: "שדה חובה" },
-                { type: "number", min: 0, max: 100, message: "האחוז חייב להיות בין 0 ל-100" },
-              ]}
-            >
-              <Input type="number" step="0.01" min="0" max="100" placeholder="הכנס אחוז מכפיל" />
-            </Form.Item>
-
-            <Form.Item
-              label="אחוז השתתפות בהוצאות קבועות (%)"
-              name="fixedExpensesRate"
-              rules={[
-                { required: true, message: "שדה חובה" },
-                { type: "number", min: 0, max: 100, message: "האחוז חייב להיות בין 0 ל-100" },
-              ]}
-            >
-              <Input type="number" step="0.1" min="0" max="100" placeholder="הכנס אחוז הוצאות" />
-            </Form.Item>
-
-            <Form.Item
-              label="אחוז רווח רצוי (%)"
-              name="profitRate"
-              rules={[
-                { required: true, message: "שדה חובה" },
-                { type: "number", min: 0, max: 100, message: "האחוז חייב להיות בין 0 ל-100" },
-              ]}
-            >
-              <Input type="number" step="0.1" min="0" max="100" placeholder="הכנס אחוז רווח" />
-            </Form.Item>
-
-            <Form.Item
-              label={"מע\"מ (%)"}
-              name="vatRate"
-              rules={[
-                { required: true, message: "שדה חובה" },
-                { type: "number", min: 0, max: 100, message: "האחוז חייב להיות בין 0 ל-100" },
-              ]}
-            >
-              <Input type="number" step="0.01" min="0" max="100" placeholder={"הכנס מע\" מ"} />
-            </Form.Item>
-
-            <div className="flex justify-center mt-4">
-              <Button type="primary" htmlType="submit" loading={loading}>
-                שמור הגדרות
-              </Button>
-            </div>
-          </Form>
         </TabPane>
 
         <TabPane tab="קטגוריות" key="categories">
