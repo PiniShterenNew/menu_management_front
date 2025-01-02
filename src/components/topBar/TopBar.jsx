@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCog, faBars } from '@fortawesome/free-solid-svg-icons';
-import Settings from '../Settings';
+import Settings from '../settings/Settings';
 import Logo from "../../assets/logo.png";
 import "./topBar.css";
 import { Button, Image } from 'antd';
