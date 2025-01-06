@@ -16,7 +16,7 @@ const SettingsForm = ({
 
   const tooltipInfo = (info) => (
     <Tooltip title={info}>
-      <InfoCircleOutlined className="ml-2 text-gray-400" />
+      <InfoCircleOutlined className="ml-2 text-black-400" />
     </Tooltip>
   );
 
@@ -48,8 +48,8 @@ const SettingsForm = ({
     <Form.Item
       label={
         <div className="flex items-center">
+           {tooltipInfo(tooltip)}
           <span>{label}</span>
-          {tooltipInfo(tooltip)}
         </div>
       }
       name={name}
@@ -71,19 +71,17 @@ const SettingsForm = ({
         onChange={() => {
           calculateAdjustedRates(form.getFieldsValue());
         }}
+        addonAfter="%"
       />
     </Form.Item>
   );
 
   // קומפוננטה להצגת תיבת מידע מחושב
-  const CalculatedRateBox = ({ title, calculatedValue, currentValue, bgColor, textColor }) => (
+  const CalculatedRateBox = ({ title, currentValue, bgColor, textColor }) => (
     <div className={`${bgColor} p-4 rounded-lg`}>
       <div className="text-sm text-gray-600 mb-1">{title}</div>
       <div className={`text-xl font-bold ${textColor}`}>
-        {calculatedValue.toFixed(2)}%
-      </div>
-      <div className="text-xs text-gray-500 mt-1">
-        ערך נוכחי: {currentValue}%
+        {currentValue.toFixed(2)}%
       </div>
     </div>
   );
@@ -139,29 +137,25 @@ const SettingsForm = ({
       <div className="hidden md:grid md:grid-cols-4 gap-4 mb-6">
         <CalculatedRateBox
           title="פודקוסט מחושב"
-          calculatedValue={parseFloat(calculatedRates.foodCost) || 0}
           currentValue={form.getFieldValue('foodCost') || 0}
           bgColor="bg-blue-50"
           textColor="text-blue-700"
         />
         <CalculatedRateBox
           title="עלות עבודה מחושב"
-          calculatedValue={parseFloat(calculatedRates.laborCost) || 0}
           currentValue={form.getFieldValue('laborCost') || 0}
           bgColor="bg-green-50"
           textColor="text-green-700"
         />
         <CalculatedRateBox
           title="הוצאות קבועות מחושב"
-          calculatedValue={parseFloat(calculatedRates.fixedCosts) || 0}
           currentValue={form.getFieldValue('fixedCosts') || 0}
           bgColor="bg-purple-50"
           textColor="text-purple-700"
         />
         <CalculatedRateBox
           title="רווח רצוי"
-          calculatedValue={parseFloat(form.getFieldValue('profitRate')) || 0}
-          currentValue={totalPercentage}
+          currentValue={form.getFieldValue('fixedCosts') || 0}
           bgColor="bg-orange-50"
           textColor="text-orange-700"
         />
@@ -179,32 +173,28 @@ const SettingsForm = ({
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-600">פודקוסט</div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">נוכחי: {form.getFieldValue('foodCost') || 0}%</span>
-                <span className="text-sm font-medium text-blue-600">{(parseFloat(calculatedRates.foodCost) || 0).toFixed(2)}%</span>
+                <span className="text-sm font-medium text-blue-600">{form.getFieldValue('foodCost') || 0}%</span>
               </div>
             </div>
             
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-600">עלות עבודה</div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">נוכחי: {form.getFieldValue('laborCost') || 0}%</span>
-                <span className="text-sm font-medium text-green-600">{(parseFloat(calculatedRates.laborCost) || 0).toFixed(2)}%</span>
+                <span className="text-sm font-medium text-green-600">{form.getFieldValue('laborCost') || 0}%</span>
               </div>
             </div>
             
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-600">הוצאות קבועות</div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">נוכחי: {form.getFieldValue('fixedCosts') || 0}%</span>
-                <span className="text-sm font-medium text-purple-600">{(parseFloat(calculatedRates.fixedCosts) || 0).toFixed(2)}%</span>
+                <span className="text-sm font-medium text-purple-600">{form.getFieldValue('fixedCosts') || 0}%</span>
               </div>
             </div>
             
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-600">רווח רצוי</div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">נוכחי: {form.getFieldValue('profitRate') || 0}%</span>
-                <span className="text-sm font-medium text-orange-600">{(parseFloat(form.getFieldValue('profitRate')) || 0).toFixed(2)}%</span>
+                <span className="text-sm font-medium text-orange-600">{form.getFieldValue('profitRate') || 0}%</span>
               </div>
             </div>
           </div>
@@ -212,7 +202,7 @@ const SettingsForm = ({
       </div>
 
       {/* שדות הקלט */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="">
         <RateInput
           label="פודקוסט (%)"
           name="foodCost"
@@ -234,7 +224,7 @@ const SettingsForm = ({
           tooltip="אחוז הרווח הנקי מתוך סך ההכנסות הכוללות (קבוע)"
         />
       </div>
-
+      <div className="border-b border-gray-200 my-6" />
       <RateInput
         label='מע"מ (%)'
         name="vatRate"

@@ -51,7 +51,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                     name: ingredientName,
                     quantity: ingredient?.quantity,
                     unitDisplay,
-                    cost: ingredient?.costForQuantity,
+                    cost: ingredient?.cost,
                 };
             });
 
@@ -66,7 +66,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                         overflow: "auto",
                     }}
                     renderItem={(item, idx) => (
-                        <div key={idx} className='flex flex-1 flex-row p-2 bg-gray-200 rounded-lg' style={{ marginBottom: "4px" }}>
+                        <div key={idx} className='flex flex-1 flex-row p-2 bg-gray-100 rounded-lg' style={{ marginBottom: "4px" }}>
                             <p className='flex-[2] text-center'>
                                 {item.name}
                             </p>
@@ -118,11 +118,17 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                         overflow: "auto",
                     }}
                     renderItem={(item, idx) => (
-                        <List.Item key={idx} style={{ marginBottom: "4px" }}>
-                            <Text>
-                                {item.name} - {item.quantity} {item.unitDisplay} - ₪{item.cost}
-                            </Text>
-                        </List.Item>
+                        <div key={idx} className='flex flex-1 flex-row p-2 bg-gray-100 rounded-lg' style={{ marginBottom: "4px" }}>
+                            <p className='flex-[2] text-center'>
+                                {item.name}
+                            </p>
+                            <p className='flex-[1] text-center'>
+                                {item.quantity} {item.unitDisplay}
+                            </p>
+                            <p className='flex-[1] text-center'>
+                                ₪{item.cost}
+                            </p>
+                        </div>
                     )}
                 />
             );
@@ -132,16 +138,16 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
             <>
                 {type !== "P" && (
                     <>
-                        <Divider className='my-5' />
-                        {/* Segmented Tab */}
-                        <Row style={{ gap: "1.5vw", }}>
+                        <div className="flex flex-col md:flex-row" style={{ gap: "1.5vw", }}>
                             <Flex align='center' justify='center'>
                                 <Segmented
-                                    vertical
+                                    className='ltr'
+                                    vertical={!isMobile}
                                     options={[
                                         {
                                             label: (
                                                 <div
+                                                    className='flex flex-row md:flex-col items-center justify-center gap-4'
                                                     style={{
                                                         padding: 4,
                                                     }}
@@ -154,6 +160,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                                         {
                                             label: (
                                                 <div
+                                                    className='flex flex-row md:flex-col items-center justify-center gap-4'
                                                     style={{
                                                         padding: 4,
                                                     }}
@@ -182,7 +189,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                                     {currentTab === "ingredients" ? renderIngredients() : renderMixes()}
                                 </div>
                             </Flex>
-                        </Row>
+                        </div>
                     </>
                 )}
             </>
@@ -236,6 +243,7 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                     {costDetailes(size)}
                 </Col>
             </Flex>
+            <Divider className='my-5' >רכיבים</Divider>
             <MySegment
                 ingredients={ingredients}
                 mixes={mixes}

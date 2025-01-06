@@ -365,6 +365,10 @@ button {
   direction: rtl;
 }
 
+.ltr {
+  direction: ltr;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
