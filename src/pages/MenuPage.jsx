@@ -132,7 +132,7 @@ function MenuPage() {
       {
         key: "productSummary",
         dataIndex: "productSummary",
-        title: "רווח (ממוצע לפי מחיר לצרכן)",
+        title: "רווח (מחיר לצרכן)",
         width: 150,
         render: (_, record) => {
           return `${record?.productSummary?.averageProfitMarginInput || 0}% ₪${record?.productSummary?.totalGrossProfitInput || 0}`;
@@ -141,7 +141,7 @@ function MenuPage() {
       {
         key: "productSummary",
         dataIndex: "productSummary",
-        title: "רווח (ממוצע לפי מחיר מומלץ)",
+        title: "רווח (מחיר מומלץ)",
         width: 150,
         render: (_, record) => {
           return `${record?.productSummary?.averageProfitMarginSuggested || 0}% ₪${record?.productSummary?.totalGrossProfitSuggested || 0}`;
