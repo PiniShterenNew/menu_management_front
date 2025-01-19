@@ -1,3 +1,4 @@
+import { Collapse } from 'antd';
 import React from 'react';
 import { useMediaQuery } from 'react-responsive';
 
@@ -54,15 +55,16 @@ const CostComparison = ({ size }) => {
             </h4>
             <div className="space-y-2 md:space-y-3">
                 {items.map((item, index) => (
-                    <div key={index} className={`flex justify-between items-center p-2 md:p-3 rounded ${item.bgColor}`}>
-                        <span className="font-medium text-sm md:text-base">{item.label}</span>
+                    <div key={index} className={`flex justify-between items-center h-14 p-2 md:p-3 rounded ${item.bgColor}`}>
+                        <div className='flex flex-col'>
+                            <span className="font-medium text-sm md:text-base">{item.label}</span>
+                            {item.hasTarget && <span className="text-gray-500">יעד: {formatNumber(item.target)}%</span>}
+                        </div>
                         <div className="text-right">
                             <p className="font-bold text-sm md:text-base">₪{formatNumber(item.amount)}</p>
                             {item.hasTarget ? (
-                                <p className="text-xs md:text-sm">
+                                <p className="flex flex-col text-xs md:text-sm items-end">
                                     <span className="font-medium">{formatNumber(item.percentage)}%</span>
-                                    <span className="text-gray-500 mx-1">|</span>
-                                    <span className="text-gray-500">יעד: {formatNumber(item.target)}%</span>
                                 </p>
                             ) : (
                                 <p className="text-xs md:text-sm font-medium">
@@ -77,7 +79,7 @@ const CostComparison = ({ size }) => {
     );
 
     return (
-        <div className="p-2 md:p-4">
+        <div className="">
             {/* Price Comparison Section */}
             <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} justify-between items-start mb-6 md:mb-8 bg-gray-50 p-4 md:p-6 rounded-lg`}>
                 <PriceCard
@@ -98,17 +100,17 @@ const CostComparison = ({ size }) => {
 
             {/* Costs Breakdown */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
-                <CostBox 
+                <CostBox
                     label="עלות חומרים"
                     amount={size?.costs?.total_food}
                     bgColor="bg-blue-50"
                 />
-                <CostBox 
+                <CostBox
                     label="עלות עבודה"
                     amount={size?.current_price?.costs?.labor?.amount}
                     bgColor="bg-green-50"
                 />
-                <CostBox 
+                <CostBox
                     label="הוצאות קבועות"
                     amount={size?.current_price?.costs?.fixed?.amount}
                     bgColor="bg-purple-50"
@@ -116,75 +118,83 @@ const CostComparison = ({ size }) => {
             </div>
 
             {/* Detailed Cost Analysis */}
-            <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4 md:gap-8 bg-white p-4 md:p-6 rounded-lg shadow-sm`}>
-                <CostAnalysisSection
-                    title="אחוזים במחיר נוכחי"
-                    items={[
-                        {
-                            label: 'חומרים',
-                            amount: size?.costs?.total_food,
-                            percentage: size?.current_price?.costs?.food?.percentage,
-                            target: size?.original_settings?.food_cost,
-                            bgColor: 'bg-blue-50',
-                            hasTarget: true
-                        },
-                        {
-                            label: 'עבודה',
-                            amount: size?.current_price?.costs?.labor?.amount,
-                            percentage: size?.current_price?.costs?.labor?.percentage,
-                            target: size?.original_settings?.labor_cost,
-                            bgColor: 'bg-green-50',
-                            hasTarget: true
-                        },
-                        {
-                            label: 'הוצאות קבועות',
-                            amount: size?.current_price?.costs?.fixed?.amount,
-                            percentage: size?.current_price?.costs?.fixed?.percentage,
-                            target: size?.original_settings?.fixed_costs,
-                            bgColor: 'bg-purple-50',
-                            hasTarget: true
-                        },
-                        {
-                            label: 'רווח',
-                            amount: size?.current_price?.costs?.profit?.amount,
-                            percentage: size?.current_price?.costs?.profit?.percentage,
-                            target: size?.original_settings?.profit_rate,
-                            bgColor: 'bg-yellow-50',
-                            hasTarget: true
-                        }
-                    ]}
-                />
+            <Collapse
+                items={[
+                    {
+                        key: '1',
+                        label: 'פירוט עלויות לפי אחוזים',
+                        children: <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4 md:gap-8 bg-white p-4 md:p-6 rounded-lg shadow-sm`}>
+                            <CostAnalysisSection
+                                title="אחוזים במחיר נוכחי"
+                                items={[
+                                    {
+                                        label: 'חומרים',
+                                        amount: size?.costs?.total_food,
+                                        percentage: size?.current_price?.costs?.food?.percentage,
+                                        target: size?.original_settings?.food_cost,
+                                        bgColor: 'bg-blue-50',
+                                        hasTarget: true
+                                    },
+                                    {
+                                        label: 'עבודה',
+                                        amount: size?.current_price?.costs?.labor?.amount,
+                                        percentage: size?.current_price?.costs?.labor?.percentage,
+                                        target: size?.original_settings?.labor_cost,
+                                        bgColor: 'bg-green-50',
+                                        hasTarget: true
+                                    },
+                                    {
+                                        label: 'הוצאות קבועות',
+                                        amount: size?.current_price?.costs?.fixed?.amount,
+                                        percentage: size?.current_price?.costs?.fixed?.percentage,
+                                        target: size?.original_settings?.fixed_costs,
+                                        bgColor: 'bg-purple-50',
+                                        hasTarget: true
+                                    },
+                                    {
+                                        label: 'רווח',
+                                        amount: size?.current_price?.costs?.profit?.amount,
+                                        percentage: size?.current_price?.costs?.profit?.percentage,
+                                        target: size?.original_settings?.profit_rate,
+                                        bgColor: 'bg-yellow-50',
+                                        hasTarget: true
+                                    }
+                                ]}
+                            />
 
-                <CostAnalysisSection
-                    title="אחוזים במחיר מומלץ"
-                    items={[
-                        {
-                            label: 'חומרים',
-                            amount: size?.costs?.total_food,
-                            percentage: size?.suggested_price?.costs?.food?.target_percentage,
-                            bgColor: 'bg-blue-50'
-                        },
-                        {
-                            label: 'עבודה',
-                            amount: size?.suggested_price?.costs?.labor?.amount,
-                            percentage: size?.suggested_price?.costs?.labor?.target_percentage,
-                            bgColor: 'bg-green-50'
-                        },
-                        {
-                            label: 'הוצאות קבועות',
-                            amount: size?.suggested_price?.costs?.fixed?.amount,
-                            percentage: size?.suggested_price?.costs?.fixed?.target_percentage,
-                            bgColor: 'bg-purple-50'
-                        },
-                        {
-                            label: 'רווח',
-                            amount: size?.suggested_price?.costs?.profit?.amount,
-                            percentage: size?.suggested_price?.costs?.profit?.target_percentage,
-                            bgColor: 'bg-yellow-50'
-                        }
-                    ]}
-                />
-            </div>
+                            <CostAnalysisSection
+                                title="אחוזים במחיר מומלץ"
+                                items={[
+                                    {
+                                        label: 'חומרים',
+                                        amount: size?.costs?.total_food,
+                                        percentage: size?.suggested_price?.costs?.food?.target_percentage,
+                                        bgColor: 'bg-blue-50'
+                                    },
+                                    {
+                                        label: 'עבודה',
+                                        amount: size?.suggested_price?.costs?.labor?.amount,
+                                        percentage: size?.suggested_price?.costs?.labor?.target_percentage,
+                                        bgColor: 'bg-green-50'
+                                    },
+                                    {
+                                        label: 'הוצאות קבועות',
+                                        amount: size?.suggested_price?.costs?.fixed?.amount,
+                                        percentage: size?.suggested_price?.costs?.fixed?.target_percentage,
+                                        bgColor: 'bg-purple-50'
+                                    },
+                                    {
+                                        label: 'רווח',
+                                        amount: size?.suggested_price?.costs?.profit?.amount,
+                                        percentage: size?.suggested_price?.costs?.profit?.target_percentage,
+                                        bgColor: 'bg-yellow-50'
+                                    }
+                                ]}
+                            />
+                        </div>,
+                    },
+                ]}
+            />
         </div>
     );
 };

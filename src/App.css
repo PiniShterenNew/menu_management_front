@@ -153,17 +153,6 @@ button {
   background-color: transparent;
 }
 
-.link {
-  color: var(--primary-color);
-  font-weight: 500;
-}
-
-.link-active {
-  background-color: var(--primary-color-second);
-  color: var(--primary-color);
-  font-weight: 700;
-}
-
 .nav-desktop-child button {
   /* padding: .8em; */
   width: 90%;
@@ -179,22 +168,10 @@ button {
   background-color: var(--primary-color-second) !important;
 }
 
-.nav-desktop-child p {
-  font-size: 1.2em;
-  line-height: 1em;
-}
-
-.nav-desktop-child button .svg-inline--fa {
-  color: var(--primary-color);
-  /* width: 1.3em; */
-  height: 1.2em;
-  font-weight: bold;
-}
 
 .nav-desktop-child button a {
   display: flex;
   flex-direction: row;
-  gap: 1em;
   align-items: center;
   justify-content: flex-start;
   flex: 1;
@@ -235,6 +212,11 @@ button {
   top: 0;
   z-index: 10;
 }
+
+.ant-table-row .ant-table-cell {
+  padding: .25rem !important;
+}
+
 
 /* 
 .ant-table-row .ant-table-cell:nth-child(1){

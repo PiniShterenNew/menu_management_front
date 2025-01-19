@@ -53,21 +53,24 @@ function MenuPage() {
       {
         key: "detailes",
         dataIndex: "actions",
+        align: 'center',
         width: 110,
         render: (_, record) => {
           return (
-            <Flex style={{ flexDirection: "column" }}>
-              <Badge
-                className="!text-xs"
-                status={record?.isFeatured ? "success" : "default"}
-                text={record?.isFeatured ? "פעיל" : "לא פעיל"}
-              />
-              <Badge
-                className="!text-xs"
-                status={record?.isOnSale ? "processing" : "default"}
-                text={record?.isOnSale ? "במבצע" : "לא במבצע"}
-              />
-            </Flex>
+            <div className="flex items-center justify-center gap-2">
+              <Flex style={{ flexDirection: "column" }}>
+                <Badge
+                  className="!text-xs"
+                  status={record?.isFeatured ? "success" : "default"}
+                  text={record?.isFeatured ? "פעיל" : "לא פעיל"}
+                />
+                <Badge
+                  className="!text-xs"
+                  status={record?.isOnSale ? "processing" : "default"}
+                  text={record?.isOnSale ? "במבצע" : "לא במבצע"}
+                />
+              </Flex>
+            </div>
           )
         }
       },
@@ -76,6 +79,7 @@ function MenuPage() {
         dataIndex: "name",
         title: "שם המוצר",
         editable: true,
+        align: 'center',
         type: "text",
         rules: [
           { required: true, message: "חייב להיות שם מוצר" },
@@ -90,18 +94,21 @@ function MenuPage() {
         dataIndex: "category",
         title: "קטגוריה",
         editable: true,
+        align: 'center',
         type: "custom",
         render: (_, record) => {
           let category = categoriesState.find((cat) => cat._id === record?.category);
           return (
-            <div
-            className="flex items-center w-fit gap-1 bg-white py-1 px-2 rounded-lg border border-zinc-200"
-            >
+            <div className="flex items-center justify-center">
               <div
-                className="w-2.5 h-2.5 rounded-full shadow-sm border border-zinc-200"
-                style={{ backgroundColor: category?.color }}
-              />
-              {category?.name}
+                className="flex items-center w-fit gap-1 bg-white py-1 px-2 rounded-lg border border-zinc-200"
+              >
+                <div
+                  className="w-2.5 h-2.5 rounded-full shadow-sm border border-zinc-200"
+                  style={{ backgroundColor: category?.color }}
+                />
+                {category?.name}
+              </div>
             </div>
           );
         },
@@ -115,6 +122,7 @@ function MenuPage() {
         key: "sizes",
         title: "גדלים",
         type: "custom",
+        align: 'center',
         editable: true,
         render: (_, record, mode = "view", form) => (
           record?.sizes?.length
@@ -124,6 +132,7 @@ function MenuPage() {
         key: "variations",
         title: "ווריאציות",
         type: "custom",
+        align: 'center',
         editable: true,
         render: (_, record, mode = "view", form) => (
           record?.variations?.length
@@ -133,27 +142,30 @@ function MenuPage() {
         key: "productSummary",
         dataIndex: "productSummary",
         title: "רווח (מחיר לצרכן)",
+        align: 'center',
         width: 150,
         render: (_, record) => {
-          return `${record?.productSummary?.averageProfitMarginInput || 0}% ₪${record?.productSummary?.totalGrossProfitInput || 0}`;
+          return `(${record?.productSummary?.averageProfitMarginInput || 0}%) ₪${record?.productSummary?.totalGrossProfitInput || 0}`;
         },
       },
       {
         key: "productSummary",
         dataIndex: "productSummary",
         title: "רווח (מחיר מומלץ)",
+        align: 'center',
         width: 150,
         render: (_, record) => {
-          return `${record?.productSummary?.averageProfitMarginSuggested || 0}% ₪${record?.productSummary?.totalGrossProfitSuggested || 0}`;
+          return `(${record?.productSummary?.averageProfitMarginSuggested || 0}%) ₪${record?.productSummary?.totalGrossProfitSuggested || 0}`;
         },
       },
       {
         key: "actions",
         dataIndex: "actions",
         width: 200,
+        align: 'center',
         render: (_, record) => {
           return (
-            <div className="" style={{ display: "flex", alignItems: "center", justifyContent: "center", }}>
+            <div className="row-actions" style={{ display: "flex", alignItems: "center", justifyContent: "center", }}>
               <Button
                 type="text"
                 onClick={() => {

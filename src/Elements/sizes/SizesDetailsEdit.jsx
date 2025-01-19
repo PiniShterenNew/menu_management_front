@@ -55,7 +55,7 @@ export default function SizesDetailsEdit({
     };
     return (
         <div
-            key={size.idNew || indexSize}
+            key={size?.idNew || indexSize}
         >
             {/* top detailes */}
             <div

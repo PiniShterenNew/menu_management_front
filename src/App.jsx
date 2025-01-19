@@ -73,44 +73,44 @@ function App() {
 
 function NavMenu({ onClose }) {
   const location = useLocation();
-  const linkStyle = (path) => location.pathname === path ? "link-active" : "link";
+  const linkStyle = (path) => (`text-sm font-thin ${location.pathname === path ? "" : ""}`);
 
   return (
     <div className='nav-desktop-child'>
       <Divider />
       <Button type="link" onClick={onClose} className={linkStyle('/')}>
-        <Link to="/">
-          <FontAwesomeIcon icon={faChartLine} /> <p>לוח מחוונים</p>
+        <Link to="/" className='!gap-2'>
+          <FontAwesomeIcon icon={faChartLine} className='w-4 flex items-center justify-center' /> <p>לוח מחוונים</p>
         </Link>
       </Button>
       <Button type="link" onClick={onClose} className={linkStyle('/menu')}>
-        <Link to="/menu">
-          <FontAwesomeIcon icon={faStore} /> <p>תפריט</p>
+        <Link to="/menu" className='!gap-2'>
+          <FontAwesomeIcon icon={faStore} className='w-4 flex items-center justify-center' /> <p>תפריט</p>
         </Link>
       </Button>
       <Button type="link" onClick={onClose} className={linkStyle('/mixes')}>
-        <Link to="/mixes">
-          <FontAwesomeIcon icon={faFlask} /> <p>מתכונים</p>
+        <Link to="/mixes" className='!gap-2'>
+          <FontAwesomeIcon icon={faFlask} className='w-4 flex items-center justify-center' /> <p>מתכונים</p>
         </Link>
       </Button>
       <Button type="link" onClick={onClose} className={linkStyle('/ingredients')}>
-        <Link to="/ingredients">
-          <FontAwesomeIcon icon={faDolly} /> <p>חומרי גלם</p>
+        <Link to="/ingredients" className='!gap-2'>
+          <FontAwesomeIcon icon={faDolly} className='w-4 flex items-center justify-center' /> <p>חומרי גלם</p>
         </Link>
       </Button>
       <Button type="link" onClick={onClose} className={linkStyle('/suppliers')}>
-        <Link to="/suppliers">
-          <FontAwesomeIcon icon={faTruck} /> <p>ספקים</p>
+        <Link to="/suppliers" className='!gap-2'>
+          <FontAwesomeIcon icon={faTruck} className='w-4 flex items-center justify-center' /> <p>ספקים</p>
         </Link>
       </Button>
       <Button type="link" onClick={onClose} className={linkStyle('/employees')}>
-        <Link to="/employees">
-          <FontAwesomeIcon icon={faUserTie} /> <p>עובדים</p>
+        <Link to="/employees" className='!gap-2'>
+          <FontAwesomeIcon icon={faUserTie} className='w-4 flex items-center justify-center' /> <p>עובדים</p>
         </Link>
       </Button>
       <Button type="link" onClick={onClose} className={linkStyle('/work-hours')}>
-        <Link to="/work-hours">
-          <FontAwesomeIcon icon={faClock} /> <p>ניהול שעות עבודה</p>
+        <Link to="/work-hours" className='!gap-2'>
+          <FontAwesomeIcon icon={faClock} className='w-4 flex items-center justify-center' /> <p>ניהול שעות עבודה</p>
         </Link>
       </Button>
     </div>
