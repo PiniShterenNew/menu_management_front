@@ -4,11 +4,14 @@ import App from './App';
 import { Provider } from 'react-redux';
 import store from './store';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
+import { ConfigProvider } from 'antd';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
       <TooltipProvider>
-        <App />
+        <ConfigProvider direction='rtl'>
+          <App />
+        </ConfigProvider>
       </TooltipProvider>
     </Provider>
   </React.StrictMode>

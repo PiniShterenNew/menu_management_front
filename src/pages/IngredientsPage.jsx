@@ -34,7 +34,7 @@ function IngredientsPage() {
   const [withVAT, setWithVAT] = useState(false);
 
   const searchKeys = ["name", "type", "supplierId"];
-  const mobileKeys = ["unit", "unitPrice", "supplierId", "usedInMixes", "usedInProducts"]
+  const mobileKeys = ["unit", "unitPrice", "supplierId", "usedInMixes", "usedInProducts", "is_active"]
   const sortKeys = [
     {
       key: "name",
@@ -70,6 +70,7 @@ function IngredientsPage() {
       dataIndex: "SKU",
       title: "מק\"ט",
       editable: true,
+      align: 'center',
       type: "number",
       width: 100,
       group: 1,
@@ -125,6 +126,7 @@ function IngredientsPage() {
       title: "שם ספק",
       editable: true,
       group: 1,
+      align: 'center',
       type: "select",
       required: true,
       width: 100,
@@ -148,7 +150,8 @@ function IngredientsPage() {
     {
       key: "usedCount",
       dataIndex: "usedCount",
-      title: "בשימוש",
+      title: "סך הכל בשימוש",
+      align: 'center',
       editable: false,
       width: 100,
     },
@@ -156,6 +159,7 @@ function IngredientsPage() {
       key: "is_active",
       dataIndex: "is_active",
       title: "פעיל",
+      align: 'center',
       editable: true,
       group: 1,
       type: "custom",
@@ -184,6 +188,7 @@ function IngredientsPage() {
       key: "type",
       dataIndex: "type",
       title: "סוג",
+      align: 'center',
       render: (_, record) => {
         const type = typesOptions.find((e) => e.value === record?.type);
         return <Tag color={type?.color}>{type?.label}</Tag>
@@ -214,6 +219,7 @@ function IngredientsPage() {
       title: "יחידת מידה",
       editable: true,
       group: 2,
+      align: 'center',
       type: "select",
       options: optionsUnits,
       width: 100,
@@ -240,7 +246,8 @@ function IngredientsPage() {
       editable: true,
       group: 2,
       type: "custom",
-      width: 100,
+      width: 150,
+      align: 'center',
       render: (_, record, mode, form) => {
         if (mode == 'edit') {
           return (
@@ -320,6 +327,7 @@ function IngredientsPage() {
       title: "מחיר כולל מעמ",
       editable: true,
       group: 2,
+      align: 'center',
       type: "price",
       width: 100,
       show: false,
@@ -335,6 +343,7 @@ function IngredientsPage() {
       dataIndex: "priceExcludingVAT",
       width: 100,
       title: "מחיר ללא מעמ",
+      align: 'center',
       render: (_, record) => (
         <p>₪{record?.priceExcludingVAT}</p>
       ),
@@ -345,9 +354,10 @@ function IngredientsPage() {
       key: "unitPrice",
       dataIndex: "unitPrice",
       title: "כמות מינימלית",
+      align: 'center',
       width: 100,
       render: (_, record) => (
-        <Col>
+        <Col className='flex flex-col items-center'>
           <Row>
             <p>{record.unitQuantity < 1 ? record.unitQuantity * 1000 : record.unitQuantity} {record?.unitDescription}</p>
             <br />
@@ -361,6 +371,7 @@ function IngredientsPage() {
       dataIndex: "juiceRatio",
       title: "יחס עיבוד (תפוקת חומר מעובד)",
       editable: true,
+      align: 'center',
       group: 2,
       width: 100,
       type: "custom",
@@ -415,6 +426,7 @@ function IngredientsPage() {
       dataIndex: "processedPrice",
       title: "מחיר לכמות מינימלית מעובדת",
       width: 100,
+      align: 'center',
       render: (_, record) => {
         return <p>{record?.processedPrice ? `₪${record?.processedPrice}` : ''}</p>
       },
@@ -427,6 +439,7 @@ function IngredientsPage() {
       title: "הערות",
       width: 100,
       editable: true,
+      align: 'center',
       group: 1,
       render: (_, record) => {
         const text = record?.notes || "—"; // ברירת מחדל אם אין תוכן

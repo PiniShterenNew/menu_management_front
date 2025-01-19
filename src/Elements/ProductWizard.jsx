@@ -15,7 +15,9 @@ import {
   Tag,
   Divider,
   Tabs,
-  Badge
+  Badge,
+  Drawer,
+  Segmented
 } from "antd";
 import SizesManager from "./SizesManager.jsx";
 import VariationsManager from "./VariationsManager";
@@ -61,6 +63,7 @@ const ProductWizard = ({ }) => {
 
   const [activeTabKey, setActiveTabKey] = useState("0");
   const [saveFlag, setSaveFlag] = useState(false);
+  const [activeSizeIndex, setActiveSizeIndex] = useState(0);
   // פונקציה למיזוג בין selectedItem לשינויים מהשרת
   const mergeSelectedItem = useCallback(() => {
     if (!selectedItem || !productsState) return;
@@ -363,15 +366,17 @@ const ProductWizard = ({ }) => {
         return (
           <div styles={{ body: { display: "flex", flexDirection: "column" } }}>
             <Flex
-              style={{ gap: "1em", flexDirection: "column", margin: "1em 0em" }}
+              style={{ gap: "1em", flexDirection: "column", margin: "0em 0em" }}
             >
-              <Text strong style={{ fontSize: "1.5em" }}>
-                {selectedItem?.name}
-              </Text>
-              <CategoryDisplay
-                categoriesState={categories}
-                categoryId={selectedItem?.category}
-              />
+              <div className="flex flex-row justify-between">
+                <Text strong style={{ fontSize: "1.5em" }}>
+                  {selectedItem?.name}
+                </Text>
+                <CategoryDisplay
+                  categoriesState={categories}
+                  categoryId={selectedItem?.category}
+                />
+              </div>
               <Flex style={{ gap: "0.5em", flexDirection: "column" }}>
                 <Badge
                   status={selectedItem?.isFeatured ? "success" : "default"}
@@ -398,31 +403,53 @@ const ProductWizard = ({ }) => {
                 <p style={{}}>{selectedItem?.notes}</p>
               </Flex>
             </div>}
-            <Flex flex={1} >
-              <Tabs style={{ width: "100%" }} type="card">
-                {selectedItem?.sizes?.map((size, index) => {
-                  return (
-                    <TabPane tab={size.label} key={index}>
-                      <SizesDetailsView
-                        handleEditSize={false}
-                        handleRemoveSize={false}
-                        index={index}
-                        size={size}
-                        type={"P"}
-                        sizeInfo={(index) => {
-                          setIsModalVisible("size");
-                          setActiveTabKey(index?.toString() || '0');
-                        }}
-                        ingredients={ingredientsState}
-                        mixes={mixesState}
-                        priceExcludingVAT={selectedItem?.priceExcludingVAT && selectedItem?.priceExcludingVAT[index].priceExcludingVAT}
-                        sizeSummary={selectedItem?.sizeSummary && selectedItem?.sizeSummary[index]}
-                      />
-                    </TabPane>
-                  )
-                })}
-              </Tabs>
+            <Flex className="mt-4 flex flex-col" flex={1}>
+              <div style={{ margin: "1vw 0", width: "100%" }}>
+                <Segmented
+                  type="card"
+                  className="rtl"
+                  block
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    textAlign: "center",
+                    // direction: "ltr"
+                  }}
+                  options={selectedItem?.sizes?.map((size, index) => ({
+                    label: size.label, // שם הגודל
+                    value: index, // אינדקס הגודל
+                  }))}
+                  value={activeSizeIndex}
+                  onChange={(index) => setActiveSizeIndex(index)} // עדכון הגודל הפעיל
+                />
+              </div>
+              <div style={{ marginTop: "16px", width: "100%" }} className="flex flex-col">
+                {selectedItem?.sizes[activeSizeIndex] && (
+                  <SizesDetailsView
+                    handleEditSize={false}
+                    handleRemoveSize={false}
+                    index={activeSizeIndex}
+                    size={selectedItem?.sizes?.[activeSizeIndex]}
+                    type={"P"}
+                    sizeInfo={(index) => {
+                      setIsModalVisible("size");
+                      setActiveTabKey(index?.toString() || "0");
+                    }}
+                    ingredients={ingredientsState}
+                    mixes={mixesState}
+                    priceExcludingVAT={
+                      selectedItem?.priceExcludingVAT &&
+                      selectedItem?.priceExcludingVAT[activeSizeIndex]?.priceExcludingVAT
+                    }
+                    sizeSummary={
+                      selectedItem?.sizeSummary &&
+                      selectedItem?.sizeSummary[activeSizeIndex]
+                    }
+                  />
+                )}
+              </div>
             </Flex>
+
           </div >
         );
       case "size":
@@ -459,11 +486,11 @@ const ProductWizard = ({ }) => {
 
 
   return (
-    <Modal
+    <Drawer
       style={{ top: isMobile ? "3em" : "3em" }}
       title={title(isModalVisible, modalMode, selectedItem)}
       open={isModalVisible}
-      onCancel={() => {
+      onClose={() => {
         setIsModalVisible(false);
         setSelectedItem();
       }}
@@ -475,7 +502,7 @@ const ProductWizard = ({ }) => {
 
     >
       {modalMode === "view" ? screensView() : screensEdit()}
-    </Modal>
+    </Drawer>
   );
 };
 

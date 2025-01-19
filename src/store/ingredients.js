@@ -41,10 +41,10 @@ const ingredientsSlice = createSlice({
     initialState: [],
     reducers: {
         addIngerdientsState: (state, action) => {
-            return action.payload.map(processIngredientData); // עיבוד כל הרשימה
+            return action.payload; // עיבוד כל הרשימה
         },
         addOrUpdateIngredientState: (state, action) => {
-            const newIngredient = processIngredientData(action.payload);
+            const newIngredient = action.payload;
             const existingIndex = state.findIndex((ingredient) => ingredient._id === newIngredient._id);
 
             if (existingIndex !== -1) {
@@ -54,7 +54,7 @@ const ingredientsSlice = createSlice({
             }
         },
         updateIngredientState: (state, action) => {
-            const updatedIngredient = processIngredientData(action.payload);
+            const updatedIngredient = action.payload;
             return state.map((ingredient) =>
                 ingredient._id === updatedIngredient._id ? updatedIngredient : ingredient
             );

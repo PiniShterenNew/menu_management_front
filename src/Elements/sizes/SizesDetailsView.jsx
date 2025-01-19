@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Card, Col, Divider, Flex, List, Progress, Row, Segmented, Typography } from 'antd';
+import { Button, Card, Col, Collapse, Divider, Flex, List, Progress, Row, Segmented, Typography } from 'antd';
 import { DeleteOutlined, InfoCircleOutlined, PlusOutlined, DollarOutlined, ClockCircleOutlined, EditOutlined, CopyOutlined } from "@ant-design/icons";
 import { useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -61,9 +61,9 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                     style={{
                         paddingLeft: "20px",
                         margin: "0",
-                        height: isMobile ? "25vh" : "22vh",
-                        maxHeight: isMobile ? "25vh" : "22vh",
-                        overflow: "auto",
+                        minHeight: isMobile ? "25vh" : "22vh",
+                        // maxHeight: isMobile ? "25vh" : "22vh",
+                        // overflow: "auto",
                     }}
                     renderItem={(item, idx) => (
                         <div key={idx} className='flex flex-1 flex-row p-2 bg-gray-100 rounded-lg' style={{ marginBottom: "4px" }}>
@@ -138,46 +138,53 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
             <>
                 {type !== "P" && (
                     <>
-                        <div className="flex flex-col md:flex-row" style={{ gap: "1.5vw", }}>
-                            <Flex align='center' justify='center'>
-                                <Segmented
-                                    className='ltr'
-                                    vertical={!isMobile}
-                                    options={[
-                                        {
-                                            label: (
-                                                <div
-                                                    className='flex flex-row md:flex-col items-center justify-center gap-4'
-                                                    style={{
-                                                        padding: 4,
-                                                    }}
-                                                >
-                                                    <FontAwesomeIcon icon={faDolly} />
-                                                    <div>מרכיבים</div>
-                                                </div>
-                                            ), value: "ingredients"
-                                        },
-                                        {
-                                            label: (
-                                                <div
-                                                    className='flex flex-row md:flex-col items-center justify-center gap-4'
-                                                    style={{
-                                                        padding: 4,
-                                                    }}
-                                                >
-                                                    <FontAwesomeIcon icon={faFlask} />
-                                                    <div>מתכונים</div>
-                                                </div>
-                                            ), value: "mixes"
-                                        }
-                                    ]}
-                                    onChange={(value) => setCurrentTab(value)}
-                                    style={{ marginBottom: "12px", direction: "" }}
-                                />
-                            </Flex>
-                            {/* Content based on tab */}
-                            <Flex flex={1}>
-                                {/* <Card style={{
+                        {/* <Divider className='my-5' >רכיבים</Divider> */}
+                        <Collapse
+                            className='my-5'
+                            items={[
+                                {
+                                    key: '1',
+                                    label: 'רכיבים',
+                                    children: <div className="flex flex-col md:flex-row" style={{ gap: "1.5vw", }}>
+                                        <Flex align='center' justify='center'>
+                                            <Segmented
+                                                className='ltr'
+                                                vertical={!isMobile}
+                                                options={[
+                                                    {
+                                                        label: (
+                                                            <div
+                                                                className='flex flex-row md:flex-col items-center justify-center gap-2'
+                                                                style={{
+                                                                    padding: "10px 0",
+                                                                }}
+                                                            >
+                                                                <FontAwesomeIcon icon={faDolly} />
+                                                                <div>מרכיבים</div>
+                                                            </div>
+                                                        ), value: "ingredients"
+                                                    },
+                                                    {
+                                                        label: (
+                                                            <div
+                                                                className='flex flex-row md:flex-col items-center justify-center gap-2'
+                                                                style={{
+                                                                    padding: "10px 0",
+                                                                }}
+                                                            >
+                                                                <FontAwesomeIcon icon={faFlask} />
+                                                                <div>מתכונים</div>
+                                                            </div>
+                                                        ), value: "mixes"
+                                                    }
+                                                ]}
+                                                onChange={(value) => setCurrentTab(value)}
+                                                style={{ marginBottom: "12px", direction: "" }}
+                                            />
+                                        </Flex>
+                                        {/* Content based on tab */}
+                                        <Flex flex={1}>
+                                            {/* <Card style={{
                                     width: "100%",
                                     backgroundColor: "#f9f9f9", // צבע רקע בהיר להבלטת הכרטיס
                                     border: "1px solid #d9d9d9", // מסגרת דקה
@@ -185,11 +192,14 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                                     marginTop: "10px",
                                     paddingTop: "10px",
                                 }}> */}
-                                <div style={{ width: "100%", }}>
-                                    {currentTab === "ingredients" ? renderIngredients() : renderMixes()}
-                                </div>
-                            </Flex>
-                        </div>
+                                            <div style={{ width: "100%", }}>
+                                                {currentTab === "ingredients" ? renderIngredients() : renderMixes()}
+                                            </div>
+                                        </Flex>
+                                    </div>,
+                                },
+                            ]}
+                        />
                     </>
                 )}
             </>
@@ -202,7 +212,6 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
         >
             <Flex
                 flex={1}
-                style={{ padding: "0em 1em" }}
                 justify={"space-between"}
                 align={"middle"}
             >
@@ -243,7 +252,6 @@ export default function SizesDetailsView({ size, index, sizeInfo, type, handleEd
                     {costDetailes(size)}
                 </Col>
             </Flex>
-            <Divider className='my-5' >רכיבים</Divider>
             <MySegment
                 ingredients={ingredients}
                 mixes={mixes}

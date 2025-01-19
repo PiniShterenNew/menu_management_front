@@ -34,18 +34,21 @@ export const deleteSizeAPI = (productId, sizeId) =>
   axios.delete(`${API_URL}/sizes/${productId}/${sizeId}`);
 
 
-// הבאת וריאציה לפי ID
-export const fetchVariationByIdAPI = (variationId) =>
-  axios.get(`${API_URL}/variations/${variationId}`);
 
-// הוספת וריאציה חדשה
-export const addVariationAPI = (variation) =>
-  axios.post(`${API_URL}/variations`, variation);
 
-// עדכון וריאציה לפי ID
-export const updateVariationAPI = (variationId, updatedVariation) =>
-  axios.put(`${API_URL}/variations/${variationId}`, updatedVariation);
+// הבאת וריאציה לפי ID בתוך גודל מסוים
+export const fetchVariationByIdAPI = (sizeId, variationId) =>
+  axios.get(`${API_URL}/variations/${sizeId}/${variationId}`);
 
-// מחיקת וריאציה לפי ID
-export const deleteVariationAPI = (variationId) =>
-  axios.delete(`${API_URL}/variations/${variationId}`);
+// הוספת וריאציה חדשה לגודל מסוים
+export const addVariationAPI = (sizeId, variation) =>
+  axios.post(`${API_URL}/variations/${sizeId}`, variation);
+
+// עדכון וריאציה לפי ID בתוך גודל מסוים
+export const updateVariationAPI = (sizeId, variationId, updatedVariation) =>
+  axios.put(`${API_URL}/variations/${sizeId}/${variationId}`, updatedVariation);
+
+// מחיקת וריאציה לפי ID מתוך גודל מסוים
+export const deleteVariationAPI = (sizeId, variationId) =>
+  axios.delete(`${API_URL}/variations/${sizeId}/${variationId}`);
+

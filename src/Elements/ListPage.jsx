@@ -2,8 +2,7 @@ import { Button, Card, Col, Divider, Flex, List, Modal, Pagination, Row, Table, 
 import React, { useEffect, useState } from 'react'
 import { useMediaQuery } from 'react-responsive';
 import VirtualList from 'rc-virtual-list';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { DeleteOutlined, EditOutlined, EyeInvisibleOutlined, EyeOutlined, FilterOutlined } from "@ant-design/icons";
 import heIL from 'antd/lib/locale/he_IL';
 
 export default function ListPage({ data, type, tableKeys, mobileKeys, openModal, Dtitle, Dcontent, onDelete }) {
@@ -38,7 +37,7 @@ export default function ListPage({ data, type, tableKeys, mobileKeys, openModal,
     // State לפגינציה
     const [totalItems, setTotalItems] = useState(0);
     const [currentPage, setCurrentPage] = useState(1); // הדף הנוכחי
-    const [pageSize, setPageSize] = useState(6); // מספר הפריטים בעמוד
+    const [pageSize, setPageSize] = useState(10); // מספר הפריטים בעמוד
     const [paginatedData, setPaginatedData] = useState([]); // הנתונים המפוצלים לדפים
 
     // פונקציה לפיצול הנתונים בהתאם לפגינציה
@@ -92,19 +91,28 @@ export default function ListPage({ data, type, tableKeys, mobileKeys, openModal,
                         itemKey="_id"
                     >
                         {(item) => (
-                            <List.Item className='width-100' key={item?._id} style={{ padding: "0" }}>
+                            <List.Item className='width-100' key={item?._id} style={{ padding: "0" }}
+                                onClick={(e) => {
+                                    // בודק אם הלחיצה הייתה על או בתוך אזור הכפתורים
+                                    if (!e.target.closest('.row-actions')) {
+                                        openModal("view", item);  // או כל פעולה אחרת שתרצה
+                                    }
+                                }}
+                            >
                                 <Card className='width-100 padding-card' style={{ margin: "8px", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}>
-                                    <Row align={"middle"} justify={"space-between"} style={{ margin: "1em 0em" }}>
-                                        <Flex flex={1}><strong style={{ fontSize: "1.3em" }}>{item?.name}</strong ></Flex>
-                                        <Flex flex={1} style={{ flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                                            <strong>{tableKeys?.find((e) => e.key === "usedCount")?.title}</strong>
-                                            <p>{item?.usedCount}</p>
-                                        </Flex>
-                                        {/* <Flex flex={1} align='center' justify='center'>{tableKeys?.find((e) => (e.key === "type" || e.key === "category"))?.render("", item, "view")}</Flex> */}
-                                        {tableKeys?.find((e) => (e.key === "type" || e.key === "category"))?.render("", item, "view")}
+                                    <Row align={"top"} justify={"space-between"} style={{ margin: "1em 0em" }}>
+                                        <div className='flex flex-col'>
+                                            <Flex flex={1}><strong style={{ fontSize: "1.3em" }}>{item?.name}</strong ></Flex>
+                                            <p className='leading-3'>{tableKeys?.find((e) => e.key === "usedCount")?.title}: {item?.usedCount}</p>
+                                            {tableKeys?.find((e) => e.key === "is_active")?.render("", item, "view")}
+                                        </div>
+                                        <div>
+                                            {/* <Flex flex={1} align='center' justify='center'>{tableKeys?.find((e) => (e.key === "type" || e.key === "category"))?.render("", item, "view")}</Flex> */}
+                                            {tableKeys?.find((e) => (e.key === "type" || e.key === "category" || e.key === "is_active"))?.render("", item, "view")}
+                                        </div>
                                     </Row>
                                     {tableKeys
-                                        .filter((key) => (key.key !== "name" && key.key !== "type" && key?.key !== "category" && key?.key !== "actions") && mobileKeys?.includes(key?.key))
+                                        .filter((key) => (key.key !== "name" && key.key !== "type" && key?.key !== "category" && key?.key !== "actions" && key?.key !== "is_active") && mobileKeys?.includes(key?.key))
                                         .map((key, i, arr) => (
                                             <React.Fragment key={`${item?._id}-${key.key}`}>
                                                 <div style={{ fontSize: "0.9em", display: "flex", justifyContent: "space-between" }}>
@@ -114,20 +122,14 @@ export default function ListPage({ data, type, tableKeys, mobileKeys, openModal,
                                                 {i < 2 && <Divider style={{ margin: "0.2em" }} />}
                                             </React.Fragment>
                                         ))}
-                                    <Row className='card-actions' align={"middle"} justify={"center"}>
+                                    <Row className='card-actions mt-5' align={"middle"} justify={"center"}>
                                         {tableKeys?.find((e) => e.key === "actions")?.render(null, item)}
                                         {type === "P" && <Divider type='vertical' />}
-                                        <Flex align='center' justify='center'>
-                                            <Button type='text' onClick={() => handleDelete(item)}>
-                                                <FontAwesomeIcon icon={faTrash} />
-                                            </Button>
-                                            <Button type='text' onClick={() => openModal("edit", item)}>
-                                                <FontAwesomeIcon icon={faEdit} />
-                                            </Button>
-                                            <Button type='text' onClick={() => openModal("view", item)}>
-                                                <FontAwesomeIcon icon={faEye} />
-                                            </Button>
-                                        </Flex>
+                                        <div className="flex row-actions gap-5">
+                                            <Button type="text" className="" onClick={() => openModal("edit", item)} icon={<EditOutlined />} />
+                                            <Button type="text" className="" onClick={() => openModal("view", item)} icon={<EyeOutlined />} />
+                                            <Button type="text" className=" text-red-600" onClick={() => handleDelete(item)} icon={<DeleteOutlined />} />
+                                        </div>
                                     </Row>
                                 </Card>
                             </List.Item>
@@ -147,7 +149,15 @@ export default function ListPage({ data, type, tableKeys, mobileKeys, openModal,
                 >
                     <Table
                         style={{ minWidth: "100%" }}
-                        // onRow={Column => ({ onClick: () => openModal("view", Column) })}
+                        onRow={(record) => ({
+                            onClick: (event) => {
+                                // בודק אם הלחיצה לא הייתה על אזור הכפתורים
+                                if (!event.target.closest('.row-actions')) {
+                                    openModal("view", record)
+                                }
+                            },
+                            style: { cursor: 'pointer' } // מוסיף סמן יד כשעוברים על השורה
+                        })}
                         columns={tableKeys.map((column) => ({
                             ...column,
                             title: (

@@ -170,11 +170,11 @@ export const ProductProvider = ({ children }) => {
 
 
   // מביא וריאציה לפי ID
-  const fetchVariationById = (variationId) => {
+  const fetchVariationById = (sizeId, variationId) => {
     setLoading(true);
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await fetchVariationByIdAPI(variationId);
+        const response = await fetchVariationByIdAPI(sizeId, variationId); // עדכון הקריאה ל-API
         setLoading(false);
         resolve(response.data);
       } catch (error) {
@@ -186,12 +186,13 @@ export const ProductProvider = ({ children }) => {
     });
   };
 
+
   // מוסיף וריאציה חדשה
-  const addVariation = (variation) => {
+  const addVariation = (sizeId, variation) => {
     setLoading(true);
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await addVariationAPI(variation);
+        const response = await addVariationAPI(sizeId, variation); // עדכון הקריאה ל-API
         message.success("הווריאציה נוספה בהצלחה");
         setLoading(false);
         resolve(response.data);
@@ -205,11 +206,11 @@ export const ProductProvider = ({ children }) => {
   };
 
   // מעדכן וריאציה קיימת
-  const updateVariation = (variationId, updatedVariation) => {
+  const updateVariation = (sizeId, variationId, updatedVariation) => {
     setLoading(true);
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await updateVariationAPI(variationId, updatedVariation);
+        const response = await updateVariationAPI(sizeId, variationId, updatedVariation); // עדכון הקריאה ל-API
         message.success("הווריאציה עודכנה בהצלחה");
         setLoading(false);
         resolve(response.data);
@@ -223,11 +224,11 @@ export const ProductProvider = ({ children }) => {
   };
 
   // מוחק וריאציה קיימת
-  const deleteVariation = (variationId) => {
+  const deleteVariation = (sizeId, variationId) => {
     setLoading(true);
     return new Promise(async (resolve, reject) => {
       try {
-        await deleteVariationAPI(variationId);
+        await deleteVariationAPI(sizeId, variationId); // עדכון הקריאה ל-API
         message.success("הווריאציה נמחקה בהצלחה");
         setLoading(false);
         resolve(true);

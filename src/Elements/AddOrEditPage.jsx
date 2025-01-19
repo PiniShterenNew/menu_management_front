@@ -370,7 +370,7 @@ export default function DynamicFormPage({
                                         gap: "4px",
                                     }}
                                 >
-                                    ₪{initialValues?.totalCost}
+                                    ₪{initialValues?.totalCost?.toFixed(2)}
                                 </Typography.Text>
                             </Row>
                             <Row align="middle" style={{ gap: "8px" }}>
@@ -421,7 +421,7 @@ export default function DynamicFormPage({
                             <Text strong style={{ display: "block", marginBottom: "8px" }}>
                                 מרכיבים:
                             </Text>
-                            <ul style={{ paddingLeft: "20px", margin: "0", maxHeight: "5vw", overflow: "auto" }}>
+                            <ul style={{ paddingLeft: "20px", margin: "0", }}>
                                 {initialValues?.ingredients?.map((ingredient, idx) => {
                                     const unitDisplay = (() => {
                                         switch (ingredient?.unit) {

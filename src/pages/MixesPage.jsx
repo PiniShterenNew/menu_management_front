@@ -42,6 +42,7 @@ function MixesPage() {
       <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", alignItems: "center" }}>
         {/* רכיבים מוצגים */}
         <span
+          className="row-actions"
           style={{
             color: "blue",
             cursor: "pointer",
@@ -135,6 +136,7 @@ function MixesPage() {
       key: "usedCount",
       dataIndex: "usedCount",
       title: "בשימוש",
+      align: 'center',
       editable: false,
       width: 100
     },
@@ -142,6 +144,7 @@ function MixesPage() {
       key: "preparationTime",
       dataIndex: "preparationTime",
       title: "זמן הכנה (דקות)",
+      align: 'center',
       editable: true,
       minWidth: 100,
       type: "number",
@@ -153,6 +156,7 @@ function MixesPage() {
     {
       key: "unitCost",
       dataIndex: "unitCost",
+      align: 'center',
       title: "עלות ל-100 גרם (₪)",
       minWidth: 100,
       render: (_, record) => {
@@ -169,14 +173,16 @@ function MixesPage() {
       key: "laborCost",
       dataIndex: "laborCost",
       title: "עלות עבודה (₪)",
+      align: 'center',
       minWidth: 100,
-      render: (_, record) => `₪${record?.laborCost?.toFixed(2)} (₪${overallAverageHourlyRateState})` || "—",
+      render: (_, record) => `₪${record?.laborCost?.toFixed(2)}` || "—",
       editable: false,
     },
     {
       key: "totalCost",
       dataIndex: "totalCost",
       title: "עלות כוללת (₪)",
+      align: 'center',
       minWidth: 100,
       render: (_, record) => {
         if (record?.totalCost != null && record?.laborCost != null) {
@@ -190,6 +196,7 @@ function MixesPage() {
       key: "totalWeight",
       dataIndex: "totalWeight",
       title: "משקל כולל (ק\"ג)",
+      align: 'center',
       minWidth: 100,
       render: (_, record) => record.totalWeight?.toFixed(2) || "—",
       editable: false,
@@ -198,6 +205,7 @@ function MixesPage() {
       key: "ingredients",
       title: "רכיבים",
       type: "ingredientsManager",
+      align: 'center',
       editable: true,
       width: 500,
       minWidth: 500,

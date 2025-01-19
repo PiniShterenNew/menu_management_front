@@ -30,7 +30,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMediaQuery } from "react-responsive";
 import DynamicFormPage from "./AddOrEditPage";
-import { FilterOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, EyeInvisibleOutlined, EyeOutlined, FilterOutlined } from "@ant-design/icons";
 import FiltersDrawer from "./FiltersDrawer";
 
 const { Search } = Input;
@@ -234,14 +234,14 @@ export default function Page({
       gap={"1em"}
       className="container"
     >
-      <div style={{ flex: "0 0 auto",  }}>
+      <div style={{ flex: "0 0 auto", }}>
         {isMobile && <Row justify={"center"}>
           <Typography.Title level={3} style={{ margin: "0" }}>{iconADD} {title}</Typography.Title>
         </Row>}
         <Row align={"middle"} style={{ flexFlow: "" }} justify={"space-between"}>
-          {!isMobile && <Row align={""}>
+          {/* {!isMobile && <Row align={""}>
             <Typography.Title level={3} style={{ margin: "0" }}>{iconADD} {title}</Typography.Title>
-          </Row>}
+          </Row>} */}
           {/* search */}
           <Row style={{}}>
             <Search
@@ -259,7 +259,7 @@ export default function Page({
                   )
                 );
               }}
-              style={{ width: 200 }}
+              style={{ width: 300 }}
             />
           </Row>
           {/* sort and cells manage */}
@@ -335,16 +335,10 @@ export default function Page({
             minWidth: 110,
             render: (_, record) => {
               return (
-                <div className="w-fit">
-                  <Button type="text" className="m-0 !px-1" onClick={() => handleDelete(record)}>
-                    <FontAwesomeIcon icon={faTrash} />
-                  </Button>
-                  <Button type="text" className="m-0 !px-1" onClick={() => openModal("edit", record)}>
-                    <FontAwesomeIcon icon={faEdit} />
-                  </Button>
-                  <Button type="text" className="m-0 !px-1" onClick={() => openModal("view", record)}>
-                    <FontAwesomeIcon icon={faEye} />
-                  </Button>
+                <div className="w-fit row-actions">
+                  <Button type="text" className="m-0 !px-1 text-red-600"  onClick={() => handleDelete(record)} icon={<DeleteOutlined />} />
+                  <Button type="text" className="m-0 !px-1" onClick={() => openModal("edit", record)} icon={<EditOutlined />} />
+                  <Button type="text" className="m-0 !px-1" onClick={() => openModal("view", record)} icon={<EyeOutlined />} />
                 </div>
               );
             },
